@@ -1,8 +1,8 @@
 import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
-    username: "admin",
-    imageUrl: "https://flowbite.com/docs/images/people/profile-picture-2.jpg",
+    displayName: "",
+    photoURL: "",
     isloggedIn: false,
 };
 
@@ -11,9 +11,18 @@ export const userSlice = createSlice({
     initialState,
     reducers: {
         setUser: (state, action) => {
-            state.username = action.payload;
+            const { displayName, photoURL } = action.payload;
+            state.displayName = displayName;
+            state.photoURL = photoURL;
+            state.isloggedIn = true;
+        },
+        clearUser: (state, action) => {
+            state.displayName = "";
+            state.photoURL = "";
+            state.isloggedIn = false;
         },
     },
 });
 
 export default userSlice.reducer;
+export const { setUser, clearUser } = userSlice.actions;

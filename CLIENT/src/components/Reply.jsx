@@ -2,75 +2,55 @@ import React, { useState } from "react";
 import {
     useAddReplyMutation,
     useDeleteCommentMutation,
+    useDeleteReplyMutation,
     useEditCommentMutation,
+    useEditReplyMutation,
     useGetRepliesQuery,
 } from "../features/comments/commentsApi";
 import { useParams } from "react-router-dom";
 import { formatter } from "../assets/date-config";
+import { useSelector } from "react-redux";
 
-const Reply = ({ reply }) => {
-    const [replyy, setReplyy] = useState("");
-    const [showReplyBox, setShowReplyBox] = useState(false);
+const Reply = ({ reply, commentId }) => {
+    const { displayName } = useSelector((state) => state.user);
     const [dropdownOpen, setDropdownOpen] = useState(false);
-    const [isEditingComment, setIsEditingComment] = useState(false);
-    const [editedComment, setEditedComment] = useState(reply?.reply);
+    const [isEditingReply, setIsEditingReply] = useState(false);
+    const [editedReply, setEditedReply] = useState(reply?.reply);
 
     const { postId } = useParams();
-    const commentId = comment._id;
-    const [deleteComment] = useDeleteCommentMutation();
-    const [editComment] = useEditCommentMutation();
-    const [addReply] = useAddReplyMutation();
-    const { data: replies } = useGetRepliesQuery({ commentId, postId });
+    const replyId = reply._id;
+    const [deleteReply] = useDeleteReplyMutation();
+    const [editReply] = useEditReplyMutation();
+    const isAuthenticate = reply.username === displayName;
 
-    console.log(replies);
-
-    const replyButtonClicked = () => {
-        setShowReplyBox((prev) => !prev);
-    };
-
-    const handleEditComment = () => {
-        setIsEditingComment(true);
+    const handleEditReply = () => {
+        setIsEditingReply(true);
         setDropdownOpen(false);
     };
 
-    const handleCancelComment = () => {
-        setIsEditingComment(false);
-        setEditedComment(comment?.comment);
+    const handleCancelReply = () => {
+        setIsEditingReply(false);
+        setEditedReply(reply?.reply);
     };
 
-    const handleSaveEditComment = (e) => {
+    const handleSaveEditReply = (e) => {
         e.preventDefault();
 
-        editComment({
+        editReply({
             postId: postId,
             commentId: commentId,
+            replyId: replyId,
             data: {
-                comment: editedComment,
+                reply: editedReply,
             },
         });
 
-        console.log(editedComment);
-        setIsEditingComment(false);
+        setIsEditingReply(false);
     };
 
-    const handleDeleteComment = () => {
-        deleteComment({ postId, commentId });
+    const handleDeleteReply = () => {
+        deleteReply({ postId, commentId, replyId });
         setDropdownOpen(false);
-    };
-
-    const handleAddReply = (e) => {
-        e.preventDefault();
-
-        addReply({
-            postId: postId,
-            commentId: commentId,
-            data: {
-                username: "admin",
-                reply: reply,
-            },
-        });
-
-        setReplyy("");
     };
 
     return (
@@ -91,7 +71,7 @@ const Reply = ({ reply }) => {
                         </time>
                     </p>
                 </div>
-                <div className="relative">
+                <div className="relative" hidden={!isAuthenticate}>
                     <button
                         id="dropdownComment1Button"
                         onClick={() => setDropdownOpen(!dropdownOpen)}
@@ -110,13 +90,13 @@ const Reply = ({ reply }) => {
                     {dropdownOpen && (
                         <div className="absolute right-0 mt-1 w-32 bg-gray-800 rounded shadow-lg z-10">
                             <button
-                                onClick={handleEditComment}
+                                onClick={handleEditReply}
                                 className="block px-4 py-2 text-sm text-white hover:bg-gray-700 w-full text-left"
                             >
                                 Edit
                             </button>
                             <button
-                                onClick={handleDeleteComment}
+                                onClick={handleDeleteReply}
                                 className="block px-4 py-2 text-sm text-red-400 hover:bg-gray-700 w-full text-left"
                             >
                                 Delete
@@ -127,24 +107,24 @@ const Reply = ({ reply }) => {
             </footer>
 
             {/* Conditional Rendering for Edit Mode */}
-            {isEditingComment ? (
+            {isEditingReply ? (
                 <div>
                     <textarea
                         className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 bg-gray-800 text-gray-400 text-sm"
-                        value={editedComment}
-                        onChange={(e) => setEditedComment(e.target.value)}
+                        value={editedReply}
+                        onChange={(e) => setEditedReply(e.target.value)}
                         rows="3"
                     />
                     <div className="flex justify-end space-x-2 mt-2">
                         <button
-                            onClick={handleCancelComment}
+                            onClick={handleCancelReply}
                             className="px-2 py-0.5 text-white bg-gray-400 rounded hover:bg-gray-500 text-sm"
                         >
                             Cancel
                         </button>
                         <button
                             // type='submit'
-                            onClick={handleSaveEditComment}
+                            onClick={handleSaveEditReply}
                             className="px-2 py-0.5 text-white bg-blue-500 rounded hover:bg-blue-600 text-sm"
                         >
                             Save

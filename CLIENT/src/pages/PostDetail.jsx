@@ -6,8 +6,10 @@ import {
     useFetchCommentsQuery,
 } from "../features/comments/commentsApi";
 import Comment from "../components/Comment";
+import { useSelector } from "react-redux";
 
 const PostDetail = () => {
+    const { displayName, photoURL } = useSelector((state) => state.user);
     const [comment, setComment] = useState("");
 
     const navigate = useNavigate();
@@ -39,8 +41,9 @@ const PostDetail = () => {
             postId: postId,
             data: {
                 postId: postId,
-                username: "admin",
+                username: displayName,
                 comment: comment,
+                imageProfile: photoURL,
             },
         });
 

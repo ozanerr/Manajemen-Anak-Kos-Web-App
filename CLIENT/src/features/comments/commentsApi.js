@@ -49,6 +49,23 @@ export const commentsApi = rootApi.injectEndpoints({
             }),
             providesTags: ["REPLY"],
         }),
+
+        editReply: builder.mutation({
+            query: ({ postId, commentId, replyId, data }) => ({
+                url: `comments/${postId}/${commentId}/${replyId}/editReply`,
+                method: "PUT",
+                body: data,
+            }),
+            invalidatesTags: ["REPLY"],
+        }),
+
+        deleteReply: builder.mutation({
+            query: ({ postId, commentId, replyId }) => ({
+                url: `comments/${postId}/${commentId}/${replyId}/deleteReply`,
+                method: "DELETE",
+            }),
+            invalidatesTags: ["REPLY"],
+        }),
     }),
 });
 
@@ -59,4 +76,6 @@ export const {
     useEditCommentMutation,
     useAddReplyMutation,
     useGetRepliesQuery,
+    useEditReplyMutation,
+    useDeleteReplyMutation,
 } = commentsApi;

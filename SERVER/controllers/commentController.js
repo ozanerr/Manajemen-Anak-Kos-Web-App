@@ -4,12 +4,13 @@ import Comment from "../models/commentModel.js";
 const createComment = async (req, res) => {
     const postId = req.params.postId;
 
-    const { username, comment } = req.body;
+    const { username, comment, imageProfile } = req.body;
     try {
         const createdComment = await Comment.create({
             postId,
             username,
             comment,
+            imageProfile,
         });
 
         return res.status(201).json({
@@ -93,7 +94,7 @@ const createReply = async (req, res) => {
     try {
         const { postId, commentId } = req.params;
 
-        const { username, reply } = req.body;
+        const { username, reply, imageProfile } = req.body;
 
         const createdReply = await Comment.findOneAndUpdate(
             { _id: commentId, postId: postId },
@@ -102,6 +103,7 @@ const createReply = async (req, res) => {
                     replies: {
                         username: username,
                         reply: reply,
+                        imageProfile: imageProfile,
                     },
                 },
             }
@@ -140,6 +142,67 @@ const getReplies = async (req, res) => {
     }
 };
 
+const editReply = async (req, res) => {
+    try {
+        const { postId, commentId, replyId } = req.params;
+        const { reply } = req.body;
+
+        const updatedReply = await Comment.findOneAndUpdate(
+            {
+                _id: commentId,
+                postId: postId,
+                "replies._id": replyId,
+            },
+            {
+                $set: { "replies.$[elem].reply": reply },
+            },
+            {
+                new: true,
+                arrayFilters: [{ "elem._id": replyId }],
+            }
+        );
+
+        return res.status(201).json({
+            status: "Success",
+            data: updatedReply,
+        });
+    } catch (error) {
+        res.status(400).json({
+            status: "Failed",
+            error: error.message,
+        });
+    }
+};
+
+const deleteReply = async (req, res) => {
+    try {
+        const { postId, commentId, replyId } = req.params;
+
+        const deletedReply = await Comment.findOneAndUpdate(
+            {
+                _id: commentId,
+                postId: postId,
+            },
+            {
+                $pull: { replies: { _id: replyId } },
+            },
+            {
+                new: true,
+            }
+        );
+
+        return res.status(201).json({
+            status: "Success",
+            data: deletedReply,
+        });
+    } catch (error) {
+        res.status(400).json({
+            status: "Failed",
+            error: error.message,
+        });
+    }
+};
+
 export {
     createComment,
     getComments,
@@ -147,4 +210,6 @@ export {
     editComment,
     createReply,
     getReplies,
+    editReply,
+    deleteReply,
 };

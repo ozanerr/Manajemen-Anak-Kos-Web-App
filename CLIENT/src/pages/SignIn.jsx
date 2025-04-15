@@ -1,7 +1,11 @@
 import { FcGoogle } from "react-icons/fc";
 import { FaGithub } from "react-icons/fa";
 import { motion } from "framer-motion";
-import { signInWithPopup } from "firebase/auth";
+import {
+    browserSessionPersistence,
+    setPersistence,
+    signInWithPopup,
+} from "firebase/auth";
 import { auth, gitHubProvider, googleProvider } from "../firebase/firebase";
 import { useNavigate } from "react-router-dom";
 
@@ -10,6 +14,7 @@ export default function SignIn() {
 
     const handleSignInGoogle = async () => {
         try {
+            await setPersistence(auth, browserSessionPersistence);
             const result = await signInWithPopup(auth, googleProvider);
             const user = result.user;
 

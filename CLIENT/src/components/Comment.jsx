@@ -8,8 +8,10 @@ import {
 import { useParams } from "react-router-dom";
 import Reply from "./Reply";
 import { formatter } from "../assets/date-config";
+import { useSelector } from "react-redux";
 
 const Comment = ({ comment }) => {
+    const { displayName, photoURL } = useSelector((state) => state.user);
     const [reply, setReply] = useState("");
     const [showReplyBox, setShowReplyBox] = useState(false);
     const [showReplies, setShowReplies] = useState(false);
@@ -23,6 +25,7 @@ const Comment = ({ comment }) => {
     const [editComment] = useEditCommentMutation();
     const [addReply] = useAddReplyMutation();
     const { data: replies } = useGetRepliesQuery({ commentId, postId });
+    const isAuthenticate = comment.username === displayName;
 
     const replyButtonClicked = () => {
         setShowReplyBox((prev) => !prev);
@@ -65,8 +68,9 @@ const Comment = ({ comment }) => {
             postId: postId,
             commentId: commentId,
             data: {
-                username: "admin",
+                username: displayName,
                 reply: reply,
+                imageProfile: photoURL,
             },
         });
 
@@ -95,7 +99,7 @@ const Comment = ({ comment }) => {
                         </time>
                     </p>
                 </div>
-                <div className="relative">
+                <div className="relative" hidden={!isAuthenticate}>
                     <button
                         id="dropdownComment1Button"
                         onClick={() => setDropdownOpen(!dropdownOpen)}
@@ -229,7 +233,7 @@ const Comment = ({ comment }) => {
             {/* Replies List */}
             {showReplies &&
                 replies?.data.map((data) => (
-                    <Reply key={data._id} reply={data} />
+                    <Reply key={data._id} reply={data} commentId={commentId} />
                 ))}
         </article>
     );
