@@ -13,7 +13,7 @@ const commentSchema = new mongoose.Schema(
         },
         imageProfile: {
             type: String,
-            // required: true,
+            required: true,
         },
         comment: {
             type: String,
@@ -27,7 +27,7 @@ const commentSchema = new mongoose.Schema(
                 },
                 imageProfile: {
                     type: String,
-                    // required: true,
+                    required: true,
                 },
                 reply: {
                     type: String,
