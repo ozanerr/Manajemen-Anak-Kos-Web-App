@@ -4,13 +4,11 @@
     margin: 0;
 }
 
-body{
+body {
     margin: 0;
 }
 
 .sx-react-calendar-wrapper {
-    width: 1200px;
-    max-width: 100vw;
-    height: 800px;
+    height: 1000px;
     max-height: 90vh;
-  }
+}
