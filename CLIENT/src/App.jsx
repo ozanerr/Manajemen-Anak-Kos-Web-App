@@ -9,6 +9,7 @@ import { useEffect } from "react";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "./firebase/firebase";
 import { clearUser, setUser } from "./user/userSlice";
+import Deadline from "./pages/Deadline";
 
 function App() {
     const dispatch = useDispatch();
@@ -31,6 +32,7 @@ function App() {
                 <Route path="/addPost" element={<AddPost />} />
                 <Route path="/posts/:postId" element={<PostDetail />} />
                 <Route path="/signin" element={<SignIn />} />
+                <Route path="/deadline" element={<Deadline />} />
             </Routes>
         </Router>
     );
