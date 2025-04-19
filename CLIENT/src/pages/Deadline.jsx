@@ -1,32 +1,30 @@
 import { useCalendarApp, ScheduleXCalendar } from "@schedule-x/react";
-import {
-    createViewMonthGrid,
-    createViewWeek,
-    createViewDay,
-} from "@schedule-x/calendar";
+import { createViewMonthGrid } from "@schedule-x/calendar";
 import "@schedule-x/theme-default/dist/index.css";
-import { createEventsServicePlugin } from "@schedule-x/events-service";
 import { createDragAndDropPlugin } from "@schedule-x/drag-and-drop";
-import { createEventModalPlugin } from "@schedule-x/event-modal";
-import React, { useState } from "react";
+import { useState } from "react";
+import DeadlineModal from "../components/DeadlineModal";
 
 const Deadline = () => {
     const [newEvent, setNewEvent] = useState({
-        id: 1,
-        title: "test 123",
-        description: "test 123",
-        start: "2025-04-19 03:00",
-        end: "2025-04-19 03:00",
+        title: "",
+        description: "",
+        start: "",
+        end: "",
     });
+
+    const [selectedEvent, setSelectedEvent] = useState(null);
+    const [isModalOpen, setIsModalOpen] = useState(false);
 
     const calendar = useCalendarApp({
         views: [createViewMonthGrid()],
         events: [],
-        selectedDate: "2025-04-19",
-        plugins: [createEventModalPlugin(), createDragAndDropPlugin()],
+        selectedDate: new Date().toISOString().split("T")[0],
+        plugins: [createDragAndDropPlugin()],
         callbacks: {
             onEventClick: (event) => {
-                console.log("Event clicked:", event);
+                setSelectedEvent(event);
+                setIsModalOpen(true);
             },
             onDateClick: (date) => {
                 console.log("Date clicked:", date);
@@ -34,54 +32,75 @@ const Deadline = () => {
         },
     });
 
-    const handleChange = (e) => {
+    const handleNewChange = (e) => {
         const { name, value } = e.target;
-        setNewEvent((prevEvent) => {
-            let newValue = value;
-            const updates = { [name]: newValue };
-            if (name === "end") {
-                newValue = value.replace("T", " ");
-                updates[name] = newValue;
-                updates.start = newValue;
-            }
-            return { ...prevEvent, ...updates };
-        });
+        setNewEvent((prev) => ({
+            ...prev,
+            [name]: name === "end" ? value.replace("T", " ") : value,
+            ...(name === "end" && { start: value.replace("T", " ") }),
+        }));
     };
 
     const addEvent = (e) => {
         e.preventDefault();
+        const id = calendar.events.getAll().length + 1;
+        const eventToAdd = { ...newEvent, id };
+        calendar.events.set([...calendar.events.getAll(), eventToAdd]);
 
-        const newId = calendar.events.getAll().length + 1;
+        setNewEvent({ title: "", description: "", start: "", end: "" });
+    };
 
-        const updatedEvent = {
-            ...newEvent,
-            id: newId,
-        };
-        console.log("Updated Event:", updatedEvent);
+    const handleModalChange = (e) => {
+        const { name, value } = e.target;
+        setSelectedEvent((prev) => ({
+            ...prev,
+            [name]: name === "end" ? value.replace("T", " ") : value,
+            ...(name === "end" && { start: value.replace("T", " ") }),
+        }));
+    };
 
-        //add to database
+    const handleModalSave = () => {
+        calendar.events.set(
+            calendar.events
+                .getAll()
+                .map((ev) => (ev.id === selectedEvent.id ? selectedEvent : ev))
+        );
+        setIsModalOpen(false);
+    };
 
-        // Inject langsung ke calendar
-        calendar.events.set([...calendar.events.getAll(), updatedEvent]);
-        //ambil dari databse langsung
-
-        // Reset form kalau mau
-        setNewEvent({
-            id: newId + 1,
-            title: "",
-            description: "",
-            start: "",
-            end: "",
-        });
-
-        console.log("Updated Calendar Events:", calendar.events.getAll());
+    const handleModalDelete = () => {
+        calendar.events.set(
+            calendar.events.getAll().filter((ev) => ev.id !== selectedEvent.id)
+        );
+        setIsModalOpen(false);
     };
 
     return (
         <>
-            <div className="d-inline-block mx-w-50">
-                <ScheduleXCalendar calendarApp={calendar} />
+            <h3 className="text-3xl font-bold text-center mb-6 mt-4">
+                Calendar Deadline
+            </h3>
+            <div className="relative">
+                <div className="mx-auto p-6 max-w-4xl">
+                    <ScheduleXCalendar calendarApp={calendar} />
+                </div>
+
+                {isModalOpen && (
+                    <DeadlineModal
+                        event={selectedEvent}
+                        onChange={handleModalChange}
+                        onSave={handleModalSave}
+                        onDelete={handleModalDelete}
+                        onClose={() => setIsModalOpen(false)}
+                    />
+                )}
             </div>
+            <div className="my-4 border-t border-gray-300" />
+
+            <h3 className="text-3xl font-bold text-center mb-2 mt-10">
+                Add Deadline
+            </h3>
+
             <div className="p-6 max-w-4xl mx-auto">
                 <form
                     onSubmit={addEvent}
@@ -90,34 +109,33 @@ const Deadline = () => {
                     <input
                         name="title"
                         value={newEvent.title}
-                        onChange={handleChange}
+                        onChange={handleNewChange}
                         type="text"
-                        placeholder="Event Title"
+                        placeholder="Deadline Title"
                         required
                         className="w-full md:w-1/3 px-4 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring focus:border-blue-300"
                     />
                     <input
                         name="description"
                         value={newEvent.description}
-                        onChange={handleChange}
+                        onChange={handleNewChange}
                         type="text"
-                        placeholder="Event Description"
-                        required
+                        placeholder="Deadline Description"
                         className="w-full md:w-1/3 px-4 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring focus:border-blue-300"
                     />
                     <input
                         name="end"
                         value={newEvent.end}
-                        onChange={handleChange}
+                        onChange={handleNewChange}
                         type="datetime-local"
                         required
                         className="w-full md:w-1/3 px-4 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring focus:border-blue-300"
                     />
                     <button
                         type="submit"
-                        className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition duration-200"
+                        className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition duration-200 cursor-pointer"
                     >
-                        Add Event
+                        Add
                     </button>
                 </form>
             </div>
