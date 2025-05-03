@@ -10,6 +10,9 @@ import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "./firebase/firebase";
 import { clearUser, setUser } from "./user/userSlice";
 import Deadline from "./pages/Deadline";
+import Finance from "./pages/Finance";
+import Navbar from "./components/NavBar";
+import Discussion from "./pages/Discussion";
 
 function App() {
     const dispatch = useDispatch();
@@ -27,12 +30,15 @@ function App() {
 
     return (
         <Router>
+            <Navbar />
             <Routes>
                 <Route path="/" element={<Home />} />
                 <Route path="/addPost" element={<AddPost />} />
                 <Route path="/posts/:postId" element={<PostDetail />} />
                 <Route path="/signin" element={<SignIn />} />
                 <Route path="/deadline" element={<Deadline />} />
+                <Route path="/finance" element={<Finance />} />
+                <Route path="/discussion" element={<Discussion />} />
             </Routes>
         </Router>
     );

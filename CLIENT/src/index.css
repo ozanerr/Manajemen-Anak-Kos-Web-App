@@ -9,10 +9,6 @@ body {
 }
 
 .sx-react-calendar-wrapper {
-    height: 750px;
+    height: 450px;
     max-height: 80vh;
-}
-
-.sx__month-grid-day.sx__sunday {
-    background-color: red;
 }
