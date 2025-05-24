@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 const deadlineSchema = new mongoose.Schema(
     {
         userId: {
-            type: Schema.Types.ObjectId,
+            type: String,
             required: true,
         },
         deadlines: [

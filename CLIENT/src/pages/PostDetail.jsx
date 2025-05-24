@@ -9,10 +9,17 @@ import Comment from "../components/Comment";
 import { useSelector } from "react-redux";
 
 const PostDetail = () => {
-    const { displayName, photoURL } = useSelector((state) => state.user);
+    const { displayName, photoURL, isloggedIn } = useSelector(
+        (state) => state.user
+    );
+
     const [comment, setComment] = useState("");
 
     const navigate = useNavigate();
+
+    if (isloggedIn != true) {
+        navigate("/signin");
+    }
 
     const { postId } = useParams();
 

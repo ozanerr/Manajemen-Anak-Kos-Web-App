@@ -4,6 +4,7 @@ const initialState = {
     displayName: "",
     photoURL: "",
     isloggedIn: false,
+    isAuthLoading: true,
 };
 
 export const userSlice = createSlice({
@@ -15,11 +16,13 @@ export const userSlice = createSlice({
             state.displayName = displayName;
             state.photoURL = photoURL;
             state.isloggedIn = true;
+            state.isAuthLoading = false;
         },
         clearUser: (state, action) => {
             state.displayName = "";
             state.photoURL = "";
             state.isloggedIn = false;
+            state.isAuthLoading = false;
         },
     },
 });

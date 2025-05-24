@@ -1,3 +1,5 @@
+import { useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import { useCalendarApp, ScheduleXCalendar } from "@schedule-x/react";
 import { createViewMonthGrid } from "@schedule-x/calendar";
 import "@schedule-x/theme-default/dist/index.css";
@@ -10,6 +12,11 @@ const Deadline = () => {
     const [selectedEvent, setSelectedEvent] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [modalMode, setModalMode] = useState("add");
+    const { displayName, photoURL, isloggedIn, isAuthLoading } = useSelector(
+        (state) => state.user
+    );
+
+    const navigate = useNavigate();
 
     const calendar = useCalendarApp({
         views: [createViewMonthGrid()],
@@ -25,6 +32,14 @@ const Deadline = () => {
         },
     });
 
+    if (isAuthLoading) {
+        return <div>sedang loading....</div>;
+    }
+
+    if (isloggedIn != true) {
+        navigate("/signin");
+    }
+
     const handleModalChange = (e) => {
         const { name, value } = e.target;
         setSelectedEvent((prev) => ({
@@ -39,7 +54,9 @@ const Deadline = () => {
             calendar.events.set(
                 calendar.events
                     .getAll()
-                    .map((ev) => (ev.id === selectedEvent.id ? selectedEvent : ev))
+                    .map((ev) =>
+                        ev.id === selectedEvent.id ? selectedEvent : ev
+                    )
             );
         } else {
             const id = calendar.events.getAll().length + 1;
@@ -88,7 +105,9 @@ const Deadline = () => {
                         onChange={handleModalChange}
                         onSave={handleModalSave}
                         modalMode={modalMode}
-                        onDelete={modalMode === "edit" ? handleModalDelete : undefined}
+                        onDelete={
+                            modalMode === "edit" ? handleModalDelete : undefined
+                        }
                         onClose={() => setIsModalOpen(false)}
                     />
                 )}

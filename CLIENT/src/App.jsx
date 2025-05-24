@@ -1,10 +1,15 @@
 import "./App.css";
-import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import {
+    BrowserRouter as Router,
+    Route,
+    Routes,
+    useNavigate,
+} from "react-router-dom";
 import Home from "./pages/Home";
 import AddPost from "./pages/AddPost";
 import PostDetail from "./pages/PostDetail";
 import SignIn from "./pages/SignIn";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useEffect } from "react";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "./firebase/firebase";
