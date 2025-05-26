@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import {
@@ -66,9 +67,13 @@ const Finance = () => {
         return <div>sedang loading...</div>;
     }
 
-    if (isloggedIn != true) {
-        navigate("/signin");
-    }
+    useEffect(() => {
+        if (isloggedIn != true) {
+            navigate("/signin");
+        }
+    }, [isAuthLoading]);
+
+    console.log(isAuthLoading);
     return (
         <div className="min-h-screen bg-gradient-to-br from-indigo-100 to-white p-6">
             <div className="max-w-6xl mx-auto bg-white p-6 rounded-2xl shadow">
