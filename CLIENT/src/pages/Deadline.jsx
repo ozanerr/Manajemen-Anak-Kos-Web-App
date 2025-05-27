@@ -31,7 +31,16 @@ const Deadline = () => {
     const { displayName, photoURL, isloggedIn, isAuthLoading } = useSelector(
         (state) => state.user
     );
+
     const navigate = useNavigate();
+
+    if (isAuthLoading) {
+        return <div>sedang loading...</div>;
+    }
+
+    if (isloggedIn != true) {
+        navigate("/signin");
+    }
 
     const [viewMode, setViewMode] = useState("calendar");
     const [events, setEvents] = useState([
