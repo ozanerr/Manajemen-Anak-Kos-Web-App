@@ -32,17 +32,9 @@ const Deadline = () => {
         (state) => state.user
     );
 
-    const navigate = useNavigate();
-
-    if (isAuthLoading) {
-        return <div>sedang loading...</div>;
-    }
-
-    if (isloggedIn != true) {
-        navigate("/signin");
-    }
-
     const [viewMode, setViewMode] = useState("calendar");
+
+    //untuk backend
     const [events, setEvents] = useState([
         {
             id: 1,
@@ -69,6 +61,7 @@ const Deadline = () => {
             completed: true,
         },
     ]);
+    console.log(events);
 
     const calendar = useCalendarApp({
         views: [createViewMonthGrid()],
@@ -167,6 +160,16 @@ const Deadline = () => {
     };
 
     const stats = getOverviewStats();
+
+    const navigate = useNavigate();
+
+    if (isAuthLoading) {
+        return <div>sedang loading...</div>;
+    }
+
+    if (isloggedIn != true) {
+        navigate("/signin");
+    }
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
