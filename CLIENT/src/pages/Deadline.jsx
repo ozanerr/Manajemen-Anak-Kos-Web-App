@@ -61,11 +61,10 @@ const Deadline = () => {
             completed: true,
         },
     ]);
-    console.log(events);
 
     const calendar = useCalendarApp({
         views: [createViewMonthGrid()],
-        events,
+        events: events,
         selectedDate: new Date().toISOString().split("T")[0],
         plugins: [createDragAndDropPlugin()],
         callbacks: {
@@ -86,7 +85,7 @@ const Deadline = () => {
         }));
     };
 
-    const handleModalSave = () => {
+    const handleModalSave = (event) => {
         if (modalMode === "edit") {
             setEvents(
                 events.map((ev) =>
@@ -95,12 +94,14 @@ const Deadline = () => {
             );
         } else {
             const newEvent = {
-                ...selectedEvent,
-                id: Date.now(),
-                priority: selectedEvent.priority || "medium",
-                completed: false,
+                id: events.length + 1,
+                title: event.title,
+                description: event.description,
+                start: event.end,
+                end: event.end,
             };
             setEvents([...events, newEvent]);
+            calendar.events.add(newEvent);
         }
         setIsModalOpen(false);
         setSelectedEvent(null);

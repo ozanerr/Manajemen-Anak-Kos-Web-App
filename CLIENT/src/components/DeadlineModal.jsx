@@ -35,7 +35,7 @@ const DeadlineModal = ({
         handleChange({
             target: {
                 name: "end",
-                value: dateValue.replace("T", " "),
+                value: dateValue.replace("T", " "), // Tetap simpan dengan spasi jika format internal Anda seperti itu
             },
         });
     };
@@ -61,7 +61,11 @@ const DeadlineModal = ({
         } else {
             const dueDate = new Date(event.end.replace(" ", "T"));
             const now = new Date();
-            if (dueDate < now) {
+            now.setSeconds(0, 0); // Abaikan detik dan milidetik untuk perbandingan yang lebih adil
+            const inputDateWithoutSeconds = new Date(dueDate);
+            inputDateWithoutSeconds.setSeconds(0, 0);
+
+            if (inputDateWithoutSeconds < now) {
                 newErrors.end = "Due date cannot be in the past";
             }
         }
@@ -70,13 +74,27 @@ const DeadlineModal = ({
         return Object.keys(newErrors).length === 0;
     };
 
-    //Onclick Add Deadline
-    const handleSave = async () => {
+    // Mengganti nama handleSave menjadi handleSubmit untuk konvensi form
+    const handleSubmit = async (e) => {
+        e.preventDefault(); // Mencegah submit form default browser
+        const title = e.target.title.value;
+        const description = e.target.description.value;
+        const start = e.target.end.value;
+        const end = e.target.end.value;
+
+        setEvent({
+            title,
+            description,
+            start,
+            end,
+        });
+
         if (!validateForm()) return;
 
         setIsSubmitting(true);
         try {
             await onSave(event);
+            // onClose();
         } finally {
             setIsSubmitting(false);
         }
@@ -87,20 +105,30 @@ const DeadlineModal = ({
             setIsSubmitting(true);
             try {
                 await onDelete();
+                // Pertimbangkan untuk menutup modal di sini jika onDelete berhasil,
+                // atau biarkan komponen parent yang menanganinya.
+                // onClose();
             } finally {
                 setIsSubmitting(false);
             }
         }
     };
 
-    if (!event) return null;
+    if (!event) return null; // Sebaiknya event selalu objek, mungkin initialEvent bisa null/undefined?
 
     const daysUntilDue = getDaysUntilDue();
+
+    // Mendapatkan tanggal dan waktu minimum untuk input datetime-local (saat ini)
+    const getMinDateTime = () => {
+        const now = new Date();
+        now.setMinutes(now.getMinutes() - now.getTimezoneOffset()); // Sesuaikan dengan timezone lokal
+        return now.toISOString().slice(0, 16);
+    };
 
     return (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
             <div
-                className="bg-white rounded-2xl shadow-2xl w-full max-w-md max-h-[90vh] overflow-hidden transform transition-all duration-300 ease-out scale-100"
+                className="bg-white rounded-2xl shadow-2xl w-full max-w-md max-h-[90vh] overflow-hidden transform transition-all duration-300 ease-out scale-100 flex flex-col"
                 onClick={(e) => e.stopPropagation()}
             >
                 {/* Header */}
@@ -140,116 +168,135 @@ const DeadlineModal = ({
                         </div>
                     </div>
                 </div>
-
-                {/* Content */}
-                <div className="p-6 space-y-5">
-                    {/* Title Input */}
-                    <div className="space-y-2">
-                        <label className="flex items-center gap-2 text-sm font-medium text-gray-700">
-                            <FileText size={16} />
-                            Title *
-                        </label>
-                        <input
-                            name="title"
-                            value={event.title || ""}
-                            onChange={handleChange}
-                            className={`w-full px-4 py-3 border rounded-xl shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent ${
-                                errors.title
-                                    ? "border-red-300 bg-red-50"
-                                    : "border-gray-300 hover:border-gray-400"
-                            }`}
-                            placeholder="Enter deadline title..."
-                        />
-                        {errors.title && (
-                            <div className="flex items-center gap-2 text-red-600 text-sm">
-                                <AlertCircle size={14} />
-                                {errors.title}
-                            </div>
-                        )}
-                    </div>
-
-                    {/* Description Input */}
-                    <div className="space-y-2">
-                        <label className="flex items-center gap-2 text-sm font-medium text-gray-700">
-                            <FileText size={16} />
-                            Description
-                        </label>
-                        <textarea
-                            name="description"
-                            value={event.description || ""}
-                            onChange={handleChange}
-                            rows={3}
-                            className="w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent hover:border-gray-400 resize-none"
-                            placeholder="Add details about this deadline..."
-                        />
-                    </div>
-
-                    {/* Due Date Input */}
-                    <div className="space-y-2">
-                        <label className="flex items-center gap-2 text-sm font-medium text-gray-700">
-                            <Clock size={16} />
-                            Due Date & Time *
-                        </label>
-                        <input
-                            name="end"
-                            type="datetime-local"
-                            value={event.end?.replace(" ", "T") || ""}
-                            onChange={handleDateChange}
-                            min={new Date().toISOString().slice(0, 16)}
-                            className={`w-full px-4 py-3 border rounded-xl shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent ${
-                                errors.end
-                                    ? "border-red-300 bg-red-50"
-                                    : "border-gray-300 hover:border-gray-400"
-                            }`}
-                        />
-                        {errors.end && (
-                            <div className="flex items-center gap-2 text-red-600 text-sm">
-                                <AlertCircle size={14} />
-                                {errors.end}
-                            </div>
-                        )}
-                    </div>
-                </div>
-
-                {/* Footer */}
-                <div className="px-6 py-4 bg-gray-50 border-t border-gray-200 flex justify-between items-center">
-                    <div>
-                        {onDelete && modalMode === "edit" && (
-                            <button
-                                onClick={handleDelete}
-                                disabled={isSubmitting}
-                                className="flex items-center gap-2 px-4 py-2 text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50"
+                {/* Form Content */}
+                <form
+                    onSubmit={handleSubmit}
+                    className="flex-grow overflow-y-auto"
+                >
+                    <div className="p-6 space-y-5">
+                        {/* Title Input */}
+                        <div className="space-y-2">
+                            <label
+                                htmlFor="title"
+                                className="flex items-center gap-2 text-sm font-medium text-gray-700"
                             >
-                                <Trash2 size={16} />
-                                Delete
-                            </button>
-                        )}
+                                <FileText size={16} />
+                                Title *
+                            </label>
+                            <input
+                                id="title"
+                                name="title"
+                                value={event.title || ""}
+                                onChange={handleChange}
+                                className={`w-full px-4 py-3 border rounded-xl shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent ${
+                                    errors.title
+                                        ? "border-red-300 bg-red-50"
+                                        : "border-gray-300 hover:border-gray-400"
+                                }`}
+                                placeholder="Enter deadline title..."
+                            />
+                            {errors.title && (
+                                <div className="flex items-center gap-2 text-red-600 text-sm">
+                                    <AlertCircle size={14} />
+                                    {errors.title}
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Description Input */}
+                        <div className="space-y-2">
+                            <label
+                                htmlFor="description"
+                                className="flex items-center gap-2 text-sm font-medium text-gray-700"
+                            >
+                                <FileText size={16} />
+                                Description
+                            </label>
+                            <textarea
+                                id="description"
+                                name="description"
+                                value={event.description || ""}
+                                onChange={handleChange}
+                                rows={3}
+                                className="w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent hover:border-gray-400 resize-none"
+                                placeholder="Add details about this deadline..."
+                            />
+                        </div>
+
+                        {/* Due Date Input */}
+                        <div className="space-y-2">
+                            <label
+                                htmlFor="end"
+                                className="flex items-center gap-2 text-sm font-medium text-gray-700"
+                            >
+                                <Clock size={16} />
+                                Due Date & Time *
+                            </label>
+                            <input
+                                id="end"
+                                name="end"
+                                type="datetime-local"
+                                value={event.end?.replace(" ", "T") || ""} // datetime-local membutuhkan format dengan "T"
+                                onChange={handleDateChange}
+                                min={getMinDateTime()} // Atur tanggal minimum ke waktu saat ini
+                                className={`w-full px-4 py-3 border rounded-xl shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent ${
+                                    errors.end
+                                        ? "border-red-300 bg-red-50"
+                                        : "border-gray-300 hover:border-gray-400"
+                                }`}
+                            />
+                            {errors.end && (
+                                <div className="flex items-center gap-2 text-red-600 text-sm">
+                                    <AlertCircle size={14} />
+                                    {errors.end}
+                                </div>
+                            )}
+                        </div>
                     </div>
 
-                    <div className="flex gap-3">
-                        <button
-                            onClick={onClose}
-                            disabled={isSubmitting}
-                            className="px-6 py-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors disabled:opacity-50"
-                        >
-                            Cancel
-                        </button>
-                        <button
-                            onClick={handleSave}
-                            disabled={isSubmitting}
-                            className="flex items-center gap-2 px-6 py-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg hover:from-blue-600 hover:to-purple-700 transition-all duration-200 disabled:opacity-50 shadow-md hover:shadow-lg cursor-pointer"
-                        >
-                            {isSubmitting ? (
-                                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                            ) : (
-                                <Save size={16} />
+                    {/* Footer / Form Actions */}
+                    <div className="px-6 py-4 bg-gray-50 border-t border-gray-200 flex justify-between items-center sticky bottom-0">
+                        <div>
+                            {onDelete && modalMode === "edit" && (
+                                <button
+                                    type="button" // Pastikan ini type="button" agar tidak men-submit form
+                                    onClick={handleDelete}
+                                    disabled={isSubmitting}
+                                    className="flex items-center gap-2 px-4 py-2 text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50"
+                                >
+                                    <Trash2 size={16} />
+                                    Delete
+                                </button>
                             )}
-                            {modalMode === "edit"
-                                ? "Save Changes"
-                                : "Add Deadline"}
-                        </button>
+                        </div>
+
+                        <div className="flex gap-3">
+                            <button
+                                type="button" // Pastikan ini type="button"
+                                onClick={onClose}
+                                disabled={isSubmitting}
+                                className="px-6 py-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors disabled:opacity-50"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                type="submit" // Ini adalah tombol submit untuk form
+                                disabled={isSubmitting}
+                                className="flex items-center gap-2 px-6 py-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg hover:from-blue-600 hover:to-purple-700 transition-all duration-200 disabled:opacity-50 shadow-md hover:shadow-lg cursor-pointer"
+                            >
+                                {isSubmitting ? (
+                                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                ) : (
+                                    <Save size={16} />
+                                )}
+                                {modalMode === "edit"
+                                    ? "Save Changes"
+                                    : "Add Deadline"}
+                            </button>
+                        </div>
                     </div>
-                </div>
+                </form>{" "}
+                {/* Penutup tag form */}
             </div>
         </div>
     );
