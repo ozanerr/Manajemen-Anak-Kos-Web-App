@@ -1,11 +1,21 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useFetchPostsQuery } from "../features/posts/postsApi";
 import PostCard from "../components/PostCard";
 import { useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 
 const Discussion = () => {
     const { data: posts, isError, isLoading } = useFetchPostsQuery() || {};
-    const { displayName, isloggedIn } = useSelector((state) => state.user);
+    const { displayName, isloggedIn, isAuthLoading } = useSelector(
+        (state) => state.user
+    );
+    const navigate = useNavigate();
+    if (isAuthLoading) {
+        return <div>sedang Loading...</div>;
+    }
+    if (isloggedIn != true) {
+        navigate("/signin");
+    }
     console.log("isLoggedIn", isloggedIn);
     console.log("displayName", displayName);
 
