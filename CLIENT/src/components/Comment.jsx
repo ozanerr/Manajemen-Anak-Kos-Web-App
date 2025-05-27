@@ -5,12 +5,38 @@ import {
     useEditCommentMutation,
     useGetRepliesQuery,
 } from "../features/comments/commentsApi";
-import { useParams } from "react-router-dom";
 import Reply from "./Reply";
-import { formatter } from "../assets/date-config";
 import { useSelector } from "react-redux";
+import {
+    MoreHorizontal,
+    Edit,
+    Trash,
+    MessageSquare,
+    CornerDownRight,
+    Send,
+    Loader2,
+    UserCircle,
+} from "lucide-react";
 
-const Comment = ({ comment }) => {
+// Placeholder untuk formatter
+const formatter = {
+    format: (date) => {
+        if (!date) return "Invalid date";
+        try {
+            return new Date(date).toLocaleDateString("id-ID", {
+                year: "numeric",
+                month: "long",
+                day: "numeric",
+                hour: "2-digit",
+                minute: "2-digit",
+            });
+        } catch (e) {
+            return "Invalid date";
+        }
+    },
+};
+
+const Comment = ({ comment, postId }) => {
     const { displayName, photoURL } = useSelector((state) => state.user);
     const [reply, setReply] = useState("");
     const [showReplyBox, setShowReplyBox] = useState(false);
@@ -19,222 +45,265 @@ const Comment = ({ comment }) => {
     const [isEditingComment, setIsEditingComment] = useState(false);
     const [editedComment, setEditedComment] = useState(comment?.comment);
 
-    const { postId } = useParams();
     const commentId = comment._id;
-    const [deleteComment] = useDeleteCommentMutation();
-    const [editComment] = useEditCommentMutation();
-    const [addReply] = useAddReplyMutation();
-    const { data: replies } = useGetRepliesQuery({ commentId, postId });
-    const isAuthenticate = comment.username === displayName;
+    const [deleteComment, { isLoading: isDeletingComment }] =
+        useDeleteCommentMutation();
+    const [editComment, { isLoading: isSavingEditComment }] =
+        useEditCommentMutation();
+    const [addReply, { isLoading: isAddingReply }] = useAddReplyMutation();
+    const { data: repliesResponse, isLoading: repliesLoading } =
+        useGetRepliesQuery({ commentId, postId });
+    const replies = repliesResponse?.data;
 
-    const replyButtonClicked = () => {
-        setShowReplyBox((prev) => !prev);
-    };
+    const isOwner = comment.username === displayName;
 
+    const replyButtonClicked = () => setShowReplyBox((prev) => !prev);
     const handleEditComment = () => {
         setIsEditingComment(true);
         setDropdownOpen(false);
     };
-
     const handleCancelComment = () => {
         setIsEditingComment(false);
         setEditedComment(comment?.comment);
     };
+    const toggleShowReplies = () => setShowReplies((prev) => !prev);
 
-    const handleSaveEditComment = (e) => {
+    const handleSaveEditComment = async (e) => {
         e.preventDefault();
-
-        editComment({
-            postId: postId,
-            commentId: commentId,
-            data: {
-                comment: editedComment,
-            },
-        });
-
-        console.log(editedComment);
-        setIsEditingComment(false);
+        if (!editedComment.trim()) return;
+        try {
+            await editComment({
+                postId: postId,
+                commentId: commentId,
+                data: { comment: editedComment },
+            }).unwrap();
+            setIsEditingComment(false);
+        } catch (err) {
+            console.error("Failed to save comment:", err);
+        }
     };
 
-    const handleDeleteComment = () => {
-        deleteComment({ postId, commentId });
-        setDropdownOpen(false);
+    const handleDeleteComment = async () => {
+        if (window.confirm("Are you sure you want to delete this comment?")) {
+            try {
+                await deleteComment({ postId, commentId }).unwrap();
+                setDropdownOpen(false);
+            } catch (err) {
+                console.error("Failed to delete comment:", err);
+            }
+        } else {
+            setDropdownOpen(false);
+        }
     };
 
-    const handleAddReply = (e) => {
+    const handleAddReply = async (e) => {
         e.preventDefault();
-
-        addReply({
-            postId: postId,
-            commentId: commentId,
-            data: {
-                username: displayName,
-                reply: reply,
-                imageProfile: photoURL,
-            },
-        });
-
-        setReply("");
-    };
-
-    const toggleShowReplies = () => {
-        setShowReplies((prev) => !prev);
+        if (!reply.trim()) return;
+        try {
+            await addReply({
+                postId: postId,
+                commentId: commentId,
+                data: {
+                    username: displayName || "Anonymous",
+                    reply: reply,
+                    imageProfile:
+                        photoURL ||
+                        `https://ui-avatars.com/api/?name=${(
+                            displayName || "A"
+                        ).charAt(0)}&background=random&color=fff`,
+                },
+            }).unwrap();
+            setReply("");
+            setShowReplyBox(false);
+            if (!showReplies && (replies?.length || 0) >= 0)
+                setShowReplies(true);
+        } catch (err) {
+            console.error("Failed to add reply:", err);
+        }
     };
 
     return (
-        <article className="px-8 pt-6 mb-6 text-base rounded-lg bg-gray-900 relative">
-            <footer className="flex justify-between items-center mb-2">
-                <div className="flex items-center">
-                    <p className="inline-flex items-center mr-3 text-sm text-white">
-                        <img
-                            className="mr-2 w-6 h-6 rounded-full"
-                            src={comment.imageProfile}
-                            alt="User Profile"
-                        />
-                        {comment?.username}
-                    </p>
-                    <p className="text-sm text-gray-400">
-                        <time>
-                            {formatter.format(new Date(comment?.createdAt))}
-                        </time>
-                    </p>
+        // Kartu Komentar dengan tema glassmorphism
+        <article className="p-4 sm:p-5 bg-white/70 backdrop-blur-md rounded-xl border border-slate-200/60 shadow-lg">
+            <footer className="flex justify-between items-start mb-2">
+                <div className="flex items-center space-x-3">
+                    <img
+                        className="w-9 h-9 rounded-full object-cover border-2 border-white shadow"
+                        src={
+                            comment.imageProfile ||
+                            `https://ui-avatars.com/api/?name=${(
+                                comment.username || "U"
+                            ).charAt(
+                                0
+                            )}&background=random&color=fff&font-size=0.5&bold=true`
+                        }
+                        alt={comment.username || "User"}
+                    />
+                    <div>
+                        <p className="text-sm text-slate-800 font-semibold">
+                            {comment?.username}
+                        </p>
+                        <p className="text-xs text-slate-500">
+                            <time dateTime={comment.createdAt}>
+                                {formatter.format(new Date(comment?.createdAt))}
+                            </time>
+                        </p>
+                    </div>
                 </div>
-                <div className="relative" hidden={!isAuthenticate}>
-                    <button
-                        id="dropdownComment1Button"
-                        onClick={() => setDropdownOpen(!dropdownOpen)}
-                        className="p-2 text-sm text-gray-400 bg-gray-900 rounded-lg hover:bg-gray-700 focus:ring-gray-600"
-                    >
-                        <svg
-                            className="w-5 h-4"
-                            aria-hidden="true"
-                            fill="currentColor"
-                            viewBox="0 0 20 20"
-                            xmlns="http://www.w3.org/2000/svg"
+                {isOwner && (
+                    <div className="relative flex-shrink-0">
+                        <button
+                            onClick={() => setDropdownOpen(!dropdownOpen)}
+                            className="p-1.5 text-slate-500 rounded-full hover:bg-slate-500/10 focus:outline-none transition-colors"
+                            aria-label="Comment options"
                         >
-                            <path d="M6 10a2 2 0 11-4 0 2 2 0 014 0zM12 10a2 2 0 11-4 0 2 2 0 014 0zM16 12a2 2 0 100-4 2 2 0 000 4z"></path>
-                        </svg>
-                    </button>
-                    {dropdownOpen && (
-                        <div className="absolute right-0 mt-1 w-32 bg-gray-800 rounded shadow-lg z-10">
-                            <button
-                                onClick={handleEditComment}
-                                className="block px-4 py-2 text-sm text-white hover:bg-gray-700 w-full text-left"
-                            >
-                                Edit
-                            </button>
-                            <button
-                                onClick={handleDeleteComment}
-                                className="block px-4 py-2 text-sm text-red-400 hover:bg-gray-700 w-full text-left"
-                            >
-                                Delete
-                            </button>
-                        </div>
-                    )}
-                </div>
+                            <MoreHorizontal size={18} />
+                        </button>
+                        {dropdownOpen && (
+                            <div className="absolute right-0 mt-1 w-36 bg-white/95 backdrop-blur-md rounded-lg shadow-xl border border-slate-200/50 z-20 py-1 origin-top-right animate-fade-in-down">
+                                <button
+                                    onClick={handleEditComment}
+                                    className="w-full text-left flex items-center gap-2 px-3 py-2 text-sm text-slate-700 hover:bg-blue-500/10 hover:text-blue-600 transition-colors rounded-md"
+                                >
+                                    <Edit size={14} className="opacity-70" />{" "}
+                                    Edit
+                                </button>
+                                <button
+                                    onClick={handleDeleteComment}
+                                    disabled={isDeletingComment}
+                                    className="w-full text-left flex items-center gap-2 px-3 py-2 text-sm text-red-600 hover:bg-red-500/10 hover:text-red-700 transition-colors rounded-md disabled:opacity-50"
+                                >
+                                    {isDeletingComment ? (
+                                        <Loader2 className="animate-spin h-4 w-4 mr-1" />
+                                    ) : (
+                                        <Trash
+                                            size={14}
+                                            className="opacity-70"
+                                        />
+                                    )}
+                                    Delete
+                                </button>
+                            </div>
+                        )}
+                    </div>
+                )}
             </footer>
 
-            {/* Conditional Rendering for Edit Mode */}
             {isEditingComment ? (
-                <div>
+                <form onSubmit={handleSaveEditComment} className="mt-2">
                     <textarea
-                        className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 bg-gray-800 text-gray-400 text-sm"
+                        className="w-full p-2.5 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/80 bg-white text-slate-800 placeholder-slate-400 resize-none shadow-sm"
                         value={editedComment}
                         onChange={(e) => setEditedComment(e.target.value)}
                         rows="3"
                     />
                     <div className="flex justify-end space-x-2 mt-2">
                         <button
+                            type="button"
                             onClick={handleCancelComment}
-                            className="px-2 py-0.5 text-white bg-gray-400 rounded hover:bg-gray-500 text-sm"
+                            className="px-3 py-1.5 text-xs font-medium text-slate-700 bg-slate-200 hover:bg-slate-300 transition-colors rounded-md shadow-sm"
                         >
                             Cancel
                         </button>
                         <button
-                            // type='submit'
-                            onClick={handleSaveEditComment}
-                            className="px-2 py-0.5 text-white bg-blue-500 rounded hover:bg-blue-600 text-sm"
+                            type="submit"
+                            disabled={isSavingEditComment}
+                            className="px-4 py-1.5 text-xs font-medium text-white bg-blue-500 rounded-md hover:bg-blue-600 transition-colors disabled:opacity-70 shadow-sm"
                         >
-                            Save
+                            {isSavingEditComment ? (
+                                <Loader2 className="animate-spin h-4 w-4" />
+                            ) : (
+                                "Save"
+                            )}
                         </button>
                     </div>
-                </div>
+                </form>
             ) : (
-                <p className="text-gray-400">{comment?.comment}</p>
+                <p className="text-slate-700 text-sm leading-relaxed whitespace-pre-line py-1">
+                    {comment?.comment}
+                </p>
             )}
 
-            {/* Reply Feature */}
-            <div className="flex items-center space-x-4 mt-4">
+            <div className="flex items-center space-x-4 mt-3 pt-3 border-t border-slate-200/60">
                 <button
                     onClick={replyButtonClicked}
                     type="button"
-                    className="flex items-center text-sm text-gray-500 hover:underline"
+                    className="flex items-center text-xs text-blue-600 hover:text-blue-700 hover:underline font-medium transition-colors"
                 >
-                    <svg
-                        aria-hidden="true"
-                        className="mr-1 w-4 h-4"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                        xmlns="http://www.w3.org/2000/svg"
-                    >
-                        <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth="2"
-                            d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
-                        />
-                    </svg>
-                    Reply
+                    <MessageSquare size={14} className="mr-1.5" /> Reply
                 </button>
-
-                {/* Show Replies Button */}
-                {replies?.data.length > 0 && (
+                {replies && replies.length > 0 && (
                     <button
                         onClick={toggleShowReplies}
-                        className="text-sm text-gray-500 hover:underline"
+                        className="flex items-center text-xs text-slate-500 hover:text-blue-600 hover:underline font-medium transition-colors"
                     >
                         {showReplies
                             ? "Hide Replies"
-                            : `Show Replies (${replies.data.length})`}
+                            : `View ${replies.length} Replies`}
+                        <CornerDownRight
+                            size={14}
+                            className={`ml-1 transition-transform duration-200 ${
+                                showReplies ? "rotate-180" : ""
+                            }`}
+                        />
                     </button>
                 )}
             </div>
 
             {showReplyBox && (
-                <form
-                    onSubmit={handleAddReply}
-                    className="flex flex-col space-y-2"
-                >
-                    <textarea
-                        className="w-full p-2 mt-4 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 bg-gray-800 text-gray-400 text-sm"
-                        value={reply}
-                        onChange={(e) => setReply(e.target.value)}
-                        rows="3"
-                        placeholder="Write your reply..."
-                    />
-                    <div className="flex justify-end space-x-2">
-                        <button
-                            type="button"
-                            onClick={() => setReply("")}
-                            className="px-2 py-0.5 text-white bg-gray-400 rounded hover:bg-gray-500 text-sm"
-                        >
-                            Clear
-                        </button>
-                        <button
-                            type="submit"
-                            className="px-2 py-0.5 text-white bg-blue-500 rounded hover:bg-blue-600 text-sm"
-                        >
-                            Add
-                        </button>
+                <form onSubmit={handleAddReply} className="mt-3 ml-0 sm:ml-8">
+                    <div className="w-full mb-2 border border-slate-300 rounded-lg bg-white/80 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-500/50 transition-all shadow-sm">
+                        <textarea
+                            className="w-full p-2.5 text-sm border-0 focus:ring-0 focus:outline-none bg-transparent text-slate-800 placeholder-slate-400 resize-none"
+                            value={reply}
+                            onChange={(e) => setReply(e.target.value)}
+                            rows="2"
+                            placeholder="Write your reply..."
+                        />
+                        <div className="flex items-center justify-end px-3 py-2 border-t border-slate-300/70 bg-slate-50/50 rounded-b-lg">
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    setReply("");
+                                    setShowReplyBox(false);
+                                }}
+                                className="px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-200/80 transition-colors rounded-md mr-2 shadow-sm"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                type="submit"
+                                disabled={isAddingReply || !reply.trim()}
+                                className="inline-flex items-center gap-1.5 py-1.5 px-3 text-xs font-medium text-center text-white bg-gradient-to-r from-blue-500 to-purple-500 rounded-md focus:ring-2 focus:ring-blue-300/70 hover:from-blue-600 hover:to-purple-600 transition-all disabled:opacity-60 shadow-sm"
+                            >
+                                {isAddingReply ? (
+                                    <Loader2 className="animate-spin h-4 w-4" />
+                                ) : (
+                                    <Send size={14} />
+                                )}
+                                Reply
+                            </button>
+                        </div>
                     </div>
                 </form>
             )}
-            {/* Replies List */}
-            {showReplies &&
-                replies?.data.map((data) => (
-                    <Reply key={data._id} reply={data} commentId={commentId} />
-                ))}
+            {showReplies && replies && (
+                <div className="mt-4 ml-0 sm:ml-8 space-y-4">
+                    {repliesLoading && (
+                        <p className="text-xs text-slate-400">
+                            Loading replies...
+                        </p>
+                    )}
+                    {replies.map((replyData) => (
+                        <Reply
+                            key={replyData._id}
+                            reply={replyData}
+                            commentId={commentId}
+                            postId={postId}
+                        />
+                    ))}
+                </div>
+            )}
         </article>
     );
 };

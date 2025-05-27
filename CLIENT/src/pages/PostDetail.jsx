@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { data, useNavigate, useParams } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import { useFetchSinglePostQuery } from "../features/posts/postsApi";
 import {
     useAddCommentMutation,
@@ -7,121 +7,327 @@ import {
 } from "../features/comments/commentsApi";
 import Comment from "../components/Comment";
 import { useSelector } from "react-redux";
+import {
+    MessageCircle,
+    Send,
+    Image as ImageIcon,
+    AlertTriangle,
+    Info,
+    Loader2,
+    ArrowLeft,
+    UserCircle,
+} from "lucide-react";
+
+// Placeholder untuk formatter (Sama seperti sebelumnya)
+const formatter = {
+    format: (date) => {
+        if (!date) return "Invalid date";
+        try {
+            return new Date(date).toLocaleDateString("id-ID", {
+                year: "numeric",
+                month: "long",
+                day: "numeric",
+                hour: "2-digit",
+                minute: "2-digit",
+            });
+        } catch (e) {
+            return "Invalid date";
+        }
+    },
+};
 
 const PostDetail = () => {
-    const { displayName, photoURL, isloggedIn } = useSelector(
-        (state) => state.user
-    );
+    const {
+        displayName,
+        photoURL,
+        isloggedIn,
+        isAuthLoading: userAuthLoading,
+    } = useSelector((state) => state.user);
 
     const [comment, setComment] = useState("");
-
     const navigate = useNavigate();
-
-    if (isloggedIn != true) {
-        navigate("/signin");
-    }
-
     const { postId } = useParams();
 
-    // Fetch Postingan dari API
+    useEffect(() => {
+        if (!userAuthLoading && !isloggedIn) {
+            navigate("/signin");
+        }
+    }, [userAuthLoading, isloggedIn, navigate]);
+
     const {
-        data: post,
-        isError: postError,
-        isLoading: postLoading,
+        data: postResponse,
+        isError: postFetchError,
+        isLoading: postFetchLoading,
+        error: postErrorData,
     } = useFetchSinglePostQuery(postId) || {};
+    const post = postResponse?.data;
 
-    // Post Comment ke Database
-    const [addComment] = useAddCommentMutation() || {};
+    const [addComment, { isLoading: isAddingComment, error: addCommentError }] =
+        useAddCommentMutation() || {};
 
-    // Fetch Comments dari API
     const {
-        data: comments,
-        isError: commentsError,
-        isLoading: commentsLoading,
+        data: commentsResponse,
+        isError: commentsFetchError,
+        isLoading: commentsFetchLoading,
+        error: commentsErrorData,
     } = useFetchCommentsQuery(postId) || {};
+    const comments = commentsResponse?.data;
 
-    // Handle Add Comment
-    const submitHandler = (e) => {
+    const submitHandler = async (e) => {
         e.preventDefault();
-
-        addComment({
-            postId: postId,
-            data: {
+        if (!comment.trim()) return;
+        try {
+            await addComment({
                 postId: postId,
-                username: displayName,
-                comment: comment,
-                imageProfile: photoURL,
-            },
-        });
-
-        setComment("");
+                data: {
+                    postId: postId,
+                    username: displayName || "Anonymous",
+                    comment: comment,
+                    imageProfile:
+                        photoURL ||
+                        `https://ui-avatars.com/api/?name=${(
+                            displayName || "A"
+                        ).charAt(
+                            0
+                        )}&background=random&color=fff&font-size=0.5&bold=true`,
+                },
+            }).unwrap();
+            setComment("");
+        } catch (err) {
+            console.error("Failed to add comment:", err);
+        }
     };
 
-    return (
-        <div className="bg-gradient-to-br from-gray-50 via-gray-100 to-gray-200">
-            <div className="container shadow-sm items-center mx-auto my-5 py-5 xl:px-30 sm: px-10">
-                <h2 className="text-center text-3xl mb-2 mt-2">POST DETAIL</h2>
-                <div className="">
-                    {post?.data.image ? (
-                        <img
-                            className="mx-auto w-full object-cover rounded-2xl max-h-[200px] md:max-h-[300px] lg:max-h-[400px] xl:max-h-[550px]"
-                            src={post?.data.image}
-                            alt="title"
-                        />
-                    ) : (
-                        <div></div>
-                    )}
-                    <div className="flex items-center mt-10 py-5 px-5">
-                        <h5 className="text-bold text-2xl font-bold mt-2 pt-2">
-                            {post?.data.title}
-                        </h5>
-                        <div className="flex grow-1"></div>
-                        <p className="bg-black text-white font-bold mt-2 rounded px-2 mx-2">
-                            {post?.data.category}
-                        </p>
-                    </div>
+    if (userAuthLoading || postFetchLoading) {
+        return (
+            <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 flex flex-col justify-center items-center p-4">
+                <Loader2 className="h-12 w-12 animate-spin text-blue-600" />
+                <p className="text-slate-600 text-lg mt-4">
+                    Loading post details...
+                </p>
+            </div>
+        );
+    }
 
-                    <p className="font-serif mt-4 pt-3 font-medium text-xl px-5">
-                        {post?.data.description && post?.data.description}
+    if (!isloggedIn) return null;
+
+    // Penanganan error dan post tidak ditemukan setelah loading selesai
+    if (postFetchError) {
+        return (
+            <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 flex flex-col justify-center items-center p-4">
+                <div className="text-center bg-white/80 backdrop-blur-md rounded-xl border border-red-300/70 p-8 max-w-md mx-auto shadow-2xl">
+                    <AlertTriangle
+                        size={48}
+                        className="mx-auto text-red-500 mb-4"
+                    />
+                    <p className="text-red-700 font-semibold text-xl mb-2">
+                        Failed to Load Post
                     </p>
+                    <p className="text-red-600 mt-1 text-base">
+                        {postErrorData?.data?.message ||
+                            "Could not fetch the post. Please try again."}
+                    </p>
+                    <button
+                        onClick={() => navigate("/discussion")}
+                        className="mt-8 inline-flex items-center gap-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:ring-blue-300/50 rounded-lg px-5 py-2.5 transition-colors shadow hover:shadow-md"
+                    >
+                        <ArrowLeft size={16} /> Back to Discussions
+                    </button>
                 </div>
             </div>
+        );
+    }
 
-            <section className="bg-gray-900 mt-4 py-8 lg:py-16">
-                <div className="max-w-2xl mx-auto px-4">
-                    <div className="flex justify-between items-center mb-6">
-                        <h2 className="text-lg lg:text-2xl font-bold text-white">
-                            Discussion ({comments?.data.length})
-                        </h2>
-                    </div>
-                    <form onSubmit={submitHandler} className="mb-6">
-                        <div className="py-2 px-4 mb-4 bg-gray-200 rounded-lg rounded-t-lg border border-gray-300">
-                            <label htmlFor="comment" className="sr-only">
-                                Your comment
-                            </label>
-                            <textarea
-                                id="comment"
-                                rows="6"
-                                onChange={(e) => setComment(e.target.value)}
-                                className="px-0 w-full text-sm text-gray-900 border-0 focus:ring-0 focus:outline-none"
-                                placeholder="Write a comment..."
-                                required
-                                value={comment}
+    if (!post) {
+        return (
+            <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 flex flex-col justify-center items-center p-4">
+                <div className="text-center bg-white/80 backdrop-blur-md rounded-xl border border-yellow-300/70 p-8 max-w-md mx-auto shadow-2xl">
+                    <Info size={48} className="mx-auto text-yellow-500 mb-4" />
+                    <p className="text-yellow-700 font-semibold text-xl mb-2">
+                        Post Not Found
+                    </p>
+                    <p className="text-yellow-600 mt-1 text-base">
+                        The requested post could not be found.
+                    </p>
+                    <button
+                        onClick={() => navigate("/discussion")}
+                        className="mt-8 inline-flex items-center gap-2 text-sm font-medium text-white bg-blue-500 hover:bg-blue-600 focus:ring-4 focus:ring-blue-300/50 rounded-lg px-5 py-2.5 transition-colors shadow hover:shadow-md"
+                    >
+                        <ArrowLeft size={16} /> Back to Discussions
+                    </button>
+                </div>
+            </div>
+        );
+    }
+
+    return (
+        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 py-8 sm:py-12">
+            {/* Kontainer untuk konten utama post dan komentar, "tampilan lebih luas" */}
+            <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+                <button
+                    onClick={() => navigate("/discussion")}
+                    className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-800 text-sm font-medium mb-6 group transition-colors"
+                >
+                    <ArrowLeft
+                        size={18}
+                        className="group-hover:-translate-x-1 transition-transform duration-150"
+                    />{" "}
+                    Back to Discussions
+                </button>
+
+                {/* Kartu untuk Konten Post Utama */}
+                <article className="bg-white/80 backdrop-blur-xl rounded-2xl border border-slate-200/50 shadow-2xl overflow-hidden">
+                    {post.image && (
+                        <div className="w-full max-h-[350px] sm:max-h-[450px] md:max-h-[600px] overflow-hidden">
+                            {" "}
+                            {/* Max height disesuaikan */}
+                            <img
+                                className="w-full h-full object-cover" // object-cover akan crop, object-contain akan fit
+                                src={post.image}
+                                alt={post.title || "Post image"}
                             />
                         </div>
-                        <button
-                            type="submit"
-                            className="inline-flex items-center py-2.5 px-4 text-xs font-medium text-center text-gray-200 bg-green-500 rounded-lg focus:ring-4 focus:ring-green-200 hover:bg-green-800"
-                        >
-                            Post comment
-                        </button>
+                    )}
+                    <div className="p-6 sm:p-8 md:p-10">
+                        <div className="mb-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-y-3">
+                            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-slate-800 leading-tight break-words">
+                                {post.title}
+                            </h1>
+                            {post.category && (
+                                <span className="self-start sm:self-center mt-1 sm:mt-0 flex-shrink-0 bg-blue-100 text-blue-700 text-xs font-semibold px-3.5 py-1.5 rounded-full tracking-wide shadow-sm">
+                                    {post.category}
+                                </span>
+                            )}
+                        </div>
+                        <div className="flex items-center space-x-3 text-sm text-slate-500 mb-6 pb-6 border-b border-slate-200/80">
+                            <img
+                                className="w-10 h-10 rounded-full object-cover border-2 border-white shadow"
+                                src={
+                                    post.imageProfile ||
+                                    `https://ui-avatars.com/api/?name=${(
+                                        post.username || "U"
+                                    ).charAt(
+                                        0
+                                    )}&background=random&color=fff&font-size=0.5&bold=true`
+                                }
+                                alt={post.username || "Author"}
+                            />
+                            <div>
+                                <span className="font-semibold text-slate-700">
+                                    {post.username || "Anonymous"}
+                                </span>
+                                <p className="text-xs">
+                                    <time dateTime={post.createdAt}>
+                                        {formatter.format(
+                                            new Date(post.createdAt)
+                                        )}
+                                    </time>
+                                </p>
+                            </div>
+                        </div>
+
+                        <div className="prose prose-slate max-w-none prose-base sm:prose-lg text-slate-700 leading-relaxed">
+                            {post.description &&
+                                post.description
+                                    .split("\n")
+                                    .map((paragraph, index) => (
+                                        <p
+                                            key={index}
+                                            className="mb-4 last:mb-0"
+                                        >
+                                            {paragraph}
+                                        </p>
+                                    ))}
+                        </div>
+                    </div>
+                </article>
+
+                {/* Kartu untuk Bagian Komentar */}
+                <section className="mt-10 sm:mt-12 bg-white/70 backdrop-blur-lg rounded-2xl border border-slate-200/50 shadow-xl p-6 sm:p-8">
+                    <div className="flex justify-between items-center mb-6">
+                        <h2 className="text-xl lg:text-2xl font-bold text-slate-800 flex items-center">
+                            <MessageCircle
+                                size={26}
+                                className="mr-3 text-blue-500"
+                            />
+                            Discussions ({comments?.length || 0})
+                        </h2>
+                    </div>
+
+                    <form onSubmit={submitHandler} className="mb-8">
+                        <div className="w-full mb-2 border border-slate-300/80 rounded-xl bg-white/60 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-500/50 transition-all shadow-sm">
+                            <div className="px-4 py-3">
+                                <label htmlFor="comment" className="sr-only">
+                                    Your comment
+                                </label>
+                                <textarea
+                                    id="comment"
+                                    rows="4"
+                                    onChange={(e) => setComment(e.target.value)}
+                                    className="w-full px-0 text-sm text-slate-800 bg-transparent border-0 focus:ring-0 focus:outline-none placeholder-slate-500 resize-none"
+                                    placeholder="Share your thoughts or ask a question..."
+                                    required
+                                    value={comment}
+                                />
+                            </div>
+                            <div className="flex items-center justify-end px-3 py-2.5 border-t border-slate-300/60 bg-slate-50/40 rounded-b-xl">
+                                <button
+                                    type="submit"
+                                    disabled={
+                                        isAddingComment || !comment.trim()
+                                    }
+                                    className="inline-flex items-center gap-2 py-2.5 px-5 text-sm font-medium text-center text-white bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg focus:ring-4 focus:ring-blue-300/70 hover:from-blue-600 hover:to-purple-700 transition-all disabled:opacity-60 disabled:cursor-not-allowed shadow-md hover:shadow-lg"
+                                >
+                                    {isAddingComment ? (
+                                        <Loader2 className="w-4 h-4 animate-spin" />
+                                    ) : (
+                                        <Send size={16} />
+                                    )}
+                                    Post Comment
+                                </button>
+                            </div>
+                        </div>
+                        {addCommentError && (
+                            <p className="text-xs text-red-600 mt-1">
+                                Failed to post comment. Please try again.
+                            </p>
+                        )}
                     </form>
 
-                    {comments?.data.map((comment) => {
-                        return <Comment key={comment?._id} comment={comment} />;
-                    })}
-                </div>
-            </section>
+                    {commentsFetchLoading && (
+                        <div className="text-center py-6">
+                            <Loader2 className="h-8 w-8 animate-spin text-blue-500 mx-auto" />
+                            <p className="text-slate-500 mt-2">
+                                Loading comments...
+                            </p>
+                        </div>
+                    )}
+                    {commentsFetchError && (
+                        <div className="text-center py-6 text-red-600">
+                            <AlertTriangle className="mx-auto mb-2" />
+                            Failed to load comments.
+                        </div>
+                    )}
+
+                    <div className="space-y-6">
+                        {comments && comments.length > 0
+                            ? comments.map((commentData) => (
+                                  <Comment
+                                      key={commentData?._id}
+                                      comment={commentData}
+                                      postId={postId}
+                                  />
+                              ))
+                            : !commentsFetchLoading &&
+                              !postFetchError && (
+                                  <p className="text-slate-500 text-center py-4">
+                                      No comments yet. Be the first to share
+                                      your thoughts!
+                                  </p>
+                              )}
+                    </div>
+                </section>
+            </div>
         </div>
     );
 };

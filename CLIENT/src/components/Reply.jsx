@@ -1,138 +1,180 @@
 import React, { useState } from "react";
 import {
-    useAddReplyMutation,
-    useDeleteCommentMutation,
     useDeleteReplyMutation,
-    useEditCommentMutation,
     useEditReplyMutation,
-    useGetRepliesQuery,
 } from "../features/comments/commentsApi";
-import { useParams } from "react-router-dom";
-import { formatter } from "../assets/date-config";
 import { useSelector } from "react-redux";
+import { MoreHorizontal, Edit, Trash, Loader2, UserCircle } from "lucide-react";
 
-const Reply = ({ reply, commentId }) => {
+// Placeholder untuk formatter (Sama seperti di PostDetail)
+const formatter = {
+    format: (date) => {
+        if (!date) return "Invalid date";
+        try {
+            return new Date(date).toLocaleDateString("id-ID", {
+                year: "numeric",
+                month: "short",
+                day: "numeric",
+                hour: "2-digit",
+                minute: "2-digit",
+            });
+        } catch (e) {
+            return "Invalid date";
+        }
+    },
+};
+
+const Reply = ({ reply, commentId, postId }) => {
     const { displayName } = useSelector((state) => state.user);
     const [dropdownOpen, setDropdownOpen] = useState(false);
     const [isEditingReply, setIsEditingReply] = useState(false);
     const [editedReply, setEditedReply] = useState(reply?.reply);
 
-    const { postId } = useParams();
     const replyId = reply._id;
-    const [deleteReply] = useDeleteReplyMutation();
-    const [editReply] = useEditReplyMutation();
-    const isAuthenticate = reply.username === displayName;
+    const [deleteReply, { isLoading: isDeletingReply }] =
+        useDeleteReplyMutation();
+    const [editReply, { isLoading: isSavingEditReply }] =
+        useEditReplyMutation();
+    const isOwner = reply.username === displayName;
 
     const handleEditReply = () => {
         setIsEditingReply(true);
         setDropdownOpen(false);
     };
-
     const handleCancelReply = () => {
         setIsEditingReply(false);
         setEditedReply(reply?.reply);
     };
 
-    const handleSaveEditReply = (e) => {
+    const handleSaveEditReply = async (e) => {
         e.preventDefault();
-
-        editReply({
-            postId: postId,
-            commentId: commentId,
-            replyId: replyId,
-            data: {
-                reply: editedReply,
-            },
-        });
-
-        setIsEditingReply(false);
+        if (!editedReply.trim()) return;
+        try {
+            await editReply({
+                postId: postId,
+                commentId: commentId,
+                replyId: replyId,
+                data: { reply: editedReply },
+            }).unwrap();
+            setIsEditingReply(false);
+        } catch (err) {
+            console.error("Failed to save reply:", err);
+        }
     };
 
-    const handleDeleteReply = () => {
-        deleteReply({ postId, commentId, replyId });
-        setDropdownOpen(false);
+    const handleDeleteReply = async () => {
+        if (window.confirm("Are you sure you want to delete this reply?")) {
+            try {
+                await deleteReply({ postId, commentId, replyId }).unwrap();
+                setDropdownOpen(false);
+            } catch (err) {
+                console.error("Failed to delete reply:", err);
+            }
+        } else {
+            setDropdownOpen(false);
+        }
     };
 
     return (
-        <article className="pl-8 pt-6 text-base rounded-lg bg-gray-900 relative">
-            <footer className="flex justify-between items-center mb-2">
-                <div className="flex items-center">
-                    <p className="inline-flex items-center mr-3 text-sm text-white">
-                        <img
-                            className="mr-2 w-6 h-6 rounded-full"
-                            src={reply.imageProfile}
-                            alt="User Profile"
-                        />
-                        {reply?.username}
-                    </p>
-                    <p className="text-sm text-gray-400">
-                        <time>
-                            {formatter.format(new Date(reply?.createdAt))}
-                        </time>
-                    </p>
+        // Kartu Reply dengan tema, sedikit berbeda dari Comment untuk hierarki
+        <article className="p-3 sm:p-4 text-sm bg-slate-100/70 backdrop-blur-sm rounded-xl border border-slate-200/60 shadow-md relative">
+            <footer className="flex justify-between items-start sm:items-center mb-1.5">
+                <div className="flex items-center space-x-2">
+                    <img
+                        className="w-7 h-7 rounded-full object-cover border border-white shadow-sm"
+                        src={
+                            reply.imageProfile ||
+                            `https://ui-avatars.com/api/?name=${(
+                                reply.username || "U"
+                            ).charAt(
+                                0
+                            )}&background=random&color=fff&font-size=0.5&bold=true`
+                        }
+                        alt={reply.username || "User"}
+                    />
+                    <div>
+                        <p className="inline-flex items-center text-xs text-slate-700 font-semibold">
+                            {reply?.username}
+                        </p>
+                        <p className="text-xs text-slate-500 ml-0 sm:ml-1.5 sm:inline block">
+                            <time dateTime={reply.createdAt}>
+                                {formatter.format(new Date(reply?.createdAt))}
+                            </time>
+                        </p>
+                    </div>
                 </div>
-                <div className="relative" hidden={!isAuthenticate}>
-                    <button
-                        id="dropdownComment1Button"
-                        onClick={() => setDropdownOpen(!dropdownOpen)}
-                        className="p-2 text-sm text-gray-400 bg-gray-900 rounded-lg hover:bg-gray-700 focus:ring-gray-600"
-                    >
-                        <svg
-                            className="w-5 h-4"
-                            aria-hidden="true"
-                            fill="currentColor"
-                            viewBox="0 0 20 20"
-                            xmlns="http://www.w3.org/2000/svg"
+                {isOwner && (
+                    <div className="relative flex-shrink-0">
+                        <button
+                            onClick={() => setDropdownOpen(!dropdownOpen)}
+                            className="p-1 text-slate-500 rounded-full hover:bg-slate-400/20 focus:outline-none transition-colors"
+                            aria-label="Reply options"
                         >
-                            <path d="M6 10a2 2 0 11-4 0 2 2 0 014 0zM12 10a2 2 0 11-4 0 2 2 0 014 0zM16 12a2 2 0 100-4 2 2 0 000 4z"></path>
-                        </svg>
-                    </button>
-                    {dropdownOpen && (
-                        <div className="absolute right-0 mt-1 w-32 bg-gray-800 rounded shadow-lg z-10">
-                            <button
-                                onClick={handleEditReply}
-                                className="block px-4 py-2 text-sm text-white hover:bg-gray-700 w-full text-left"
-                            >
-                                Edit
-                            </button>
-                            <button
-                                onClick={handleDeleteReply}
-                                className="block px-4 py-2 text-sm text-red-400 hover:bg-gray-700 w-full text-left"
-                            >
-                                Delete
-                            </button>
-                        </div>
-                    )}
-                </div>
+                            <MoreHorizontal size={16} />
+                        </button>
+                        {dropdownOpen && (
+                            <div className="absolute right-0 mt-1 w-32 bg-white/95 backdrop-blur-md rounded-md shadow-xl border border-slate-200/50 z-10 py-1 origin-top-right animate-fade-in-down">
+                                <button
+                                    onClick={handleEditReply}
+                                    className="w-full text-left flex items-center gap-2 px-3 py-1.5 text-xs text-slate-700 hover:bg-blue-500/10 hover:text-blue-600 transition-colors rounded-sm"
+                                >
+                                    <Edit size={13} className="opacity-70" />{" "}
+                                    Edit
+                                </button>
+                                <button
+                                    onClick={handleDeleteReply}
+                                    disabled={isDeletingReply}
+                                    className="w-full text-left flex items-center gap-2 px-3 py-1.5 text-xs text-red-600 hover:bg-red-500/10 hover:text-red-700 transition-colors rounded-sm disabled:opacity-50"
+                                >
+                                    {isDeletingReply ? (
+                                        <Loader2 className="animate-spin h-3 w-3 mr-1" />
+                                    ) : (
+                                        <Trash
+                                            size={13}
+                                            className="opacity-70"
+                                        />
+                                    )}
+                                    Delete
+                                </button>
+                            </div>
+                        )}
+                    </div>
+                )}
             </footer>
 
-            {/* Conditional Rendering for Edit Mode */}
             {isEditingReply ? (
-                <div>
+                <form onSubmit={handleSaveEditReply} className="mt-1.5">
                     <textarea
-                        className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 bg-gray-800 text-gray-400 text-sm"
+                        className="w-full p-2 text-xs border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/80 bg-white text-slate-800 placeholder-slate-400 resize-none shadow-sm"
                         value={editedReply}
                         onChange={(e) => setEditedReply(e.target.value)}
-                        rows="3"
+                        rows="2"
                     />
-                    <div className="flex justify-end space-x-2 mt-2">
+                    <div className="flex justify-end space-x-1.5 mt-1.5">
                         <button
+                            type="button"
                             onClick={handleCancelReply}
-                            className="px-2 py-0.5 text-white bg-gray-400 rounded hover:bg-gray-500 text-sm"
+                            className="px-2.5 py-1 text-xs font-medium text-slate-700 bg-slate-200 hover:bg-slate-300 transition-colors rounded-md shadow-sm"
                         >
                             Cancel
                         </button>
                         <button
-                            // type='submit'
-                            onClick={handleSaveEditReply}
-                            className="px-2 py-0.5 text-white bg-blue-500 rounded hover:bg-blue-600 text-sm"
+                            type="submit"
+                            disabled={isSavingEditReply}
+                            className="px-2.5 py-1 text-xs font-medium text-white bg-blue-500 rounded-md hover:bg-blue-600 transition-colors disabled:opacity-70 shadow-sm"
                         >
-                            Save
+                            {isSavingEditReply ? (
+                                <Loader2 className="animate-spin h-3 w-3" />
+                            ) : (
+                                "Save"
+                            )}
                         </button>
                     </div>
-                </div>
+                </form>
             ) : (
-                <p className="text-gray-400">{reply?.reply}</p>
+                <p className="text-slate-600 text-sm leading-relaxed whitespace-pre-line py-1">
+                    {reply?.reply}
+                </p>
             )}
         </article>
     );
