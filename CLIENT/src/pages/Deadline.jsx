@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import {
-    Calendar,
+    Calendar as CalendarIcon,
     Plus,
     Clock,
     Filter,
@@ -27,6 +27,7 @@ const Deadline = () => {
     const [selectedEvent, setSelectedEvent] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [modalMode, setModalMode] = useState("add");
+    const [currentTime, setCurrentTime] = useState(new Date());
 
     const { displayName, photoURL, isloggedIn, isAuthLoading } = useSelector(
         (state) => state.user
@@ -34,47 +35,171 @@ const Deadline = () => {
 
     const [viewMode, setViewMode] = useState("calendar");
 
-    //untuk backend
     const [events, setEvents] = useState([
         {
             id: 1,
-            title: "Project Proposal Deadline",
-            description: "Submit final project proposal to stakeholders",
+            title: "Tugas Lewat Kemarin",
+            description: "Harusnya selesai kemarin.",
             start: "2025-05-26 09:00",
-            end: "2025-05-26 10:00",
+            end: "2025-05-26 17:00",
             completed: false,
+            priority: "urgent",
         },
         {
             id: 2,
-            title: "Client Presentation",
-            description: "Present quarterly results to key clients",
-            start: "2025-05-26 09:00",
-            end: "2025-05-26 10:00",
+            title: "Tugas Jatuh Tempo Hari Ini (Sudah Lewat)",
+            description: "Jatuh tempo beberapa jam lalu.",
+            end: (() => {
+                const d = new Date();
+                d.setDate(d.getDate());
+                d.setHours(10, 0, 0, 0);
+                return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(
+                    2,
+                    "0"
+                )}-${String(d.getDate()).padStart(2, "0")} ${String(
+                    d.getHours()
+                ).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
+            })(),
+            start: (() => {
+                const d = new Date();
+                d.setDate(d.getDate());
+                d.setHours(9, 0, 0, 0);
+                return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(
+                    2,
+                    "0"
+                )}-${String(d.getDate()).padStart(2, "0")} ${String(
+                    d.getHours()
+                ).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
+            })(),
             completed: false,
+            priority: "high",
         },
         {
             id: 3,
-            title: "Team Review Meeting",
-            description: "Monthly team performance review",
-            start: "2025-05-26 09:00",
+            title: "Tugas Jatuh Tempo Nanti (Hari Ini)",
+            description: "Masih ada waktu beberapa jam lagi.",
+            end: (() => {
+                const d = new Date();
+                d.setDate(d.getDate());
+                d.setHours(23, 0, 0, 0);
+                return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(
+                    2,
+                    "0"
+                )}-${String(d.getDate()).padStart(2, "0")} ${String(
+                    d.getHours()
+                ).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
+            })(),
+            start: (() => {
+                const d = new Date();
+                d.setDate(d.getDate());
+                d.setHours(22, 0, 0, 0);
+                return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(
+                    2,
+                    "0"
+                )}-${String(d.getDate()).padStart(2, "0")} ${String(
+                    d.getHours()
+                ).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
+            })(),
+            completed: false,
+            priority: "medium",
+        },
+        {
+            id: 4,
+            title: "Tugas Selesai (Tapi Lewat)",
+            description: "Sudah selesai tapi telat.",
             end: "2025-05-26 10:00",
+            start: "2025-05-26 09:00",
             completed: true,
+            priority: "low",
         },
     ]);
 
-    const calendar = useCalendarApp({
+    const calendarAppInstance = useCalendarApp({
         views: [createViewMonthGrid()],
-        events: events,
         selectedDate: new Date().toISOString().split("T")[0],
         plugins: [createDragAndDropPlugin()],
         callbacks: {
-            onEventClick: (ev) => {
-                setSelectedEvent(ev);
-                setModalMode("edit");
-                setIsModalOpen(true);
+            onEventClick: (clickedEventData) => {
+                const originalEvent = events.find(
+                    (e) => String(e.id) === String(clickedEventData.id)
+                );
+                if (originalEvent) {
+                    setSelectedEvent(originalEvent);
+                    setModalMode("edit");
+                    setIsModalOpen(true);
+                } else {
+                    console.warn("Event not found in state:", clickedEventData);
+                    setSelectedEvent({
+                        ...clickedEventData,
+                        start: clickedEventData.start
+                            ? new Date(clickedEventData.start)
+                                  .toISOString()
+                                  .slice(0, 16)
+                                  .replace("T", " ")
+                            : "",
+                        end: clickedEventData.end
+                            ? new Date(clickedEventData.end)
+                                  .toISOString()
+                                  .slice(0, 16)
+                                  .replace("T", " ")
+                            : "",
+                    });
+                    setModalMode("edit");
+                    setIsModalOpen(true);
+                }
             },
         },
     });
+
+    const getDynamicPriority = (event, now) => {
+        if (event.completed) {
+            return "completed";
+        }
+
+        const dueDate = new Date(event.end.replace(" ", "T"));
+
+        if (dueDate < now) {
+            return "urgent";
+        }
+
+        const diffTime = dueDate.getTime() - now.getTime();
+        const diffHours = diffTime / (1000 * 60 * 60);
+
+        if (diffHours <= 24) {
+            return "high";
+        }
+        if (diffHours <= 24 * 7) {
+            return "medium";
+        }
+
+        return "low";
+    };
+
+    useEffect(() => {
+        if (calendarAppInstance) {
+            const formattedEvents = events.map((event) => ({
+                ...event,
+                id: String(event.id),
+                start: event.start.includes("T")
+                    ? event.start
+                    : event.start.replace(" ", "T"),
+                end: event.end.includes("T")
+                    ? event.end
+                    : event.end.replace(" ", "T"),
+            }));
+            calendarAppInstance.events.set(formattedEvents);
+        }
+    }, [events, calendarAppInstance]);
+
+    useEffect(() => {
+        const timerId = setInterval(() => {
+            setCurrentTime(new Date());
+        }, 60000);
+
+        return () => {
+            clearInterval(timerId);
+        };
+    }, []);
 
     const handleModalChange = (e) => {
         const { name, value } = e.target;
@@ -85,30 +210,34 @@ const Deadline = () => {
         }));
     };
 
-    const handleModalSave = (event) => {
+    const handleModalSave = (eventDataFromModal) => {
+        let updatedEvents;
         if (modalMode === "edit") {
-            setEvents(
-                events.map((ev) =>
-                    ev.id === selectedEvent.id ? selectedEvent : ev
-                )
+            updatedEvents = events.map((ev) =>
+                String(ev.id) === String(eventDataFromModal.id)
+                    ? { ...ev, ...eventDataFromModal }
+                    : ev
             );
         } else {
             const newEvent = {
-                id: events.length + 1,
-                title: event.title,
-                description: event.description,
-                start: event.end,
-                end: event.end,
+                ...eventDataFromModal,
+                id: String(Math.max(0, ...events.map((e) => Number(e.id))) + 1),
+                start: eventDataFromModal.start || eventDataFromModal.end,
+                end: eventDataFromModal.end,
+                completed: eventDataFromModal.completed || false,
+                priority: eventDataFromModal.priority || "medium",
             };
-            setEvents([...events, newEvent]);
-            calendar.events.add(newEvent);
+            updatedEvents = [...events, newEvent];
         }
+        setEvents(updatedEvents);
         setIsModalOpen(false);
         setSelectedEvent(null);
     };
 
     const handleModalDelete = () => {
-        setEvents(events.filter((ev) => ev.id !== selectedEvent.id));
+        setEvents(
+            events.filter((ev) => String(ev.id) !== String(selectedEvent.id))
+        );
         setIsModalOpen(false);
         setSelectedEvent(null);
     };
@@ -116,7 +245,9 @@ const Deadline = () => {
     const toggleComplete = (id) => {
         setEvents(
             events.map((ev) =>
-                ev.id === id ? { ...ev, completed: !ev.completed } : ev
+                String(ev.id) === String(id)
+                    ? { ...ev, completed: !ev.completed }
+                    : ev
             )
         );
     };
@@ -124,52 +255,67 @@ const Deadline = () => {
     const getPriorityColor = (priority) => {
         switch (priority) {
             case "urgent":
-                return "bg-red-100 text-red-800 border-red-200";
+                return "bg-neutral-800 text-neutral-100 border-neutral-900";
             case "high":
                 return "bg-orange-100 text-orange-800 border-orange-200";
             case "medium":
                 return "bg-yellow-100 text-yellow-800 border-yellow-200";
             case "low":
                 return "bg-green-100 text-green-800 border-green-200";
+            case "completed":
+                return "bg-slate-100 text-slate-500 border-slate-200";
             default:
                 return "bg-gray-100 text-gray-800 border-gray-200";
         }
     };
-
-    const getDaysUntilDue = (dateString) => {
+    const getDaysUntilDue = (dateString, now = new Date()) => {
+        if (!dateString) return null;
         const dueDate = new Date(dateString.replace(" ", "T"));
-        const now = new Date();
         const diffTime = dueDate - now;
-        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-        return diffDays;
+        if (diffTime > 0) {
+            return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        } else {
+            return Math.floor(diffTime / (1000 * 60 * 60 * 24));
+        }
     };
 
-    const getOverviewStats = () => {
+    const getOverviewStats = React.useCallback(() => {
         const total = events.length;
         const completed = events.filter((e) => e.completed).length;
+
         const overdue = events.filter(
-            (e) => !e.completed && getDaysUntilDue(e.end) < 0
-        ).length;
-        const upcoming = events.filter(
             (e) =>
-                !e.completed &&
-                getDaysUntilDue(e.end) >= 0 &&
-                getDaysUntilDue(e.end) <= 7
+                !e.completed && new Date(e.end.replace(" ", "T")) < currentTime
         ).length;
 
+        const upcoming = events.filter((e) => {
+            if (e.completed) return false;
+            const dueDate = new Date(e.end.replace(" ", "T"));
+            if (dueDate < currentTime) return false;
+
+            const diffTime = dueDate - currentTime;
+            const diffDays = diffTime / (1000 * 60 * 60 * 24);
+            return diffDays >= 0 && diffDays <= 7;
+        }).length;
+
         return { total, completed, overdue, upcoming };
-    };
+    }, [events, currentTime]);
 
     const stats = getOverviewStats();
 
     const navigate = useNavigate();
 
+    useEffect(() => {
+        if (!isAuthLoading && !isloggedIn) {
+            navigate("/signin");
+        }
+    }, [isAuthLoading, isloggedIn, navigate]);
+
     if (isAuthLoading) {
         return <div>sedang loading...</div>;
     }
-
-    if (isloggedIn != true) {
-        navigate("/signin");
+    if (!isloggedIn) {
+        return null;
     }
 
     return (
@@ -207,11 +353,23 @@ const Deadline = () => {
                         </button>
                         <button
                             onClick={() => {
+                                const now = new Date();
+                                now.setMinutes(
+                                    now.getMinutes() - now.getTimezoneOffset()
+                                );
                                 setSelectedEvent({
                                     title: "",
                                     description: "",
-                                    start: "",
-                                    end: "",
+                                    start: now
+                                        .toISOString()
+                                        .slice(0, 16)
+                                        .replace("T", " "),
+                                    end: now
+                                        .toISOString()
+                                        .slice(0, 16)
+                                        .replace("T", " "),
+                                    completed: false,
+                                    priority: "medium",
                                 });
                                 setModalMode("add");
                                 setIsModalOpen(true);
@@ -226,7 +384,6 @@ const Deadline = () => {
             </div>
 
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-8">
-                {/* Stats Overview */}
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
                     <div className="bg-white/60 backdrop-blur-sm rounded-2xl p-6 border border-white/20 shadow-xl">
                         <div className="flex items-center justify-between">
@@ -243,7 +400,6 @@ const Deadline = () => {
                             </div>
                         </div>
                     </div>
-
                     <div className="bg-white/60 backdrop-blur-sm rounded-2xl p-6 border border-white/20 shadow-xl">
                         <div className="flex items-center justify-between">
                             <div>
@@ -262,7 +418,6 @@ const Deadline = () => {
                             </div>
                         </div>
                     </div>
-
                     <div className="bg-white/60 backdrop-blur-sm rounded-2xl p-6 border border-white/20 shadow-xl">
                         <div className="flex items-center justify-between">
                             <div>
@@ -278,7 +433,6 @@ const Deadline = () => {
                             </div>
                         </div>
                     </div>
-
                     <div className="bg-white/60 backdrop-blur-sm rounded-2xl p-6 border border-white/20 shadow-xl">
                         <div className="flex items-center justify-between">
                             <div>
@@ -299,11 +453,12 @@ const Deadline = () => {
                     </div>
                 </div>
 
-                {/* Main Content */}
                 <div className="bg-white/60 backdrop-blur-sm rounded-2xl border border-white/20 shadow-xl overflow-hidden">
                     {viewMode === "calendar" ? (
                         <div className="p-6 h-[600px]">
-                            <ScheduleXCalendar calendarApp={calendar} />
+                            <ScheduleXCalendar
+                                calendarApp={calendarAppInstance}
+                            />
                         </div>
                     ) : (
                         <div className="divide-y divide-gray-100">
@@ -322,18 +477,32 @@ const Deadline = () => {
                                     </p>
                                     <button
                                         onClick={() => {
+                                            const now = new Date();
+                                            now.setMinutes(
+                                                now.getMinutes() -
+                                                    now.getTimezoneOffset()
+                                            );
                                             setSelectedEvent({
                                                 title: "",
                                                 description: "",
-                                                end: "",
+                                                start: now
+                                                    .toISOString()
+                                                    .slice(0, 16)
+                                                    .replace("T", " "),
+                                                end: now
+                                                    .toISOString()
+                                                    .slice(0, 16)
+                                                    .replace("T", " "),
+                                                completed: false,
+                                                priority: "medium",
                                             });
                                             setModalMode("add");
                                             setIsModalOpen(true);
                                         }}
                                         className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white px-6 py-3 rounded-xl hover:from-blue-600 hover:to-purple-700 transition-all duration-200 shadow-lg hover:shadow-xl"
                                     >
-                                        <Plus size={18} />
-                                        Create Your First Deadline
+                                        <Plus size={18} /> Create Your First
+                                        Deadline
                                     </button>
                                 </div>
                             ) : (
@@ -344,13 +513,29 @@ const Deadline = () => {
                                             new Date(b.end.replace(" ", "T"))
                                     )
                                     .map((event) => {
-                                        const daysUntil = getDaysUntilDue(
-                                            event.end
+                                        const eventDueDate = new Date(
+                                            event.end.replace(" ", "T")
                                         );
-                                        const isOverdue =
-                                            daysUntil < 0 && !event.completed;
-                                        const isDueToday =
-                                            daysUntil === 0 && !event.completed;
+                                        const isEventOverdue =
+                                            !event.completed &&
+                                            eventDueDate < currentTime;
+
+                                        const dynamicPriority =
+                                            getDynamicPriority(
+                                                event,
+                                                currentTime
+                                            );
+
+                                        const daysUntil = getDaysUntilDue(
+                                            event.end,
+                                            currentTime
+                                        );
+
+                                        const isEventDueToday =
+                                            !event.completed &&
+                                            eventDueDate.toDateString() ===
+                                                currentTime.toDateString() &&
+                                            eventDueDate >= currentTime;
 
                                         return (
                                             <div
@@ -358,6 +543,10 @@ const Deadline = () => {
                                                 className={`p-6 hover:bg-white/40 transition-all duration-200 cursor-pointer ${
                                                     event.completed
                                                         ? "opacity-60"
+                                                        : ""
+                                                } ${
+                                                    isEventOverdue
+                                                        ? "border-l-4 border-neutral-800"
                                                         : ""
                                                 }`}
                                                 onClick={() => {
@@ -392,6 +581,9 @@ const Deadline = () => {
                                                                     className={`font-semibold text-lg ${
                                                                         event.completed
                                                                             ? "line-through text-gray-500"
+                                                                            : dynamicPriority ===
+                                                                              "urgent"
+                                                                            ? "text-neutral-800"
                                                                             : "text-gray-900"
                                                                     }`}
                                                                 >
@@ -408,21 +600,22 @@ const Deadline = () => {
                                                                 )}
 
                                                                 <div className="flex items-center gap-3 mt-3">
-                                                                    <span
-                                                                        className={`px-3 py-1 rounded-full text-xs font-medium border ${getPriorityColor(
-                                                                            event.priority
-                                                                        )}`}
-                                                                    >
-                                                                        {event.priority
-                                                                            ?.charAt(
-                                                                                0
-                                                                            )
-                                                                            .toUpperCase() +
-                                                                            event.priority?.slice(
-                                                                                1
-                                                                            )}
-                                                                    </span>
-
+                                                                    {dynamicPriority && (
+                                                                        <span
+                                                                            className={`px-3 py-1 rounded-full text-xs font-medium border ${getPriorityColor(
+                                                                                dynamicPriority
+                                                                            )}`}
+                                                                        >
+                                                                            {dynamicPriority
+                                                                                .charAt(
+                                                                                    0
+                                                                                )
+                                                                                .toUpperCase() +
+                                                                                dynamicPriority.slice(
+                                                                                    1
+                                                                                )}
+                                                                        </span>
+                                                                    )}
                                                                     <div className="flex items-center gap-1 text-sm text-gray-500">
                                                                         <Clock
                                                                             size={
@@ -451,62 +644,66 @@ const Deadline = () => {
                                                                     </div>
                                                                 </div>
                                                             </div>
-
-                                                            <div className="text-right">
-                                                                {isOverdue && (
-                                                                    <span className="inline-flex items-center gap-1 text-red-600 text-sm font-medium">
-                                                                        <AlertTriangle
-                                                                            size={
-                                                                                14
-                                                                            }
-                                                                        />
-                                                                        {Math.abs(
-                                                                            daysUntil
-                                                                        )}{" "}
-                                                                        day
-                                                                        {Math.abs(
-                                                                            daysUntil
-                                                                        ) === 1
-                                                                            ? ""
-                                                                            : "s"}{" "}
-                                                                        overdue
-                                                                    </span>
-                                                                )}
-                                                                {isDueToday && (
-                                                                    <span className="inline-flex items-center gap-1 text-orange-600 text-sm font-medium">
-                                                                        <Bell
-                                                                            size={
-                                                                                14
-                                                                            }
-                                                                        />
-                                                                        Due
-                                                                        today
-                                                                    </span>
-                                                                )}
-                                                                {daysUntil >
-                                                                    0 && (
-                                                                    <span className="text-gray-500 text-sm">
-                                                                        {
-                                                                            daysUntil
-                                                                        }{" "}
-                                                                        day
-                                                                        {daysUntil ===
-                                                                        1
-                                                                            ? ""
-                                                                            : "s"}{" "}
-                                                                        left
-                                                                    </span>
-                                                                )}
-                                                                {event.completed && (
-                                                                    <span className="inline-flex items-center gap-1 text-green-600 text-sm font-medium">
-                                                                        <CheckCircle2
-                                                                            size={
-                                                                                14
-                                                                            }
-                                                                        />
-                                                                        Completed
-                                                                    </span>
-                                                                )}
+                                                            <div className="text-right flex-shrink-0">
+                                                                {isEventOverdue &&
+                                                                    dynamicPriority ===
+                                                                        "urgent" && (
+                                                                        <span className="inline-flex items-center gap-1 text-neutral-700 text-sm font-medium">
+                                                                            <AlertTriangle
+                                                                                size={
+                                                                                    14
+                                                                                }
+                                                                                className="text-neutral-700"
+                                                                            />
+                                                                            Overdue
+                                                                        </span>
+                                                                    )}
+                                                                {isEventDueToday &&
+                                                                    dynamicPriority !==
+                                                                        "high" &&
+                                                                    dynamicPriority !==
+                                                                        "urgent" && (
+                                                                        <span className="inline-flex items-center gap-1 text-orange-600 text-sm font-medium">
+                                                                            <Bell
+                                                                                size={
+                                                                                    14
+                                                                                }
+                                                                            />
+                                                                            Due
+                                                                            today
+                                                                        </span>
+                                                                    )}
+                                                                {!isEventOverdue &&
+                                                                    !isEventDueToday &&
+                                                                    daysUntil >
+                                                                        0 &&
+                                                                    !event.completed &&
+                                                                    dynamicPriority ===
+                                                                        "low" && (
+                                                                        <span className="text-gray-500 text-sm">
+                                                                            {
+                                                                                daysUntil
+                                                                            }{" "}
+                                                                            day
+                                                                            {daysUntil ===
+                                                                            1
+                                                                                ? ""
+                                                                                : "s"}{" "}
+                                                                            left
+                                                                        </span>
+                                                                    )}
+                                                                {event.completed &&
+                                                                    dynamicPriority ===
+                                                                        "completed" && (
+                                                                        <span className="inline-flex items-center gap-1 text-slate-500 text-sm font-medium">
+                                                                            <CheckCircle2
+                                                                                size={
+                                                                                    14
+                                                                                }
+                                                                            />
+                                                                            Completed
+                                                                        </span>
+                                                                    )}
                                                             </div>
                                                         </div>
                                                     </div>
@@ -520,11 +717,9 @@ const Deadline = () => {
                 </div>
             </div>
 
-            {/* Modal */}
             {isModalOpen && (
                 <DeadlineModal
-                    event={selectedEvent}
-                    onChange={handleModalChange}
+                    initialEvent={selectedEvent}
                     onSave={handleModalSave}
                     modalMode={modalMode}
                     onDelete={
