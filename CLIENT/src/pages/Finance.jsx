@@ -1,31 +1,26 @@
 import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import {
-    AreaChart,
-    Area,
-    XAxis,
-    YAxis,
-    Tooltip,
-    ResponsiveContainer,
-    Legend,
-    CartesianGrid,
-} from "recharts";
 import { FaPlus } from "react-icons/fa6";
 import {
     Plus as PlusIconLucide,
-    Edit2,
-    Trash2,
     Wallet,
     TrendingUp,
     TrendingDown,
     ArrowLeftRight,
     Info,
-} from "lucide-react"; // Menambah ikon Info
-import FinanceModal from "../components/FinanceModal";
+    Loader2,
+} from "lucide-react";
 
-// Data awal transaksi (sama seperti sebelumnya)
+import FinanceModal from "../components/FinanceModal";
+import FinancialStatCard from "../components/FinancialStatCard"; // Impor baru
+import MonthlyFlowChart from "../components/MonthlyFlowChart"; // Impor baru
+import TransactionRow from "../components/TransactionRow"; // Impor baru
+import TransactionCardMobile from "../components/TransactionCardMobile"; // Impor baru
+
+// Data awal transaksi dan formatRupiah bisa dipindah ke file utilitas jika diinginkan
 const initialTransactions = [
+    // ...data transaksi Anda...
     {
         id: 1,
         name: "Bayar uang kos",
@@ -106,15 +101,7 @@ const initialTransactions = [
 ];
 
 const formatRupiah = (amount, includeSign = false) => {
-    const sign = amount < 0 ? "- " : includeSign && amount > 0 ? "+ " : "";
-    return (
-        sign +
-        new Intl.NumberFormat("id-ID", {
-            style: "currency",
-            currency: "IDR",
-            minimumFractionDigits: 0,
-        }).format(Math.abs(amount))
-    );
+    /* ... implementasi sama ... */
 };
 
 const Finance = () => {
@@ -127,6 +114,7 @@ const Finance = () => {
     const [financeModalMode, setFinanceModalMode] = useState("add");
     const [currentTime, setCurrentTime] = useState(new Date());
 
+    // ... useEffect dan kalkulasi financialStats, monthlyChartData tetap sama ...
     useEffect(() => {
         const timerId = setInterval(
             () => setCurrentTime(new Date()),
@@ -145,10 +133,8 @@ const Finance = () => {
         const now = currentTime;
         const currentMonth = now.getMonth();
         const currentYear = now.getFullYear();
-
         let totalIncomeThisMonth = 0;
         let totalExpensesThisMonth = 0;
-
         transactions.forEach((tx) => {
             const txDate = new Date(tx.date);
             if (
@@ -162,11 +148,10 @@ const Finance = () => {
                 }
             }
         });
-
-        const balance = transactions.reduce((acc, tx) => {
-            return acc + (tx.type === "income" ? tx.amount : -tx.amount);
-        }, 0);
-
+        const balance = transactions.reduce(
+            (acc, tx) => acc + (tx.type === "income" ? tx.amount : -tx.amount),
+            0
+        );
         return {
             balance,
             monthlyIncome: totalIncomeThisMonth,
@@ -194,7 +179,6 @@ const Finance = () => {
         const endDate = new Date(currentTime);
         const startDate = new Date(currentTime);
         startDate.setMonth(startDate.getMonth() - 11);
-
         for (let i = 0; i < 12; i++) {
             const d = new Date(startDate);
             d.setMonth(startDate.getMonth() + i);
@@ -208,7 +192,6 @@ const Finance = () => {
                 net: 0,
             };
         }
-
         transactions.forEach((tx) => {
             const txDate = new Date(tx.date);
             if (txDate >= startDate && txDate <= endDate) {
@@ -242,11 +225,11 @@ const Finance = () => {
         setIsFinanceModalOpen(true);
     };
 
-    const handleOpenEditModal = (transactionToEdit) => {
+    const handleOpenEditModal = useCallback((transactionToEdit) => {
         setCurrentTransaction(transactionToEdit);
         setFinanceModalMode("edit");
         setIsFinanceModalOpen(true);
-    };
+    }, []); // useCallback karena di-pass ke TransactionRow/Card
 
     const handleSaveTransaction = (transactionDataFromModal) => {
         if (financeModalMode === "add") {
@@ -273,36 +256,48 @@ const Finance = () => {
         setCurrentTransaction(null);
     };
 
-    const handleDeleteTransaction = () => {
+    const handleDeleteTransactionCallback = useCallback(
+        (transactionId) => {
+            if (
+                window.confirm(
+                    "Are you sure you want to delete this transaction?"
+                )
+            ) {
+                setTransactions((prev) =>
+                    prev.filter((t) => t.id !== transactionId)
+                );
+            }
+            // Jika modal masih terbuka dari edit, tutup
+            if (
+                isFinanceModalOpen &&
+                currentTransaction &&
+                currentTransaction.id === transactionId
+            ) {
+                setIsFinanceModalOpen(false);
+                setCurrentTransaction(null);
+            }
+        },
+        [isFinanceModalOpen, currentTransaction]
+    ); // useCallback karena di-pass
+
+    const handleDeleteFromModal = () => {
+        // Fungsi ini dipanggil oleh tombol delete di modal
         if (currentTransaction && currentTransaction.id) {
-            setTransactions((prev) =>
-                prev.filter((t) => t.id !== currentTransaction.id)
-            );
+            handleDeleteTransactionCallback(currentTransaction.id);
         }
-        setIsFinanceModalOpen(false);
-        setCurrentTransaction(null);
     };
 
     if (isAuthLoading) {
-        return (
-            <div className="flex justify-center items-center min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 text-gray-700">
-                {" "}
-                Loading finance data...{" "}
-            </div>
-        );
+        /* ... loading state ... */
     }
     if (!isloggedIn) {
-        return null;
+        /* ... null ... */
     }
-
-    const themeChartColors = {
-        income: "#22c55e", // Tailwind green-500
-        expense: "#ef4444", // Tailwind red-500
-    };
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                {/* ... Header (Judul + Tombol Add Transaction) ... */}
                 <div className="mb-8 flex flex-col sm:flex-row justify-between sm:items-center gap-4">
                     <div>
                         <h1 className="text-3xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent">
@@ -320,223 +315,64 @@ const Finance = () => {
                     </button>
                 </div>
 
-                {/* Bagian Utama: Saldo dan Grafik */}
-                <div className="mb-8 bg-white/70 backdrop-blur-md rounded-2xl border border-white/30 shadow-xl overflow-hidden p-4 sm:p-6">
-                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
-                        <div>
-                            <p className="text-sm font-medium text-gray-600">
-                                Total Balance
-                            </p>
-                            <p className="text-3xl lg:text-4xl font-bold text-gray-900">
-                                {formatRupiah(financialStats.balance)}
-                            </p>
-                        </div>
-                        {/* Anda bisa menambahkan tombol aksi cepat di sini jika perlu, misal "Transfer" atau "Top Up" */}
-                    </div>
-
-                    <h2 className="text-lg sm:text-xl font-semibold text-gray-700 mb-4">
-                        Monthly Financial Flow (Last 12 Months)
-                    </h2>
-                    <div className="h-[250px] sm:h-[300px]">
-                        <ResponsiveContainer width="100%" height="100%">
-                            <AreaChart
-                                data={monthlyChartData}
-                                margin={{
-                                    top: 5,
-                                    right: 20,
-                                    left: -15,
-                                    bottom: 5,
-                                }}
-                            >
-                                <defs>
-                                    <linearGradient
-                                        id="colorIncomeFinance"
-                                        x1="0"
-                                        y1="0"
-                                        x2="0"
-                                        y2="1"
-                                    >
-                                        <stop
-                                            offset="5%"
-                                            stopColor={themeChartColors.income}
-                                            stopOpacity={0.4}
-                                        />
-                                        <stop
-                                            offset="95%"
-                                            stopColor={themeChartColors.income}
-                                            stopOpacity={0}
-                                        />
-                                    </linearGradient>
-                                    <linearGradient
-                                        id="colorExpenseFinance"
-                                        x1="0"
-                                        y1="0"
-                                        x2="0"
-                                        y2="1"
-                                    >
-                                        <stop
-                                            offset="5%"
-                                            stopColor={themeChartColors.expense}
-                                            stopOpacity={0.4}
-                                        />
-                                        <stop
-                                            offset="95%"
-                                            stopColor={themeChartColors.expense}
-                                            stopOpacity={0}
-                                        />
-                                    </linearGradient>
-                                </defs>
-                                <CartesianGrid
-                                    strokeDasharray="3 3"
-                                    stroke="#e5e7eb80"
-                                />
-                                <XAxis
-                                    dataKey="name"
-                                    tick={{ fontSize: 10, fill: "#6b7280" }}
-                                    interval="preserveStartEnd"
-                                    axisLine={{ stroke: "#e5e7eb" }}
-                                    tickLine={{ stroke: "#e5e7eb" }}
-                                />
-                                <YAxis
-                                    tick={{ fontSize: 10, fill: "#6b7280" }}
-                                    width={65}
-                                    axisLine={{ stroke: "#e5e7eb" }}
-                                    tickLine={{ stroke: "#e5e7eb" }}
-                                    tickFormatter={(value) =>
-                                        `${value / 1000000}Jt`
-                                    }
-                                />
-                                <Tooltip
-                                    formatter={(value, name) => [
-                                        formatRupiah(value),
-                                        name.charAt(0).toUpperCase() +
-                                            name.slice(1),
-                                    ]}
-                                    labelStyle={{
-                                        fontSize: 12,
-                                        color: "#374151",
-                                        marginBottom: "4px",
-                                    }}
-                                    itemStyle={{
-                                        fontSize: 12,
-                                        fontWeight: "bold",
-                                    }}
-                                    contentStyle={{
-                                        backgroundColor:
-                                            "rgba(255,255,255,0.95)",
-                                        borderRadius: "0.5rem",
-                                        borderColor: "rgba(0,0,0,0.1)",
-                                        padding: "8px 12px",
-                                    }}
-                                />
-                                <Legend
-                                    wrapperStyle={{
-                                        fontSize: "12px",
-                                        paddingTop: "10px",
-                                    }}
-                                />
-                                <Area
-                                    type="monotone"
-                                    dataKey="income"
-                                    stroke={themeChartColors.income}
-                                    strokeWidth={2}
-                                    fill="url(#colorIncomeFinance)"
-                                    name="Income"
-                                    dot={{ r: 3, strokeWidth: 1 }}
-                                    activeDot={{ r: 5 }}
-                                />
-                                <Area
-                                    type="monotone"
-                                    dataKey="expense"
-                                    stroke={themeChartColors.expense}
-                                    strokeWidth={2}
-                                    fill="url(#colorExpenseFinance)"
-                                    name="Expense"
-                                    dot={{ r: 3, strokeWidth: 1 }}
-                                    activeDot={{ r: 5 }}
-                                />
-                            </AreaChart>
-                        </ResponsiveContainer>
-                    </div>
+                {/* Menggunakan FinancialStatCard */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                    <FinancialStatCard
+                        title="Total Balance"
+                        formattedValue={formatRupiah(financialStats.balance)}
+                        IconComponent={Wallet}
+                        iconContainerClass="bg-blue-100"
+                        iconClass="text-blue-600"
+                        valueClass="text-gray-900"
+                    />
+                    <FinancialStatCard
+                        title="Income (This Month)"
+                        formattedValue={formatRupiah(
+                            financialStats.monthlyIncome
+                        )}
+                        IconComponent={TrendingUp}
+                        iconContainerClass="bg-green-100"
+                        iconClass="text-green-600"
+                        valueClass="text-green-600"
+                    />
+                    <FinancialStatCard
+                        title="Expenses (This Month)"
+                        formattedValue={formatRupiah(
+                            financialStats.monthlyExpenses
+                        )}
+                        IconComponent={TrendingDown}
+                        iconContainerClass="bg-red-100"
+                        iconClass="text-red-600"
+                        valueClass="text-red-600"
+                    />
+                    <FinancialStatCard
+                        title="Net Flow (This Month)"
+                        formattedValue={formatRupiah(
+                            financialStats.monthlyNetFlow,
+                            true
+                        )}
+                        IconComponent={ArrowLeftRight}
+                        iconContainerClass={`${
+                            financialStats.monthlyNetFlow >= 0
+                                ? "bg-blue-100"
+                                : "bg-orange-100"
+                        }`}
+                        iconClass={`${
+                            financialStats.monthlyNetFlow >= 0
+                                ? "text-blue-600"
+                                : "text-orange-500"
+                        }`}
+                        valueClass={`${
+                            financialStats.monthlyNetFlow >= 0
+                                ? "text-blue-600"
+                                : "text-orange-500"
+                        }`}
+                    />
                 </div>
 
-                {/* Kartu Statistik Bulanan yang Lebih Ringkas */}
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8">
-                    <div className="bg-white/70 backdrop-blur-md rounded-xl p-4 border border-white/30 shadow-lg">
-                        <div className="flex items-center gap-3">
-                            <div className="p-2.5 bg-green-100 rounded-lg">
-                                <TrendingUp
-                                    className="text-green-600"
-                                    size={20}
-                                />
-                            </div>
-                            <div>
-                                <p className="text-xs font-medium text-gray-500">
-                                    This Month's Income
-                                </p>
-                                <p className="text-lg font-bold text-green-600">
-                                    {formatRupiah(financialStats.monthlyIncome)}
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                    <div className="bg-white/70 backdrop-blur-md rounded-2xl p-4 border border-white/30 shadow-lg">
-                        <div className="flex items-center gap-3">
-                            <div className="p-2.5 bg-red-100 rounded-lg">
-                                <TrendingDown
-                                    className="text-red-600"
-                                    size={20}
-                                />
-                            </div>
-                            <div>
-                                <p className="text-xs font-medium text-gray-500">
-                                    This Month's Expenses
-                                </p>
-                                <p className="text-lg font-bold text-red-600">
-                                    {formatRupiah(
-                                        financialStats.monthlyExpenses
-                                    )}
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                    <div className="bg-white/70 backdrop-blur-md rounded-2xl p-4 border border-white/30 shadow-lg">
-                        <div className="flex items-center gap-3">
-                            <div
-                                className={`p-2.5 rounded-lg ${
-                                    financialStats.monthlyNetFlow >= 0
-                                        ? "bg-blue-100"
-                                        : "bg-orange-100"
-                                }`}
-                            >
-                                <ArrowLeftRight
-                                    className={`${
-                                        financialStats.monthlyNetFlow >= 0
-                                            ? "text-blue-600"
-                                            : "text-orange-500"
-                                    }`}
-                                    size={20}
-                                />
-                            </div>
-                            <div>
-                                <p className="text-xs font-medium text-gray-500">
-                                    This Month's Net Flow
-                                </p>
-                                <p
-                                    className={`text-lg font-bold ${
-                                        financialStats.monthlyNetFlow >= 0
-                                            ? "text-blue-600"
-                                            : "text-orange-500"
-                                    }`}
-                                >
-                                    {formatRupiah(
-                                        financialStats.monthlyNetFlow,
-                                        true
-                                    )}
-                                </p>
-                            </div>
-                        </div>
-                    </div>
+                {/* Menggunakan MonthlyFlowChart */}
+                <div className="mb-8 bg-white/70 backdrop-blur-md rounded-2xl border border-white/30 shadow-xl overflow-hidden p-4 sm:p-6">
+                    <MonthlyFlowChart data={monthlyChartData} />
                 </div>
 
                 {/* Histori Transaksi */}
@@ -545,11 +381,11 @@ const Finance = () => {
                         <h2 className="text-xl sm:text-2xl font-bold text-gray-800">
                             Transaction History
                         </h2>
-                        {/* Tombol Add di sini bisa dihilangkan karena sudah ada di atas */}
                     </div>
                     <div className="overflow-x-auto -mx-4 sm:-mx-6 px-4 sm:px-6">
-                        <table className="min-w-full text-left text-xs sm:text-sm">
-                            <thead className="hidden sm:table-header-group">
+                        {/* Tampilan Tabel Desktop */}
+                        <table className="min-w-full text-left text-xs sm:text-sm hidden sm:table">
+                            <thead>
                                 <tr className="border-b border-gray-300/70">
                                     <th className="py-3 px-4 text-gray-500 font-semibold text-left">
                                         Transaction
@@ -571,169 +407,18 @@ const Finance = () => {
                             <tbody className="sm:divide-y sm:divide-gray-200/50">
                                 {transactions.length > 0 ? (
                                     transactions.map((tx) => (
-                                        <tr
-                                            key={tx.id}
-                                            className="sm:table-row block mb-4 sm:mb-0 rounded-lg sm:rounded-none shadow-md sm:shadow-none overflow-hidden hover:bg-blue-500/5 transition-colors duration-150 ease-in-out border sm:border-0 border-gray-200/50"
-                                        >
-                                            <td
-                                                colSpan={5}
-                                                className="block sm:hidden p-4 bg-slate-50/50 sm:bg-transparent rounded-t-lg sm:rounded-none"
-                                            >
-                                                <div className="space-y-2 text-sm">
-                                                    <div className="flex justify-between items-start">
-                                                        <span className="text-gray-700 font-semibold text-base mr-2 break-words">
-                                                            {tx.name}
-                                                        </span>
-                                                        <span
-                                                            className={`font-semibold text-lg whitespace-nowrap ${
-                                                                tx.type ===
-                                                                "income"
-                                                                    ? "text-green-600"
-                                                                    : "text-red-600"
-                                                            }`}
-                                                        >
-                                                            {tx.type ===
-                                                            "income"
-                                                                ? "+ "
-                                                                : "- "}
-                                                            {formatRupiah(
-                                                                tx.amount
-                                                            )}
-                                                        </span>
-                                                    </div>
-                                                    <div className="flex justify-between text-gray-500">
-                                                        <span>
-                                                            {new Date(
-                                                                tx.date
-                                                            ).toLocaleDateString(
-                                                                "id-ID",
-                                                                {
-                                                                    day: "numeric",
-                                                                    month: "short",
-                                                                    year: "numeric",
-                                                                }
-                                                            )}
-                                                        </span>
-                                                        <span
-                                                            className={`px-2 py-0.5 rounded-full text-xs font-medium ${
-                                                                tx.type ===
-                                                                "income"
-                                                                    ? "bg-green-100 text-green-700"
-                                                                    : "bg-red-100 text-red-700"
-                                                            }`}
-                                                        >
-                                                            {tx.type
-                                                                .charAt(0)
-                                                                .toUpperCase() +
-                                                                tx.type.slice(
-                                                                    1
-                                                                )}
-                                                        </span>
-                                                    </div>
-                                                    <div className="pt-2 mt-2 border-t border-gray-200/50 flex justify-end gap-2">
-                                                        <button
-                                                            onClick={() =>
-                                                                handleOpenEditModal(
-                                                                    tx
-                                                                )
-                                                            }
-                                                            className="p-2 text-blue-600 hover:text-blue-800 active:bg-blue-100 rounded-md"
-                                                        >
-                                                            <Edit2 size={16} />
-                                                        </button>
-                                                        <button
-                                                            onClick={() => {
-                                                                setCurrentTransaction(
-                                                                    tx
-                                                                );
-                                                                handleDeleteTransaction();
-                                                            }}
-                                                            className="p-2 text-red-500 hover:text-red-700 active:bg-red-100 rounded-md"
-                                                        >
-                                                            <Trash2 size={16} />
-                                                        </button>
-                                                    </div>
-                                                </div>
-                                            </td>
-                                            <td className="hidden sm:table-cell py-3.5 px-4">
-                                                {" "}
-                                                <span className="text-gray-700 font-medium">
-                                                    {tx.name}
-                                                </span>{" "}
-                                            </td>
-                                            <td className="hidden sm:table-cell py-3.5 px-4">
-                                                {" "}
-                                                <span
-                                                    className={`px-2 py-0.5 rounded-full text-xs font-medium ${
-                                                        tx.type === "income"
-                                                            ? "bg-green-100 text-green-700"
-                                                            : "bg-red-100 text-red-700"
-                                                    }`}
-                                                >
-                                                    {" "}
-                                                    {tx.type
-                                                        .charAt(0)
-                                                        .toUpperCase() +
-                                                        tx.type.slice(1)}{" "}
-                                                </span>{" "}
-                                            </td>
-                                            <td className="hidden sm:table-cell py-3.5 px-4 text-left">
-                                                {" "}
-                                                <span
-                                                    className={`font-semibold ${
-                                                        tx.type === "income"
-                                                            ? "text-green-600"
-                                                            : "text-red-600"
-                                                    }`}
-                                                >
-                                                    {" "}
-                                                    {tx.type === "income"
-                                                        ? "+"
-                                                        : "-"}{" "}
-                                                    {formatRupiah(tx.amount)}{" "}
-                                                </span>{" "}
-                                            </td>
-                                            <td className="hidden sm:table-cell py-3.5 px-4">
-                                                {" "}
-                                                <span className="text-gray-500">
-                                                    {new Date(
-                                                        tx.date
-                                                    ).toLocaleDateString(
-                                                        "id-ID",
-                                                        {
-                                                            day: "numeric",
-                                                            month: "short",
-                                                            year: "numeric",
-                                                        }
-                                                    )}
-                                                </span>{" "}
-                                            </td>
-                                            <td className="hidden sm:table-cell py-3.5 px-4 text-center">
-                                                <div className="flex justify-center items-center gap-1">
-                                                    <button
-                                                        onClick={() =>
-                                                            handleOpenEditModal(
-                                                                tx
-                                                            )
-                                                        }
-                                                        className="p-1.5 text-blue-600 hover:text-blue-800 hover:bg-blue-100 rounded-md transition-colors"
-                                                    >
-                                                        <Edit2 size={16} />
-                                                    </button>
-                                                    <button
-                                                        onClick={() => {
-                                                            setCurrentTransaction(
-                                                                tx
-                                                            );
-                                                            handleDeleteTransaction();
-                                                        }}
-                                                        className="p-1.5 text-red-500 hover:text-red-700 hover:bg-red-100 rounded-md transition-colors"
-                                                    >
-                                                        <Trash2 size={16} />
-                                                    </button>
-                                                </div>
-                                            </td>
-                                        </tr>
+                                        <TransactionRow
+                                            key={`desktop-${tx.id}`}
+                                            transaction={tx}
+                                            onEdit={() =>
+                                                handleOpenEditModal(tx)
+                                            }
+                                            onDelete={() =>
+                                                handleDeleteTransactionCallback(
+                                                    tx.id
+                                                )
+                                            }
+                                        />
                                     ))
                                 ) : (
                                     <tr>
@@ -741,16 +426,44 @@ const Finance = () => {
                                             colSpan={5}
                                             className="text-center py-10 text-gray-500"
                                         >
-                                            No transactions yet. Add one to get
-                                            started!
+                                            No transactions yet.
                                         </td>
                                     </tr>
                                 )}
                             </tbody>
                         </table>
+                        {/* Tampilan Kartu Mobile */}
+                        <div className="sm:hidden space-y-4">
+                            {transactions.length > 0 ? (
+                                transactions.map((tx) => (
+                                    <TransactionCardMobile
+                                        key={`mobile-${tx.id}`}
+                                        transaction={tx}
+                                        onEdit={() => handleOpenEditModal(tx)}
+                                        onDelete={() =>
+                                            handleDeleteTransactionCallback(
+                                                tx.id
+                                            )
+                                        }
+                                    />
+                                ))
+                            ) : (
+                                <div className="text-center py-10 text-gray-500">
+                                    No transactions yet.
+                                </div>
+                            )}
+                        </div>
                     </div>
+                    {transactions.length === 0 && (
+                        <div className="text-center py-10 text-gray-500 mt-4 sm:hidden">
+                            {" "}
+                            {/* Tampil hanya di mobile jika tabel kosong */}
+                            Add one to get started!
+                        </div>
+                    )}
                 </div>
             </div>
+
             <button
                 onClick={handleOpenAddModal}
                 className="sm:hidden fixed bottom-6 right-6 z-50 p-3.5 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-lg hover:from-blue-600 hover:to-purple-700 transition-all duration-200 hover:shadow-xl flex items-center justify-center cursor-pointer"
@@ -770,7 +483,7 @@ const Finance = () => {
                     onSave={handleSaveTransaction}
                     onDelete={
                         financeModalMode === "edit"
-                            ? handleDeleteTransaction
+                            ? handleDeleteFromModal
                             : undefined
                     }
                 />

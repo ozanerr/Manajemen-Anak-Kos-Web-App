@@ -8,6 +8,8 @@ import {
     AlertCircle,
     Save,
     Trash2,
+    // Tambahkan Loader2 jika belum ada, untuk konsistensi dengan tombol submit
+    Loader2,
 } from "lucide-react";
 
 const FinanceModal = ({
@@ -22,7 +24,6 @@ const FinanceModal = ({
         amount: "",
         date: new Date().toISOString().split("T")[0],
         type: "expense",
-        // account: "", // Field account dihapus
     };
 
     const [transaction, setTransaction] = useState({
@@ -41,7 +42,6 @@ const FinanceModal = ({
                 : "",
             date: initialTransaction?.date || defaultTransaction.date,
             type: initialTransaction?.type || defaultTransaction.type,
-            // account: initialTransaction?.account || "", // Dihapus
         });
         setErrors({});
     }, [initialTransaction]);
@@ -53,12 +53,20 @@ const FinanceModal = ({
         } else {
             setTransaction((prev) => ({ ...prev, [name]: value }));
         }
+        // Hapus error saat pengguna mulai mengetik lagi
+        if (errors[name]) {
+            setErrors((prevErrors) => ({ ...prevErrors, [name]: null }));
+        }
     };
 
     const handleAmountChange = (e) => {
         let value = e.target.value;
         value = value.replace(/[^0-9]/g, "");
         setTransaction((prev) => ({ ...prev, amount: value }));
+        if (errors.amount) {
+            // Hapus error amount jika ada
+            setErrors((prevErrors) => ({ ...prevErrors, amount: null }));
+        }
     };
 
     const validateForm = () => {
@@ -79,7 +87,6 @@ const FinanceModal = ({
         if (!transaction.type) {
             newErrors.type = "Transaction type is required";
         }
-        // Validasi untuk account tidak diperlukan lagi
 
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
@@ -94,9 +101,13 @@ const FinanceModal = ({
             const transactionToSave = {
                 ...transaction,
                 amount: parseFloat(transaction.amount),
-                // Tidak ada 'account' lagi di sini
             };
             await onSave(transactionToSave);
+            // Jika onSave berhasil, parent yang akan menutup modal
+            // onClose(); // Baris ini bisa diaktifkan jika Anda ingin modal selalu menutup dari sini
+        } catch (error) {
+            // Tangani error dari onSave jika perlu
+            console.error("Failed to save transaction from modal:", error);
         } finally {
             setIsSubmitting(false);
         }
@@ -109,6 +120,7 @@ const FinanceModal = ({
             setIsSubmitting(true);
             try {
                 await onDelete();
+                // onClose(); // Parent yang akan menutup modal setelah delete
             } finally {
                 setIsSubmitting(false);
             }
@@ -118,13 +130,16 @@ const FinanceModal = ({
     return (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
             <div
-                className="bg-white rounded-2xl shadow-2xl w-full max-w-md max-h-[95vh] transform transition-all duration-300 ease-out scale-100 flex flex-col" // rounded-2xl untuk sisi melengkung
+                className="bg-white rounded-2xl shadow-2xl w-full max-w-md max-h-[95vh] transform transition-all duration-300 ease-out scale-100 flex flex-col overflow-hidden" // Ditambahkan overflow-hidden
                 onClick={(e) => e.stopPropagation()}
             >
+                {/* Header Modal */}
                 <div className="bg-gradient-to-r from-blue-500 to-purple-600 px-6 py-4 text-white relative">
+                    {" "}
+                    {/* Tidak perlu rounded-t-2xl jika parent punya overflow-hidden */}
                     <button
                         onClick={onClose}
-                        className="absolute top-4 right-4 text-white/80 hover:text-white transition-colors p-1 rounded-full hover:bg-white/20 cursor-pointer"
+                        className="absolute top-3.5 right-3.5 text-white/70 hover:text-white transition-colors p-1.5 rounded-full hover:bg-white/20 cursor-pointer"
                         aria-label="Close Modal"
                     >
                         <X size={20} />
@@ -143,17 +158,20 @@ const FinanceModal = ({
                     </div>
                 </div>
 
+                {/* Form Konten */}
                 <form
                     onSubmit={handleSubmit}
-                    className="flex-grow overflow-y-auto"
+                    className="flex-grow overflow-y-auto" // Memungkinkan scroll jika konten panjang
                 >
                     <div className="p-6 space-y-5">
-                        <div className="space-y-2">
+                        {/* Transaction Name Input */}
+                        <div className="space-y-1.5">
                             <label
                                 htmlFor="name"
-                                className="flex items-center gap-2 text-sm font-medium text-gray-700"
+                                className="flex items-center gap-2 text-sm font-medium text-slate-700"
                             >
-                                <Edit3 size={16} /> Transaction Name *
+                                <Edit3 size={16} className="text-slate-500" />{" "}
+                                Transaction Name *
                             </label>
                             <input
                                 id="name"
@@ -161,26 +179,31 @@ const FinanceModal = ({
                                 type="text"
                                 value={transaction.name || ""}
                                 onChange={handleChange}
-                                className={`w-full px-4 py-3 border rounded-xl shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent ${
+                                className={`w-full px-4 py-2.5 border rounded-xl shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
                                     errors.name
-                                        ? "border-red-300 bg-red-50"
-                                        : "border-gray-300 hover:border-gray-400"
-                                }`}
+                                        ? "border-red-400 bg-red-50/50"
+                                        : "border-slate-300 hover:border-slate-400 bg-slate-50/50"
+                                } placeholder-slate-400 text-slate-800`}
                                 placeholder="e.g., Groceries, Salary"
                             />
                             {errors.name && (
-                                <div className="flex items-center gap-2 text-red-600 text-sm">
+                                <p className="flex items-center gap-1.5 text-red-600 text-xs mt-1">
                                     <AlertCircle size={14} /> {errors.name}
-                                </div>
+                                </p>
                             )}
                         </div>
 
-                        <div className="space-y-2">
+                        {/* Amount Input */}
+                        <div className="space-y-1.5">
                             <label
                                 htmlFor="amount"
-                                className="flex items-center gap-2 text-sm font-medium text-gray-700"
+                                className="flex items-center gap-2 text-sm font-medium text-slate-700"
                             >
-                                <DollarSign size={16} /> Amount (IDR) *
+                                <DollarSign
+                                    size={16}
+                                    className="text-slate-500"
+                                />{" "}
+                                Amount (IDR) *
                             </label>
                             <input
                                 id="amount"
@@ -189,25 +212,32 @@ const FinanceModal = ({
                                 inputMode="numeric"
                                 value={transaction.amount || ""}
                                 onChange={handleAmountChange}
-                                className={`w-full px-4 py-3 border rounded-xl shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent ${
+                                className={`w-full px-4 py-2.5 border rounded-xl shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
                                     errors.amount
-                                        ? "border-red-300 bg-red-50"
-                                        : "border-gray-300 hover:border-gray-400"
-                                }`}
+                                        ? "border-red-400 bg-red-50/50"
+                                        : "border-slate-300 hover:border-slate-400 bg-slate-50/50"
+                                } placeholder-slate-400 text-slate-800`}
                                 placeholder="e.g., 50000"
                             />
                             {errors.amount && (
-                                <div className="flex items-center gap-2 text-red-600 text-sm">
+                                <p className="flex items-center gap-1.5 text-red-600 text-xs mt-1">
                                     <AlertCircle size={14} /> {errors.amount}
-                                </div>
+                                </p>
                             )}
                         </div>
 
-                        <div className="space-y-2">
-                            <label className="flex items-center gap-2 text-sm font-medium text-gray-700">
-                                <TrendingUp size={16} /> Type *
+                        {/* Transaction Type Radio Buttons */}
+                        <div className="space-y-1.5">
+                            <label className="flex items-center gap-2 text-sm font-medium text-slate-700">
+                                <TrendingUp
+                                    size={16}
+                                    className="text-slate-500"
+                                />{" "}
+                                Type *
                             </label>
-                            <div className="flex gap-4 pt-1">
+                            <div className="flex gap-x-6 gap-y-2 pt-1 flex-wrap">
+                                {" "}
+                                {/* flex-wrap jika layar sempit */}
                                 <label className="flex items-center gap-2 cursor-pointer">
                                     <input
                                         type="radio"
@@ -215,9 +245,9 @@ const FinanceModal = ({
                                         value="income"
                                         checked={transaction.type === "income"}
                                         onChange={handleChange}
-                                        className="form-radio h-4 w-4 text-blue-600 transition duration-150 ease-in-out"
+                                        className="form-radio h-4 w-4 text-blue-600 transition duration-150 ease-in-out focus:ring-blue-500"
                                     />
-                                    <span className="text-gray-700">
+                                    <span className="text-slate-700">
                                         Income
                                     </span>
                                 </label>
@@ -228,26 +258,31 @@ const FinanceModal = ({
                                         value="expense"
                                         checked={transaction.type === "expense"}
                                         onChange={handleChange}
-                                        className="form-radio h-4 w-4 text-red-600 transition duration-150 ease-in-out"
+                                        className="form-radio h-4 w-4 text-red-600 transition duration-150 ease-in-out focus:ring-red-500"
                                     />
-                                    <span className="text-gray-700">
+                                    <span className="text-slate-700">
                                         Expense
                                     </span>
                                 </label>
                             </div>
                             {errors.type && (
-                                <div className="flex items-center gap-2 text-red-600 text-sm">
+                                <p className="flex items-center gap-1.5 text-red-600 text-xs mt-1">
                                     <AlertCircle size={14} /> {errors.type}
-                                </div>
+                                </p>
                             )}
                         </div>
 
-                        <div className="space-y-2">
+                        {/* Date Input */}
+                        <div className="space-y-1.5">
                             <label
                                 htmlFor="date"
-                                className="flex items-center gap-2 text-sm font-medium text-gray-700"
+                                className="flex items-center gap-2 text-sm font-medium text-slate-700"
                             >
-                                <CalendarIcon size={16} /> Date *
+                                <CalendarIcon
+                                    size={16}
+                                    className="text-slate-500"
+                                />{" "}
+                                Date *
                             </label>
                             <input
                                 id="date"
@@ -255,52 +290,52 @@ const FinanceModal = ({
                                 type="date"
                                 value={transaction.date || ""}
                                 onChange={handleChange}
-                                className={`w-full px-4 py-3 border rounded-xl shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent ${
+                                className={`w-full px-4 py-2.5 border rounded-xl shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
                                     errors.date
-                                        ? "border-red-300 bg-red-50"
-                                        : "border-gray-300 hover:border-gray-400"
-                                }`}
+                                        ? "border-red-400 bg-red-50/50"
+                                        : "border-slate-300 hover:border-slate-400 bg-slate-50/50"
+                                } placeholder-slate-400 text-slate-800`}
                             />
                             {errors.date && (
-                                <div className="flex items-center gap-2 text-red-600 text-sm">
+                                <p className="flex items-center gap-1.5 text-red-600 text-xs mt-1">
                                     <AlertCircle size={14} /> {errors.date}
-                                </div>
+                                </p>
                             )}
                         </div>
-
-                        {/* Field Account telah dihapus dari sini */}
                     </div>
 
-                    <div className="px-6 py-4 bg-gray-50 border-t border-gray-200 flex justify-between items-center sticky bottom-0">
+                    {/* Footer Modal / Tombol Aksi */}
+                    <div className="px-6 py-4 bg-slate-50/80 border-t border-slate-200/80 flex justify-between items-center sticky bottom-0">
+                        {" "}
+                        {/* Tidak perlu rounded-b-2xl jika parent punya overflow-hidden */}
                         <div>
                             {onDelete && modalMode === "edit" && (
                                 <button
                                     type="button"
                                     onClick={handleDelete}
                                     disabled={isSubmitting}
-                                    className="flex items-center gap-2 px-4 py-2 text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50"
+                                    className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-red-600 hover:text-red-700 hover:bg-red-100 rounded-lg transition-colors disabled:opacity-60 shadow-sm hover:shadow-md"
                                 >
                                     <Trash2 size={16} /> Delete
                                 </button>
                             )}
                         </div>
-
                         <div className="flex gap-3">
                             <button
                                 type="button"
                                 onClick={onClose}
                                 disabled={isSubmitting}
-                                className="px-6 py-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors disabled:opacity-50"
+                                className="px-5 py-2.5 text-sm font-medium text-slate-700 bg-slate-200/90 hover:bg-slate-300/90 rounded-lg transition-colors disabled:opacity-60 shadow-sm hover:shadow-md"
                             >
                                 Cancel
                             </button>
                             <button
                                 type="submit"
                                 disabled={isSubmitting}
-                                className="flex items-center gap-2 px-6 py-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg hover:from-blue-600 hover:to-purple-700 transition-all duration-200 disabled:opacity-50 shadow-md hover:shadow-lg cursor-pointer"
+                                className="flex items-center gap-2 px-5 py-2.5 text-sm font-medium bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg hover:from-blue-600 hover:to-purple-700 transition-all duration-200 disabled:opacity-70 shadow-md hover:shadow-lg cursor-pointer"
                             >
                                 {isSubmitting ? (
-                                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                    <Loader2 className="w-4 h-4 animate-spin" />
                                 ) : (
                                     <Save size={16} />
                                 )}
