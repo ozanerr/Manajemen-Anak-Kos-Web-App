@@ -3,6 +3,7 @@ import { useFetchPostsQuery } from "../features/posts/postsApi";
 import PostCard from "../components/PostCard";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import { FiPlus } from "react-icons/fi";
 
 const Discussion = () => {
     const { data: posts, isError, isLoading } = useFetchPostsQuery() || {};
@@ -37,6 +38,10 @@ const Discussion = () => {
                     ))}
                 </div>
             )}
+
+            <button className="bg-blue-600 text-white p-2 rounded-full hover:bg-blue-700 fixed bottom-8 right-8">
+                <FiPlus size={40} />
+            </button>
         </div>
     );
 };

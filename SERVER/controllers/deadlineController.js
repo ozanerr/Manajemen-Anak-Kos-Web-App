@@ -109,7 +109,7 @@ const editDeadline = async (req, res) => {
 
         const { title, description, start, end } = req.body;
 
-        const updatedReply = await Comment.findOneAndUpdate(
+        const updatedReply = await Deadline.findOneAndUpdate(
             {
                 userId: userId,
                 "deadlines._id": deadlinesId,
