@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import {
     X,
     Calendar,
@@ -38,12 +38,6 @@ const DeadlineModal = ({
                 value: dateValue.replace("T", " "),
             },
         });
-    };
-
-    const formatDateForInput = (dateString) => {
-        if (!dateString) return "";
-        const date = new Date(dateString.replace(" ", "T"));
-        return date.toISOString().slice(0, 16);
     };
 
     const getDaysUntilDue = () => {
@@ -199,7 +193,7 @@ const DeadlineModal = ({
                         <input
                             name="end"
                             type="datetime-local"
-                            value={formatDateForInput(event.end)}
+                            value={event.end?.replace(" ", "T") || ""}
                             onChange={handleDateChange}
                             min={new Date().toISOString().slice(0, 16)}
                             className={`w-full px-4 py-3 border rounded-xl shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent ${
