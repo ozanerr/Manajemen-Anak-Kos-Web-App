@@ -9,6 +9,10 @@ body {
 }
 
 .sx-react-calendar-wrapper {
-    height: 450px;
+    height: 550px;
     max-height: 80vh;
+}
+
+.sx__month-grid-day__events > div {
+    cursor: pointer;
 }

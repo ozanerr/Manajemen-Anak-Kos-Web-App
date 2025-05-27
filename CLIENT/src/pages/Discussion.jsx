@@ -10,7 +10,7 @@ const Discussion = () => {
     console.log("displayName", displayName);
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-gray-50 via-gray-100 to-gray-200 py-10 px-5 flex flex-col items-center">
+        <div className="min-h-[calc(100vh-4rem)] bg-gradient-to-br from-gray-50 via-gray-100 to-gray-200 py-10 px-5 flex flex-col items-center">
             <h1 className="text-3xl font-semibold text-gray-800 mb-6">
                 Latest Posts
             </h1>
