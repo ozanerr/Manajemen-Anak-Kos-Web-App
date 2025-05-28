@@ -1,5 +1,3 @@
-import React from "react";
-
 const StatCard = ({
     title,
     value,
@@ -20,7 +18,7 @@ const StatCard = ({
                                 ? "text-green-600"
                                 : title === "Upcoming" && value > 0
                                 ? "text-yellow-600"
-                                : "text-gray-900" // Default untuk Total atau jika value 0
+                                : "text-gray-900"
                         }`}
                     >
                         {value}

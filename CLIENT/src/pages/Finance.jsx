@@ -255,7 +255,7 @@ const Finance = () => {
         (transactionId) => {
             if (
                 window.confirm(
-                    "Are you sure you want to delete this transaction?"
+                    "Apakah Anda yakin ingin menghapus transaksi ini?"
                 )
             ) {
                 setTransactions((prev) =>
@@ -294,23 +294,23 @@ const Finance = () => {
                 <div className="mb-8 flex flex-col sm:flex-row justify-between sm:items-center gap-4">
                     <div>
                         <h1 className="text-3xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent">
-                            Financial Dashboard
+                            Dasbor Keuangan
                         </h1>
                         <p className="text-gray-600 mt-1">
-                            Your personal finance tracker.
+                            Pelacak keuangan pribadi Anda.
                         </p>
                     </div>
                     <button
                         onClick={handleOpenAddModal}
                         className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white px-5 py-2.5 rounded-xl hover:from-blue-600 hover:to-purple-700 transition-all duration-200 shadow-md hover:shadow-lg text-sm cursor-pointer"
                     >
-                        <PlusIconLucide className="w-4 h-4" /> Add Transaction
+                        <PlusIconLucide className="w-4 h-4" /> Tambah Transaksi
                     </button>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                     <FinancialStatCard
-                        title="Total Balance"
+                        title="Total Saldo"
                         formattedValue={formatRupiah(financialStats.balance)}
                         IconComponent={Wallet}
                         iconContainerClass="bg-blue-100"
@@ -318,7 +318,7 @@ const Finance = () => {
                         valueClass="text-gray-900"
                     />
                     <FinancialStatCard
-                        title="Income (This Month)"
+                        title="Pemasukan (Bulan Ini)"
                         formattedValue={formatRupiah(
                             financialStats.monthlyIncome
                         )}
@@ -328,7 +328,7 @@ const Finance = () => {
                         valueClass="text-green-600"
                     />
                     <FinancialStatCard
-                        title="Expenses (This Month)"
+                        title="Pengeluaran (Bulan Ini)"
                         formattedValue={formatRupiah(
                             financialStats.monthlyExpenses
                         )}
@@ -338,7 +338,7 @@ const Finance = () => {
                         valueClass="text-red-600"
                     />
                     <FinancialStatCard
-                        title="Net Flow (This Month)"
+                        title="Arus Bersih (Bulan Ini)"
                         formattedValue={formatRupiah(
                             financialStats.monthlyNetFlow,
                             true
@@ -369,7 +369,7 @@ const Finance = () => {
                 <div className="bg-white/70 backdrop-blur-md rounded-2xl border border-white/30 shadow-xl overflow-hidden p-4 sm:p-6">
                     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4">
                         <h2 className="text-xl sm:text-2xl font-bold text-gray-800">
-                            Transaction History
+                            Riwayat Transaksi
                         </h2>
                     </div>
                     <div className="overflow-x-auto -mx-4 sm:-mx-6 px-4 sm:px-6">
@@ -377,19 +377,19 @@ const Finance = () => {
                             <thead>
                                 <tr className="border-b border-gray-300/70">
                                     <th className="py-3 px-4 text-gray-500 font-semibold text-left">
-                                        Transaction
+                                        Transaksi
                                     </th>
                                     <th className="py-3 px-4 text-gray-500 font-semibold text-left">
-                                        Type
+                                        Tipe
                                     </th>
                                     <th className="py-3 px-4 text-gray-500 font-semibold text-left">
-                                        Amount
+                                        Jumlah
                                     </th>
                                     <th className="py-3 px-4 text-gray-500 font-semibold text-left">
-                                        Date
+                                        Tanggal
                                     </th>
                                     <th className="py-3 px-4 text-gray-500 font-semibold text-center">
-                                        Actions
+                                        Aksi
                                     </th>
                                 </tr>
                             </thead>
@@ -415,7 +415,7 @@ const Finance = () => {
                                             colSpan={5}
                                             className="text-center py-10 text-gray-500"
                                         >
-                                            No transactions yet.
+                                            Belum ada transaksi.
                                         </td>
                                     </tr>
                                 )}
@@ -437,7 +437,7 @@ const Finance = () => {
                                 ))
                             ) : (
                                 <div className="text-center py-10 text-gray-500">
-                                    No transactions yet.
+                                    Belum ada transaksi.
                                 </div>
                             )}
                         </div>
@@ -445,7 +445,7 @@ const Finance = () => {
                     {transactions.length === 0 && (
                         <div className="text-center py-10 text-gray-500 mt-4 sm:hidden">
                             {" "}
-                            Add one to get started!
+                            Tambahkan satu untuk memulai!
                         </div>
                     )}
                 </div>

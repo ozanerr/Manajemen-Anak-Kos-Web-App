@@ -1,5 +1,3 @@
-// src/components/DeadlineItem.jsx
-import React from "react";
 import { Clock, CheckCircle2, AlertTriangle, Bell } from "lucide-react";
 
 const DeadlineItem = ({

@@ -322,7 +322,7 @@ const Deadline = () => {
             <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 flex flex-col justify-center items-center p-4">
                 <Loader2 className="h-12 w-12 animate-spin text-blue-600" />
                 <p className="text-slate-600 text-lg mt-4">
-                    Loading deadlines...
+                    Memuat deadline Anda...
                 </p>
             </div>
         );
@@ -337,10 +337,10 @@ const Deadline = () => {
                 <div className="flex flex-col sm:flex-row items-center justify-between mb-8 gap-4">
                     <div>
                         <h1 className="text-3xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent">
-                            Deadline Manager
+                            Manager Deadline
                         </h1>
                         <p className="text-gray-600 mt-1">
-                            Stay organized and meet your goals.
+                            Tetap terorganisir dan capai tujuan Anda.
                         </p>
                     </div>
                     <div className="flex items-center gap-3 w-full sm:w-auto justify-end">
@@ -370,7 +370,7 @@ const Deadline = () => {
                         >
                             <FiPlus size={20} />{" "}
                             <span className="hidden sm:inline text-sm font-medium">
-                                Add Deadline
+                                Tambah Deadline
                             </span>
                         </button>
                     </div>
@@ -385,21 +385,21 @@ const Deadline = () => {
                         iconColorClass="text-blue-600"
                     />
                     <StatCard
-                        title="Completed"
+                        title="Selesai"
                         value={stats.completed}
                         IconComponent={CheckCircle2}
                         iconBgClass="bg-green-100"
                         iconColorClass="text-green-600"
                     />
                     <StatCard
-                        title="Upcoming"
+                        title="Mendatang"
                         value={stats.upcoming}
                         IconComponent={Clock}
                         iconBgClass="bg-yellow-100"
                         iconColorClass="text-yellow-600"
                     />
                     <StatCard
-                        title="Overdue"
+                        title="Terlambat"
                         value={stats.overdue}
                         IconComponent={AlertTriangle}
                         iconBgClass="bg-red-100"
@@ -423,18 +423,16 @@ const Deadline = () => {
                                         className="mx-auto text-slate-400 mb-5"
                                     />
                                     <h3 className="text-2xl font-semibold text-slate-700 mb-3">
-                                        No deadlines found
+                                        Tidak ada deadline ditemukan
                                     </h3>
                                     <p className="text-slate-500 mb-8">
-                                        Create your first deadline to get
-                                        started.
+                                        Buat deadline pertama Anda untuk memulai.
                                     </p>
                                     <button
                                         onClick={handleOpenAddModal}
                                         className="inline-flex items-center gap-2.5 bg-gradient-to-r from-blue-500 to-purple-600 text-white px-7 py-3 rounded-lg hover:from-blue-600 hover:to-purple-700 transition-all duration-200 shadow-lg hover:shadow-xl text-base font-medium"
                                     >
-                                        <PlusIconLucide size={18} /> Create Your
-                                        First Deadline
+                                        <PlusIconLucide size={18} /> Buat Deadline Pertama
                                     </button>
                                 </div>
                             ) : (
@@ -466,7 +464,7 @@ const Deadline = () => {
                                             onToggleComplete={toggleComplete}
                                             onOpenEditModal={
                                                 handleOpenEditModal
-                                            } // Menggunakan useCallback version
+                                            }
                                             dynamicPriority={dynamicPrio}
                                             daysUntil={daysUntil}
                                             isEventOverdue={isEventOverdue}

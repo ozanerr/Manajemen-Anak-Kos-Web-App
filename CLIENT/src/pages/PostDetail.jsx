@@ -18,7 +18,7 @@ import {
     UserCircle,
 } from "lucide-react";
 
-// Placeholder untuk formatter (Sama seperti sebelumnya)
+// Placeholder untuk formatter
 const formatter = {
     format: (date) => {
         if (!date) return "Invalid date";
@@ -103,7 +103,7 @@ const PostDetail = () => {
             <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 flex flex-col justify-center items-center p-4">
                 <Loader2 className="h-12 w-12 animate-spin text-blue-600" />
                 <p className="text-slate-600 text-lg mt-4">
-                    Loading post details...
+                    Memuat postingan, harap tunggu...
                 </p>
             </div>
         );
@@ -120,7 +120,7 @@ const PostDetail = () => {
                         className="mx-auto text-red-500 mb-4"
                     />
                     <p className="text-red-700 font-semibold text-xl mb-2">
-                        Failed to Load Post
+                        Gagal Memuat Postingan
                     </p>
                     <p className="text-red-600 mt-1 text-base">
                         {postErrorData?.data?.message ||
@@ -143,16 +143,16 @@ const PostDetail = () => {
                 <div className="text-center bg-white/80 backdrop-blur-md rounded-xl border border-yellow-300/70 p-8 max-w-md mx-auto shadow-2xl">
                     <Info size={48} className="mx-auto text-yellow-500 mb-4" />
                     <p className="text-yellow-700 font-semibold text-xl mb-2">
-                        Post Not Found
+                        Postingan Tidak Ditemukan
                     </p>
                     <p className="text-yellow-600 mt-1 text-base">
-                        The requested post could not be found.
+                        Postingan yang diminta tidak dapat ditemukan.
                     </p>
                     <button
                         onClick={() => navigate("/discussion")}
                         className="mt-8 inline-flex items-center gap-2 text-sm font-medium text-white bg-blue-500 hover:bg-blue-600 focus:ring-4 focus:ring-blue-300/50 rounded-lg px-5 py-2.5 transition-colors shadow hover:shadow-md"
                     >
-                        <ArrowLeft size={16} /> Back to Discussions
+                        <ArrowLeft size={16} /> Kembali ke Diskusi
                     </button>
                 </div>
             </div>
@@ -170,16 +170,15 @@ const PostDetail = () => {
                         size={18}
                         className="group-hover:-translate-x-1 transition-transform duration-150"
                     />{" "}
-                    Back to Discussions
+                    Kembali ke Diskusi
                 </button>
 
                 <article className="bg-white/80 backdrop-blur-xl rounded-2xl border border-slate-200/50 shadow-2xl overflow-hidden">
                     {post.image && (
                         <div className="w-full max-h-[350px] sm:max-h-[450px] md:max-h-[600px] overflow-hidden">
                             {" "}
-                            {/* Max height disesuaikan */}
                             <img
-                                className="w-full h-full object-cover" // object-cover akan crop, object-contain akan fit
+                                className="w-full h-full object-cover"
                                 src={post.image}
                                 alt={post.title || "Post image"}
                             />
@@ -246,7 +245,7 @@ const PostDetail = () => {
                                 size={26}
                                 className="mr-3 text-blue-500"
                             />
-                            Discussions ({comments?.length || 0})
+                            Diskusi ({comments?.length || 0})
                         </h2>
                     </div>
 
@@ -254,14 +253,14 @@ const PostDetail = () => {
                         <div className="w-full mb-2 border border-slate-300/80 rounded-xl bg-white/60 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-500/50 transition-all shadow-sm">
                             <div className="px-4 py-3">
                                 <label htmlFor="comment" className="sr-only">
-                                    Your comment
+                                    Komentar Anda
                                 </label>
                                 <textarea
                                     id="comment"
                                     rows="4"
                                     onChange={(e) => setComment(e.target.value)}
                                     className="w-full px-0 text-sm text-slate-800 bg-transparent border-0 focus:ring-0 focus:outline-none placeholder-slate-500 resize-none"
-                                    placeholder="Share your thoughts or ask a question..."
+                                    placeholder="Bagikan komentar Anda atau ajukan pertanyaan..."
                                     required
                                     value={comment}
                                 />
@@ -279,13 +278,13 @@ const PostDetail = () => {
                                     ) : (
                                         <Send size={16} />
                                     )}
-                                    Post Comment
+                                    Kirim Komentar
                                 </button>
                             </div>
                         </div>
                         {addCommentError && (
                             <p className="text-xs text-red-600 mt-1">
-                                Failed to post comment. Please try again.
+                                Gagal mengirim komentar. Silakan coba lagi.
                             </p>
                         )}
                     </form>
@@ -294,14 +293,14 @@ const PostDetail = () => {
                         <div className="text-center py-6">
                             <Loader2 className="h-8 w-8 animate-spin text-blue-500 mx-auto" />
                             <p className="text-slate-500 mt-2">
-                                Loading comments...
+                                Memuat komentar, harap tunggu...
                             </p>
                         </div>
                     )}
                     {commentsFetchError && (
                         <div className="text-center py-6 text-red-600">
                             <AlertTriangle className="mx-auto mb-2" />
-                            Failed to load comments.
+                            Gagal memuat komentar.
                         </div>
                     )}
 
@@ -317,8 +316,7 @@ const PostDetail = () => {
                             : !commentsFetchLoading &&
                               !postFetchError && (
                                   <p className="text-slate-500 text-center py-4">
-                                      No comments yet. Be the first to share
-                                      your thoughts!
+                                        Belum ada komentar. Jadilah yang pertama untuk berkomentar!
                                   </p>
                               )}
                     </div>

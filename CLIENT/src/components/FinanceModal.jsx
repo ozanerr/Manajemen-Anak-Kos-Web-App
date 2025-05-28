@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import {
     X,
     DollarSign,
@@ -72,18 +72,18 @@ const FinanceModal = ({
         const numericAmount = parseFloat(transaction.amount);
 
         if (!transaction.name?.trim()) {
-            newErrors.name = "Transaction name is required";
+            newErrors.name = "Nama transaksi harus diisi";
         }
         if (!transaction.amount?.trim()) {
-            newErrors.amount = "Amount is required";
+            newErrors.amount = "Jumlah harus diisi";
         } else if (isNaN(numericAmount) || numericAmount <= 0) {
-            newErrors.amount = "Amount must be a positive number";
+            newErrors.amount = "Jumlah harus berupa angka positif";
         }
         if (!transaction.date) {
-            newErrors.date = "Date is required";
+            newErrors.date = "Tanggal transaksi harus diisi";
         }
         if (!transaction.type) {
-            newErrors.type = "Transaction type is required";
+            newErrors.type = "Tipe transaksi harus dipilih";
         }
 
         setErrors(newErrors);
@@ -126,7 +126,6 @@ const FinanceModal = ({
                 {/* Header Modal */}
                 <div className="bg-gradient-to-r from-blue-500 to-purple-600 px-6 py-4 text-white relative">
                     {" "}
-                    {/* Tidak perlu rounded-t-2xl jika parent punya overflow-hidden */}
                     <button
                         onClick={onClose}
                         className="absolute top-3.5 right-3.5 text-white/70 hover:text-white transition-colors p-1.5 rounded-full hover:bg-white/20 cursor-pointer"
@@ -141,8 +140,8 @@ const FinanceModal = ({
                         <div>
                             <h2 className="text-xl font-semibold">
                                 {modalMode === "edit"
-                                    ? "Edit Transaction"
-                                    : "Add Transaction"}
+                                    ? "Edit Transaksi"
+                                    : "Tambah Transaksi"}
                             </h2>
                         </div>
                     </div>
@@ -159,7 +158,7 @@ const FinanceModal = ({
                                 className="flex items-center gap-2 text-sm font-medium text-slate-700"
                             >
                                 <Edit3 size={16} className="text-slate-500" />{" "}
-                                Transaction Name *
+                                Nama Transaksi *
                             </label>
                             <input
                                 id="name"
@@ -172,7 +171,7 @@ const FinanceModal = ({
                                         ? "border-red-400 bg-red-50/50"
                                         : "border-slate-300 hover:border-slate-400 bg-slate-50/50"
                                 } placeholder-slate-400 text-slate-800`}
-                                placeholder="e.g., Groceries, Salary"
+                                placeholder="mis. Bahan Makanan, Gaji"
                             />
                             {errors.name && (
                                 <p className="flex items-center gap-1.5 text-red-600 text-xs mt-1">
@@ -190,7 +189,7 @@ const FinanceModal = ({
                                     size={16}
                                     className="text-slate-500"
                                 />{" "}
-                                Amount (IDR) *
+                                Jumlah (IDR) *
                             </label>
                             <input
                                 id="amount"
@@ -204,7 +203,7 @@ const FinanceModal = ({
                                         ? "border-red-400 bg-red-50/50"
                                         : "border-slate-300 hover:border-slate-400 bg-slate-50/50"
                                 } placeholder-slate-400 text-slate-800`}
-                                placeholder="e.g., 50000"
+                                placeholder="mis. 50000"
                             />
                             {errors.amount && (
                                 <p className="flex items-center gap-1.5 text-red-600 text-xs mt-1">
@@ -219,7 +218,7 @@ const FinanceModal = ({
                                     size={16}
                                     className="text-slate-500"
                                 />{" "}
-                                Type *
+                                Tipe *
                             </label>
                             <div className="flex gap-x-6 gap-y-2 pt-1 flex-wrap">
                                 {" "}
@@ -233,7 +232,7 @@ const FinanceModal = ({
                                         className="form-radio h-4 w-4 text-blue-600 transition duration-150 ease-in-out focus:ring-blue-500"
                                     />
                                     <span className="text-slate-700">
-                                        Income
+                                        Pemasukan
                                     </span>
                                 </label>
                                 <label className="flex items-center gap-2 cursor-pointer">
@@ -246,7 +245,7 @@ const FinanceModal = ({
                                         className="form-radio h-4 w-4 text-red-600 transition duration-150 ease-in-out focus:ring-red-500"
                                     />
                                     <span className="text-slate-700">
-                                        Expense
+                                        Pengeluaran
                                     </span>
                                 </label>
                             </div>
@@ -266,7 +265,7 @@ const FinanceModal = ({
                                     size={16}
                                     className="text-slate-500"
                                 />{" "}
-                                Date *
+                                Tanggal *
                             </label>
                             <input
                                 id="date"
@@ -298,7 +297,7 @@ const FinanceModal = ({
                                     disabled={isSubmitting}
                                     className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-red-600 hover:text-red-700 hover:bg-red-100 rounded-lg transition-colors disabled:opacity-60 shadow-sm hover:shadow-md"
                                 >
-                                    <Trash2 size={16} /> Delete
+                                    <Trash2 size={16} /> Hapus
                                 </button>
                             )}
                         </div>
@@ -309,7 +308,7 @@ const FinanceModal = ({
                                 disabled={isSubmitting}
                                 className="px-5 py-2.5 text-sm font-medium text-slate-700 bg-slate-200/90 hover:bg-slate-300/90 rounded-lg transition-colors disabled:opacity-60 shadow-sm hover:shadow-md"
                             >
-                                Cancel
+                                Batal
                             </button>
                             <button
                                 type="submit"
@@ -322,8 +321,8 @@ const FinanceModal = ({
                                     <Save size={16} />
                                 )}
                                 {modalMode === "edit"
-                                    ? "Save Changes"
-                                    : "Add Transaction"}
+                                    ? "Simpan Perubahan"
+                                    : "Tambah Transaksi"}
                             </button>
                         </div>
                     </div>

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import {
     useAddReplyMutation,
     useDeleteCommentMutation,
@@ -83,7 +83,7 @@ const Comment = ({ comment, postId }) => {
     };
 
     const handleDeleteComment = async () => {
-        if (window.confirm("Are you sure you want to delete this comment?")) {
+        if (window.confirm("Apakah Anda yakin ingin menghapus komentar ini?")) {
             try {
                 await deleteComment({ postId, commentId }).unwrap();
                 setDropdownOpen(false);
@@ -103,7 +103,7 @@ const Comment = ({ comment, postId }) => {
                 postId: postId,
                 commentId: commentId,
                 data: {
-                    username: displayName || "Anonymous",
+                    username: displayName || "Anonim",
                     reply: reply,
                     imageProfile:
                         photoURL ||
@@ -179,7 +179,7 @@ const Comment = ({ comment, postId }) => {
                                             className="opacity-70"
                                         />
                                     )}
-                                    Delete
+                                    Hapus
                                 </button>
                             </div>
                         )}
@@ -201,7 +201,7 @@ const Comment = ({ comment, postId }) => {
                             onClick={handleCancelComment}
                             className="px-3 py-1.5 text-xs font-medium text-slate-700 bg-slate-200 hover:bg-slate-300 transition-colors rounded-md shadow-sm"
                         >
-                            Cancel
+                            Batal
                         </button>
                         <button
                             type="submit"
@@ -211,7 +211,7 @@ const Comment = ({ comment, postId }) => {
                             {isSavingEditComment ? (
                                 <Loader2 className="animate-spin h-4 w-4" />
                             ) : (
-                                "Save"
+                                "Simpan"
                             )}
                         </button>
                     </div>
@@ -228,7 +228,7 @@ const Comment = ({ comment, postId }) => {
                     type="button"
                     className="flex items-center text-xs text-blue-600 hover:text-blue-700 hover:underline font-medium transition-colors"
                 >
-                    <MessageSquare size={14} className="mr-1.5" /> Reply
+                    <MessageSquare size={14} className="mr-1.5" /> Balas
                 </button>
                 {replies && replies.length > 0 && (
                     <button
@@ -236,8 +236,8 @@ const Comment = ({ comment, postId }) => {
                         className="flex items-center text-xs text-slate-500 hover:text-blue-600 hover:underline font-medium transition-colors"
                     >
                         {showReplies
-                            ? "Hide Replies"
-                            : `View ${replies.length} Replies`}
+                            ? "Sembunyikan Balasan"
+                            : `Lihat ${replies.length} Balasan`}
                         <CornerDownRight
                             size={14}
                             className={`ml-1 transition-transform duration-200 ${
@@ -256,7 +256,7 @@ const Comment = ({ comment, postId }) => {
                             value={reply}
                             onChange={(e) => setReply(e.target.value)}
                             rows="2"
-                            placeholder="Write your reply..."
+                            placeholder="Tulis balasan Anda..."
                         />
                         <div className="flex items-center justify-end px-3 py-2 border-t border-slate-300/70 bg-slate-50/50 rounded-b-lg">
                             <button
@@ -267,7 +267,7 @@ const Comment = ({ comment, postId }) => {
                                 }}
                                 className="px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-200/80 transition-colors rounded-md mr-2 shadow-sm"
                             >
-                                Cancel
+                                Batal
                             </button>
                             <button
                                 type="submit"
@@ -279,7 +279,7 @@ const Comment = ({ comment, postId }) => {
                                 ) : (
                                     <Send size={14} />
                                 )}
-                                Reply
+                                Balas
                             </button>
                         </div>
                     </div>
@@ -289,7 +289,7 @@ const Comment = ({ comment, postId }) => {
                 <div className="mt-4 ml-0 sm:ml-8 space-y-4">
                     {repliesLoading && (
                         <p className="text-xs text-slate-400">
-                            Loading replies...
+                            Memuat balasan...
                         </p>
                     )}
                     {replies.map((replyData) => (

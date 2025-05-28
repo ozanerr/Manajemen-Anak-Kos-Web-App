@@ -62,7 +62,7 @@ const Reply = ({ reply, commentId, postId }) => {
     };
 
     const handleDeleteReply = async () => {
-        if (window.confirm("Are you sure you want to delete this reply?")) {
+        if (window.confirm("Apakah Anda yakin ingin menghapus balasan ini?")) {
             try {
                 await deleteReply({ postId, commentId, replyId }).unwrap();
                 setDropdownOpen(false);
@@ -132,7 +132,7 @@ const Reply = ({ reply, commentId, postId }) => {
                                             className="opacity-70"
                                         />
                                     )}
-                                    Delete
+                                    Hapus
                                 </button>
                             </div>
                         )}
@@ -154,7 +154,7 @@ const Reply = ({ reply, commentId, postId }) => {
                             onClick={handleCancelReply}
                             className="px-2.5 py-1 text-xs font-medium text-slate-700 bg-slate-200 hover:bg-slate-300 transition-colors rounded-md shadow-sm"
                         >
-                            Cancel
+                            Batal
                         </button>
                         <button
                             type="submit"
@@ -164,7 +164,7 @@ const Reply = ({ reply, commentId, postId }) => {
                             {isSavingEditReply ? (
                                 <Loader2 className="animate-spin h-3 w-3" />
                             ) : (
-                                "Save"
+                                "Simpan"
                             )}
                         </button>
                     </div>

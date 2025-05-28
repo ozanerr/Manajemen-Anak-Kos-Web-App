@@ -53,11 +53,11 @@ const DeadlineModal = ({
         const newErrors = {};
 
         if (!event.title?.trim()) {
-            newErrors.title = "Title is required";
+            newErrors.title = "Judul harus diisi";
         }
 
         if (!event.end) {
-            newErrors.end = "Due date is required";
+            newErrors.end = "Tanggal Batas Waktu harus diisi";
         } else {
             const dueDate = new Date(event.end.replace(" ", "T"));
             const now = new Date();
@@ -99,7 +99,7 @@ const DeadlineModal = ({
     };
 
     const handleDelete = async () => {
-        if (window.confirm("Are you sure you want to delete this deadline?")) {
+        if (window.confirm("Apakah Anda yakin ingin menghapus deadline ini?")) {
             setIsSubmitting(true);
             try {
                 await onDelete();
@@ -141,21 +141,21 @@ const DeadlineModal = ({
                             <h2 className="text-xl font-semibold">
                                 {modalMode === "edit"
                                     ? "Edit Deadline"
-                                    : "Add Deadline"}
+                                    : "Tambah Deadline"}
                             </h2>
                             {daysUntilDue !== null && event.end && (
                                 <p className="text-sm text-white/80">
                                     {daysUntilDue > 0
-                                        ? `${daysUntilDue} day${
+                                        ? `${daysUntilDue} hari${
                                               daysUntilDue === 1 ? "" : "s"
-                                          } remaining`
+                                          } tersisa`
                                         : daysUntilDue === 0
-                                        ? "Due today!"
+                                        ? "Batas waktu hari ini"
                                         : `${Math.abs(daysUntilDue)} day${
                                               Math.abs(daysUntilDue) === 1
                                                   ? ""
                                                   : "s"
-                                          } overdue`}
+                                          } terlewat`}
                                 </p>
                             )}
                         </div>
@@ -172,7 +172,7 @@ const DeadlineModal = ({
                                 className="flex items-center gap-2 text-sm font-medium text-gray-700"
                             >
                                 <FileText size={16} />
-                                Title *
+                                Judul *
                             </label>
                             <input
                                 id="title"
@@ -184,7 +184,7 @@ const DeadlineModal = ({
                                         ? "border-red-300 bg-red-50"
                                         : "border-gray-300 hover:border-gray-400"
                                 }`}
-                                placeholder="Enter deadline title..."
+                                placeholder="Masukkan judul deadline..."
                             />
                             {errors.title && (
                                 <div className="flex items-center gap-2 text-red-600 text-sm">
@@ -200,7 +200,7 @@ const DeadlineModal = ({
                                 className="flex items-center gap-2 text-sm font-medium text-gray-700"
                             >
                                 <FileText size={16} />
-                                Description
+                                Deskripsi
                             </label>
                             <textarea
                                 id="description"
@@ -209,7 +209,7 @@ const DeadlineModal = ({
                                 onChange={handleChange}
                                 rows={3}
                                 className="w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent hover:border-gray-400 resize-none"
-                                placeholder="Add details about this deadline..."
+                                placeholder="Tambahkan detail untuk deadline ini..."
                             />
                         </div>
 
@@ -219,7 +219,7 @@ const DeadlineModal = ({
                                 className="flex items-center gap-2 text-sm font-medium text-gray-700"
                             >
                                 <Clock size={16} />
-                                Due Date & Time *
+                                Tanggal dan Waktu Batas Waktu *
                             </label>
                             <input
                                 id="end"
@@ -253,7 +253,7 @@ const DeadlineModal = ({
                                     className="flex items-center gap-2 px-4 py-2 text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50"
                                 >
                                     <Trash2 size={16} />
-                                    Delete
+                                    Hapus
                                 </button>
                             )}
                         </div>
@@ -265,7 +265,7 @@ const DeadlineModal = ({
                                 disabled={isSubmitting}
                                 className="px-6 py-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors disabled:opacity-50"
                             >
-                                Cancel
+                                Batal
                             </button>
                             <button
                                 type="submit"
@@ -278,8 +278,8 @@ const DeadlineModal = ({
                                     <Save size={16} />
                                 )}
                                 {modalMode === "edit"
-                                    ? "Save Changes"
-                                    : "Add Deadline"}
+                                    ? "Simpan Perubahan"
+                                    : "Tambah Deadline"}
                             </button>
                         </div>
                     </div>

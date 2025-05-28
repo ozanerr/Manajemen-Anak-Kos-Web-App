@@ -104,7 +104,6 @@ const PostFormModal = ({
             newErrors.description = "Post description is required";
         }
         if (!post.kota) {
-            // Validasi untuk kota (harus dipilih)
             newErrors.kota = "City is required";
         }
         if (post.image?.trim()) {
@@ -155,8 +154,8 @@ const PostFormModal = ({
                             <h2 className="text-xl font-semibold">
                                 {" "}
                                 {modalMode === "edit"
-                                    ? "Edit Post"
-                                    : "Create New Post"}{" "}
+                                    ? "Edit Postingan"
+                                    : "Buat Postingan Baru"}{" "}
                             </h2>{" "}
                         </div>
                     </div>
@@ -176,7 +175,7 @@ const PostFormModal = ({
                                     size={16}
                                     className="text-slate-500"
                                 />{" "}
-                                Title *
+                                Judul *
                             </label>
                             <input
                                 id="title"
@@ -189,7 +188,7 @@ const PostFormModal = ({
                                         ? "border-red-400 bg-red-50/50"
                                         : "border-slate-300 hover:border-slate-400 bg-slate-50/30"
                                 } placeholder-slate-400 text-slate-800`}
-                                placeholder="Enter post title..."
+                                placeholder="Masukan judul postingan..."
                             />
                             {errors.title && (
                                 <p className="flex items-center gap-1.5 text-red-600 text-xs mt-1">
@@ -220,10 +219,10 @@ const PostFormModal = ({
                                     !post.kota
                                         ? "text-slate-400"
                                         : "text-slate-800"
-                                }`} // Ganti warna placeholder jika belum dipilih
+                                }`}
                             >
                                 <option value="" disabled>
-                                    Select a city...
+                                    Pilih kota...
                                 </option>
                                 {daftarKotaIndonesia.map((namaKota) => (
                                     <option key={namaKota} value={namaKota}>
@@ -248,7 +247,7 @@ const PostFormModal = ({
                                     size={16}
                                     className="text-slate-500"
                                 />{" "}
-                                Description *
+                                Deskripsi *
                             </label>
                             <textarea
                                 id="description"
@@ -261,7 +260,7 @@ const PostFormModal = ({
                                         ? "border-red-400 bg-red-50/50"
                                         : "border-slate-300 hover:border-slate-400 bg-slate-50/30"
                                 } placeholder-slate-400 text-slate-800`}
-                                placeholder="Write your post content here..."
+                                placeholder="Tulis konten postingan Anda di sini..."
                             />
                             {errors.description && (
                                 <p className="flex items-center gap-1.5 text-red-600 text-xs mt-1">
@@ -281,7 +280,7 @@ const PostFormModal = ({
                                     size={16}
                                     className="text-slate-500"
                                 />{" "}
-                                Image URL (Optional)
+                                URL Gambar (Opsional)
                             </label>
                             <input
                                 id="image"
@@ -313,7 +312,7 @@ const PostFormModal = ({
                                 disabled={isSubmitting}
                                 className="px-5 py-2.5 text-sm font-medium text-slate-700 bg-slate-200/80 hover:bg-slate-300/80 rounded-lg transition-colors disabled:opacity-60 shadow-sm"
                             >
-                                Cancel
+                                Batal
                             </button>
                             <button
                                 type="submit"
@@ -326,8 +325,8 @@ const PostFormModal = ({
                                     <Save size={16} />
                                 )}
                                 {modalMode === "edit"
-                                    ? "Save Changes"
-                                    : "Create Post"}
+                                    ? "Menyimpan Perubahan"
+                                    : "Buat Postingan"}
                             </button>
                         </div>
                     </div>

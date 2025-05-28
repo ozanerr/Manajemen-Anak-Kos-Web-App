@@ -7,9 +7,9 @@ const Navbar = () => {
 
     const navItems = [
         { name: "Home", path: "/", icon: Home },
-        { name: "Finance", path: "/finance", icon: DollarSign },
+        { name: "Keuangan", path: "/finance", icon: DollarSign },
         { name: "Deadline", path: "/deadline", icon: Clock },
-        { name: "Discussion", path: "/discussion", icon: MessageCircle },
+        { name: "Diskusi", path: "/discussion", icon: MessageCircle },
     ];
 
     return (

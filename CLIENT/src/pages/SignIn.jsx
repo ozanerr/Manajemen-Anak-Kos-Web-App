@@ -68,10 +68,10 @@ export default function SignIn() {
                         <KeyRound size={28} className="text-white" />{" "}
                     </div>
                     <h2 className="text-2xl sm:text-3xl font-bold text-slate-800">
-                        Access Your Account {/* Judul diubah */}
+                        Akses Akun Anda
                     </h2>
                     <p className="text-slate-500 mt-2 text-sm sm:text-base">
-                        Choose a provider to continue. {/* Sub-judul diubah */}
+                        Pilih penyedia untuk melanjutkan.
                     </p>
                 </div>
 
@@ -83,7 +83,7 @@ export default function SignIn() {
                         className="w-full flex items-center justify-center space-x-3 py-3 px-4 border border-slate-300 rounded-lg text-slate-700 font-medium hover:bg-slate-100/70 hover:border-slate-400 transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 shadow-sm"
                     >
                         <FcGoogle size={24} />
-                        <span>Continue with Google</span>
+                        <span>Lanjutkan dengan Google</span>
                     </motion.button>
                     <motion.button
                         whileHover={{ scale: 1.03 }}
@@ -92,21 +92,20 @@ export default function SignIn() {
                         className="w-full flex items-center justify-center space-x-3 py-3 px-4 border border-slate-300 rounded-lg text-slate-700 font-medium hover:bg-slate-100/70 hover:border-slate-400 transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 shadow-sm"
                     >
                         <FaGithub size={24} className="text-slate-800" />
-                        <span>Continue with GitHub</span>
+                        <span>Lanjutkan dengan GitHub</span>
                     </motion.button>
                 </div>
 
                 <div className="mt-8 text-slate-500 text-xs sm:text-sm">
-                    By signing in, you indicate that you have read and agree to
-                    our{" "}
+                    Dengan masuk, Anda menunjukkan bahwa Anda telah membaca dan setuju dengan{" "}
                     <span className="font-medium text-blue-600 cursor-default">
                         {" "}
-                        Terms of Service
+                        Ketentuan Layanan
                     </span>{" "}
-                    and{" "}
+                    dan{" "}
                     <span className="font-medium text-blue-600 cursor-default">
                         {" "}
-                        Privacy Policy
+                        Kebijakan Privasi
                     </span>
                     .
                 </div>

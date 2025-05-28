@@ -1,4 +1,3 @@
-import React from "react";
 import { Edit2, Trash2 } from "lucide-react";
 
 const formatRupiah = (amount) =>
@@ -43,7 +42,7 @@ const TransactionCardMobile = ({ transaction, onEdit, onDelete }) => {
                                 : "bg-red-100 text-red-700"
                         }`}
                     >
-                        {type.charAt(0).toUpperCase() + type.slice(1)}
+                        {type === "income" ? "Pemasukan" : "Pengeluaran"}
                     </span>
                 </div>
                 <div className="pt-2 mt-2 border-t border-gray-200/50 flex justify-end gap-2">

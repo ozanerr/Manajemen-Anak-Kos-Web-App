@@ -1,4 +1,3 @@
-import React from "react";
 import {
     AreaChart,
     Area,
@@ -18,15 +17,15 @@ const formatRupiah = (amount) =>
     }).format(Math.abs(amount));
 
 const themeChartColors = {
-    income: "#22c55e", // green-500
-    expense: "#ef4444", // red-500
+    income: "#22c55e",
+    expense: "#ef4444",
 };
 
 const MonthlyFlowChart = ({ data }) => {
     return (
         <>
             <h2 className="text-lg sm:text-xl font-semibold text-gray-700 mb-4">
-                Monthly Financial Flow (Last 12 Months)
+                Arus Keuangan Bulanan (12 Bulan Terakhir)
             </h2>
             <div className="h-[250px] sm:h-[300px]">
                 {" "}
@@ -121,7 +120,7 @@ const MonthlyFlowChart = ({ data }) => {
                             stroke={themeChartColors.income}
                             strokeWidth={2}
                             fill="url(#colorIncomeFinanceChart)"
-                            name="Income"
+                            name="Pemasukan"
                             dot={{ r: 3, strokeWidth: 1 }}
                             activeDot={{ r: 5 }}
                         />
@@ -131,7 +130,7 @@ const MonthlyFlowChart = ({ data }) => {
                             stroke={themeChartColors.expense}
                             strokeWidth={2}
                             fill="url(#colorExpenseFinanceChart)"
-                            name="Expense"
+                            name="Pengeluaran"
                             dot={{ r: 3, strokeWidth: 1 }}
                             activeDot={{ r: 5 }}
                         />

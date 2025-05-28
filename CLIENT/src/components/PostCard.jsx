@@ -27,12 +27,12 @@ const PostCard = ({ post }) => {
     const [dropdownOpen, setDropdownOpen] = useState(false);
 
     const handleEditPost = (postId) => {
-        console.log("Edit post:", postId);
+        console.log("Edit postingan:", postId);
         setDropdownOpen(false);
     };
     const handleDeletePost = (postId) => {
-        if (window.confirm("Are you sure you want to delete this post?")) {
-            console.log("Delete post:", postId);
+        if (window.confirm("Apakah Anda yakin ingin menghapus postingan ini?")) {
+            console.log("Menghapus Posting:", postId);
         }
         setDropdownOpen(false);
     };
@@ -59,7 +59,7 @@ const PostCard = ({ post }) => {
         <div className="bg-white/80 backdrop-blur-lg rounded-xl border border-slate-200/70 shadow-lg overflow-hidden transition-all duration-300 ease-out hover:shadow-2xl group">
             <div className="p-4 sm:p-5 flex items-center justify-between border-b border-slate-200/70">
                 <div
-                    className="flex items-center space-x-3 group/userinfo cursor-default" // Tambahkan cursor-default
+                    className="flex items-center space-x-3 group/userinfo cursor-default"
                 >
                     <img
                         className="w-10 h-10 rounded-full object-cover border-2 border-white shadow-sm group-hover/userinfo:ring-2 group-hover/userinfo:ring-blue-400 transition-all"
@@ -69,11 +69,11 @@ const PostCard = ({ post }) => {
                                 username || "U"
                             }&background=random&color=fff&font-size=0.5&bold=true`
                         }
-                        alt={username || "User profile"}
+                        alt={username || "Profil pengguna"}
                     />
                     <div>
                         <p className="text-sm font-semibold text-slate-800 group-hover/userinfo:text-blue-600 transition-colors">
-                            {username || "Anonymous User"}
+                            {username || "Pengguna Anonim"}
                         </p>
                         <p className="text-xs text-slate-500 group-hover/userinfo:text-slate-600 transition-colors">
                             <time dateTime={createdAt}>
@@ -102,15 +102,14 @@ const PostCard = ({ post }) => {
                                 onClick={() => handleEditPost(_id)}
                                 className="w-full text-left flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-700 hover:bg-blue-500/10 hover:text-blue-600 transition-colors rounded-md"
                             >
-                                <Edit size={16} className="opacity-70" /> Edit
-                                Post
+                                <Edit size={16} className="opacity-70" /> Edit Postingan
                             </button>
                             <button
                                 onClick={() => handleDeletePost(_id)}
                                 className="w-full text-left flex items-center gap-2.5 px-4 py-2.5 text-sm text-red-600 hover:bg-red-500/10 hover:text-red-700 transition-colors rounded-md"
                             >
                                 <Trash size={16} className="opacity-70" />{" "}
-                                Delete Post
+                                Hapus Postingan
                             </button>
                         </div>
                     )}
@@ -124,7 +123,7 @@ const PostCard = ({ post }) => {
                         <img
                             className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                             src={image}
-                            alt={title || "Post image"}
+                            alt={title || "Gambar Postingan"}
                         />
                     </div>
                 )}
@@ -136,13 +135,13 @@ const PostCard = ({ post }) => {
                     )}
 
                     <h2 className="text-lg sm:text-xl font-bold text-slate-800 group-hover:text-blue-600 transition-colors mb-2 leading-tight">
-                        {title || "Untitled Post"}
+                        {title || "Postingan Tanpa Judul"}
                     </h2>
 
                     <p className="text-slate-600 text-sm leading-relaxed line-clamp-3 mb-5">
                         {description
                             ? description
-                            : "No description available."}
+                            : "Tidak ada deskripsi yang tersedia."}
                     </p>
                 </div>
             </Link>
@@ -168,7 +167,7 @@ const PostCard = ({ post }) => {
                     to={`/posts/${_id}`}
                     className="inline-flex items-center text-xs sm:text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:ring-blue-300/50 rounded-lg px-3.5 py-2 sm:px-4 sm:py-2.5 transition-colors shadow hover:shadow-md"
                 >
-                    Read more
+                    Baca selengkapnya
                     <svg
                         className="ml-1.5 sm:ml-2 -mr-1 w-4 h-4"
                         fill="currentColor"

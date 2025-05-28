@@ -96,11 +96,10 @@ const Discussion = () => {
             <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-8">
                 <div className="text-center mb-10 sm:mb-12">
                     <h1 className="text-3xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent">
-                        Community Discussions
+                        Diskusi Komunitas
                     </h1>
                     <p className="text-gray-600 mt-1 text-base max-w-2xl mx-auto">
-                        Explore topics, share insights, and connect with fellow
-                        members.
+                        Jelajahi topik, berbagi wawasan, dan terhubung dengan sesama anggota.
                     </p>
                 </div>
 
