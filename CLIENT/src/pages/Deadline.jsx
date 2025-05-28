@@ -38,7 +38,7 @@ const Deadline = () => {
             start: "2025-05-26 09:00",
             end: "2025-05-26 17:00",
             completed: false,
-            priority: "urgent",
+            priority: "penting",
         },
         {
             id: 2,
@@ -67,7 +67,7 @@ const Deadline = () => {
                 ).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
             })(),
             completed: false,
-            priority: "high",
+            priority: "Tinggi",
         },
         {
             id: 3,
@@ -96,7 +96,7 @@ const Deadline = () => {
                 ).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
             })(),
             completed: false,
-            priority: "medium",
+            priority: "sedang",
         },
         {
             id: 4,
@@ -105,13 +105,14 @@ const Deadline = () => {
             end: "2025-05-26 10:00",
             start: "2025-05-26 09:00",
             completed: true,
-            priority: "low",
+            priority: "rendah",
         },
     ]);
 
     const { isloggedIn, isAuthLoading } = useSelector((state) => state.user);
     const navigate = useNavigate();
     const calendarAppInstance = useCalendarApp({
+        locale: "id-ID",
         views: [createViewMonthGrid()],
         selectedDate: new Date().toISOString().split("T")[0],
         plugins: [createDragAndDropPlugin()],
@@ -141,7 +142,7 @@ const Deadline = () => {
                                   .replace("T", " ")
                             : "",
                         completed: clickedEventData.completed || false,
-                        priority: clickedEventData.priority || "medium",
+                        priority: clickedEventData.priority || "sedang",
                         description: clickedEventData.description || "",
                     };
                     setSelectedEvent(fallbackEvent);
@@ -155,23 +156,23 @@ const Deadline = () => {
     const getDynamicPriority = useCallback((event, now) => {
         if (event.completed) return "completed";
         const dueDate = new Date(event.end.replace(" ", "T"));
-        if (dueDate < now) return "urgent";
+        if (dueDate < now) return "penting";
         const diffTime = dueDate.getTime() - now.getTime();
         const diffHours = diffTime / (1000 * 60 * 60);
-        if (diffHours <= 24) return "high";
-        if (diffHours <= 24 * 7) return "medium";
-        return "low";
+        if (diffHours <= 24) return "Tinggi";
+        if (diffHours <= 24 * 7) return "sedang";
+        return "rendah";
     }, []);
 
     const getPriorityColor = useCallback((priority) => {
         switch (priority) {
-            case "urgent":
+            case "penting":
                 return "bg-neutral-800 text-neutral-100 border-neutral-900";
-            case "high":
+            case "Tinggi":
                 return "bg-orange-100 text-orange-800 border-orange-200";
-            case "medium":
+            case "sedang":
                 return "bg-yellow-100 text-yellow-800 border-yellow-200";
-            case "low":
+            case "rendah":
                 return "bg-green-100 text-green-800 border-green-200";
             case "completed":
                 return "bg-slate-100 text-slate-500 border-slate-200";
@@ -311,7 +312,7 @@ const Deadline = () => {
             start: now.toISOString().slice(0, 16).replace("T", " "),
             end: defaultEndTime.toISOString().slice(0, 16).replace("T", " "),
             completed: false,
-            priority: "medium",
+            priority: "sedang",
         });
         setModalMode("add");
         setIsModalOpen(true);
@@ -426,13 +427,15 @@ const Deadline = () => {
                                         Tidak ada deadline ditemukan
                                     </h3>
                                     <p className="text-slate-500 mb-8">
-                                        Buat deadline pertama Anda untuk memulai.
+                                        Buat deadline pertama Anda untuk
+                                        memulai.
                                     </p>
                                     <button
                                         onClick={handleOpenAddModal}
                                         className="inline-flex items-center gap-2.5 bg-gradient-to-r from-blue-500 to-purple-600 text-white px-7 py-3 rounded-lg hover:from-blue-600 hover:to-purple-700 transition-all duration-200 shadow-lg hover:shadow-xl text-base font-medium"
                                     >
-                                        <PlusIconLucide size={18} /> Buat Deadline Pertama
+                                        <PlusIconLucide size={18} /> Buat
+                                        Deadline Pertama
                                     </button>
                                 </div>
                             ) : (

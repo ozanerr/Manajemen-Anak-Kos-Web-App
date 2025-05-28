@@ -25,7 +25,7 @@ const DeadlineItem = ({
             className={`p-5 sm:p-6 bg-white/70 hover:bg-white/80 backdrop-blur-sm transition-all duration-200 cursor-pointer rounded-xl border border-slate-200/70 shadow-lg hover:shadow-xl ${
                 event.completed ? "opacity-60" : ""
             } ${
-                isEventOverdue && dynamicPriority === "urgent"
+                isEventOverdue && dynamicPriority === "penting"
                     ? "border-l-4 border-neutral-800"
                     : ""
             }`}
@@ -55,7 +55,7 @@ const DeadlineItem = ({
                                 className={`font-semibold text-lg sm:text-xl leading-tight ${
                                     event.completed
                                         ? "line-through text-gray-500"
-                                        : dynamicPriority === "urgent"
+                                        : dynamicPriority === "penting"
                                         ? "text-neutral-800"
                                         : "text-gray-800"
                                 } group-hover:text-blue-600 transition-colors`}
@@ -100,23 +100,24 @@ const DeadlineItem = ({
                         </div>
 
                         <div className="text-xs sm:text-sm text-right flex-shrink-0 space-y-1 mt-1 sm:mt-0">
-                            {isEventOverdue && dynamicPriority === "urgent" && (
-                                <span className="inline-flex items-center gap-1 text-neutral-700 font-medium bg-neutral-100 px-2 py-0.5 rounded">
-                                    <AlertTriangle
-                                        size={13}
-                                        className="text-neutral-600"
-                                    />{" "}
-                                    Overdue
-                                </span>
-                            )}
+                            {isEventOverdue &&
+                                dynamicPriority === "penting" && (
+                                    <span className="inline-flex items-center gap-1 text-neutral-700 font-medium bg-neutral-100 px-2 py-0.5 rounded">
+                                        <AlertTriangle
+                                            size={13}
+                                            className="text-neutral-600"
+                                        />{" "}
+                                        Terlambat
+                                    </span>
+                                )}
                             {isEventDueToday &&
-                                dynamicPriority !== "urgent" && (
+                                dynamicPriority !== "penting" && (
                                     <span className="inline-flex items-center gap-1 text-orange-700 font-medium bg-orange-100 px-2 py-0.5 rounded">
                                         <Bell
                                             size={13}
                                             className="text-orange-600"
                                         />{" "}
-                                        Due today
+                                        Hari ini
                                     </span>
                                 )}
                             {!isEventOverdue &&
@@ -130,7 +131,7 @@ const DeadlineItem = ({
                                 )}
                             {event.completed && (
                                 <span className="inline-flex items-center gap-1 text-green-700 font-medium bg-green-100 px-2 py-0.5 rounded">
-                                    <CheckCircle2 size={13} /> Completed
+                                    <CheckCircle2 size={13} /> Selesai
                                 </span>
                             )}
                         </div>

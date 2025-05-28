@@ -98,7 +98,39 @@ const initialTransactions = [
     },
 ];
 
-const formatRupiah = (amount, includeSign = false) => {};
+const formatRupiah = (amount, includeSign = false) => {
+    if (amount === null || amount === undefined) {
+        return "Rp0"; // Or some other placeholder
+    }
+
+    const numberFormat = new Intl.NumberFormat("id-ID", {
+        style: "currency",
+        currency: "IDR",
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0,
+    });
+
+    let formattedAmount = numberFormat.format(Math.abs(amount));
+
+    if (includeSign) {
+        if (amount > 0) {
+            formattedAmount = "+ " + formattedAmount;
+        } else if (amount < 0) {
+            // The default Intl.NumberFormat for IDR might already include a minus for negative,
+            // but explicitly adding it ensures consistency if you want a specific format like "- Rp..."
+            // For negative values, numberFormat.format(amount) would typically produce "-RpXXX".
+            // If you want "- Rp XXX", you'd adjust. Assuming standard negative format is fine.
+            // If Math.abs was used, we need to re-add the sign.
+            formattedAmount = "- " + formattedAmount;
+        }
+        // if amount is 0, no sign is needed.
+    } else if (amount < 0) {
+        // If not including a specific sign for positives, but still want to show negative
+        formattedAmount = "- " + formattedAmount;
+    }
+
+    return formattedAmount;
+};
 
 const Finance = () => {
     const { isloggedIn, isAuthLoading } = useSelector((state) => state.user);
