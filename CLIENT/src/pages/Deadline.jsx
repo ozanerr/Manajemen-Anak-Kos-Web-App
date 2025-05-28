@@ -115,7 +115,7 @@ const Deadline = () => {
         locale: "id-ID",
         views: [createViewMonthGrid()],
         selectedDate: new Date().toISOString().split("T")[0],
-        plugins: [createDragAndDropPlugin()],
+        plugins: [],
         callbacks: {
             onEventClick: (clickedEventData) => {
                 const originalEvent = events.find(
