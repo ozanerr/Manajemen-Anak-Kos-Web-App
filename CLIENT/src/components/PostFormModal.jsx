@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
 import {
     X,
-    FileText, // Untuk Judul
-    MapPin, // Mengganti Tag dengan MapPin untuk Kota
-    AlignLeft, // Untuk Deskripsi
+    FileText,
+    MapPin,
+    AlignLeft,
     Image as ImageIcon,
     AlertCircle,
     Save,
@@ -11,7 +11,6 @@ import {
     MessageSquarePlus,
 } from "lucide-react";
 
-// Daftar contoh kota di Indonesia. Anda HARUS melengkapi daftar ini sesuai kebutuhan.
 const daftarKotaIndonesia = [
     "Jakarta",
     "Surabaya",
@@ -52,9 +51,7 @@ const daftarKotaIndonesia = [
     "Purwokerto",
     "Solo",
     "Kediri",
-    // Tambahkan lebih banyak kota di sini
 ];
-// Urutkan daftar kota untuk tampilan dropdown yang lebih baik
 daftarKotaIndonesia.sort();
 
 const PostFormModal = ({
@@ -66,7 +63,7 @@ const PostFormModal = ({
 }) => {
     const defaultPost = {
         title: "",
-        kota: "", // Mengganti category menjadi kota, default string kosong agar placeholder select muncul
+        kota: "",
         description: "",
         image: "",
     };
@@ -80,7 +77,7 @@ const PostFormModal = ({
             setPost({
                 ...defaultPost,
                 ...initialPostData,
-                kota: initialPostData?.kota || "", // Pastikan kota diinisialisasi dengan benar
+                kota: initialPostData?.kota || "",
             });
             setErrors({});
         }
@@ -202,7 +199,6 @@ const PostFormModal = ({
                             )}
                         </div>
 
-                        {/* Field Kota (Dropdown) */}
                         <div className="space-y-1.5">
                             <label
                                 htmlFor="kota"

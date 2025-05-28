@@ -1,4 +1,3 @@
-// src/components/FinancialStatCard.jsx (Buat file baru atau sesuaikan path)
 import React from "react";
 
 const FinancialStatCard = ({
@@ -29,7 +28,6 @@ const FinancialStatCard = ({
                     className={`p-2.5 sm:p-3 rounded-lg ${iconContainerClass}`}
                 >
                     <IconComponent className={iconClass} size={20} />{" "}
-                    {/* Ukuran ikon disesuaikan */}
                 </div>
             </div>
         </div>

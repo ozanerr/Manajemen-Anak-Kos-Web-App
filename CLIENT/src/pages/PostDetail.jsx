@@ -111,7 +111,6 @@ const PostDetail = () => {
 
     if (!isloggedIn) return null;
 
-    // Penanganan error dan post tidak ditemukan setelah loading selesai
     if (postFetchError) {
         return (
             <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 flex flex-col justify-center items-center p-4">
@@ -162,7 +161,6 @@ const PostDetail = () => {
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 py-8 sm:py-12">
-            {/* Kontainer untuk konten utama post dan komentar, "tampilan lebih luas" */}
             <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
                 <button
                     onClick={() => navigate("/discussion")}
@@ -175,7 +173,6 @@ const PostDetail = () => {
                     Back to Discussions
                 </button>
 
-                {/* Kartu untuk Konten Post Utama */}
                 <article className="bg-white/80 backdrop-blur-xl rounded-2xl border border-slate-200/50 shadow-2xl overflow-hidden">
                     {post.image && (
                         <div className="w-full max-h-[350px] sm:max-h-[450px] md:max-h-[600px] overflow-hidden">
@@ -242,7 +239,6 @@ const PostDetail = () => {
                     </div>
                 </article>
 
-                {/* Kartu untuk Bagian Komentar */}
                 <section className="mt-10 sm:mt-12 bg-white/70 backdrop-blur-lg rounded-2xl border border-slate-200/50 shadow-xl p-6 sm:p-8">
                     <div className="flex justify-between items-center mb-6">
                         <h2 className="text-xl lg:text-2xl font-bold text-slate-800 flex items-center">

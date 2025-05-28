@@ -18,7 +18,6 @@ import {
     UserCircle,
 } from "lucide-react";
 
-// Placeholder untuk formatter
 const formatter = {
     format: (date) => {
         if (!date) return "Invalid date";
@@ -123,7 +122,6 @@ const Comment = ({ comment, postId }) => {
     };
 
     return (
-        // Kartu Komentar dengan tema glassmorphism
         <article className="p-4 sm:p-5 bg-white/70 backdrop-blur-md rounded-xl border border-slate-200/60 shadow-lg">
             <footer className="flex justify-between items-start mb-2">
                 <div className="flex items-center space-x-3">

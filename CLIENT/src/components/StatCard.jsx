@@ -1,4 +1,3 @@
-// src/components/StatCard.jsx (Buat file baru atau sesuaikan path)
 import React from "react";
 
 const StatCard = ({

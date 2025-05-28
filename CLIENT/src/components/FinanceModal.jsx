@@ -8,7 +8,6 @@ import {
     AlertCircle,
     Save,
     Trash2,
-    // Tambahkan Loader2 jika belum ada, untuk konsistensi dengan tombol submit
     Loader2,
 } from "lucide-react";
 
@@ -53,7 +52,6 @@ const FinanceModal = ({
         } else {
             setTransaction((prev) => ({ ...prev, [name]: value }));
         }
-        // Hapus error saat pengguna mulai mengetik lagi
         if (errors[name]) {
             setErrors((prevErrors) => ({ ...prevErrors, [name]: null }));
         }
@@ -103,10 +101,7 @@ const FinanceModal = ({
                 amount: parseFloat(transaction.amount),
             };
             await onSave(transactionToSave);
-            // Jika onSave berhasil, parent yang akan menutup modal
-            // onClose(); // Baris ini bisa diaktifkan jika Anda ingin modal selalu menutup dari sini
         } catch (error) {
-            // Tangani error dari onSave jika perlu
             console.error("Failed to save transaction from modal:", error);
         } finally {
             setIsSubmitting(false);
@@ -114,16 +109,11 @@ const FinanceModal = ({
     };
 
     const handleDelete = async () => {
-        if (
-            window.confirm("Are you sure you want to delete this transaction?")
-        ) {
-            setIsSubmitting(true);
-            try {
-                await onDelete();
-                // onClose(); // Parent yang akan menutup modal setelah delete
-            } finally {
-                setIsSubmitting(false);
-            }
+        setIsSubmitting(true);
+        try {
+            await onDelete();
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
@@ -158,13 +148,11 @@ const FinanceModal = ({
                     </div>
                 </div>
 
-                {/* Form Konten */}
                 <form
                     onSubmit={handleSubmit}
-                    className="flex-grow overflow-y-auto" // Memungkinkan scroll jika konten panjang
+                    className="flex-grow overflow-y-auto"
                 >
                     <div className="p-6 space-y-5">
-                        {/* Transaction Name Input */}
                         <div className="space-y-1.5">
                             <label
                                 htmlFor="name"
@@ -193,7 +181,6 @@ const FinanceModal = ({
                             )}
                         </div>
 
-                        {/* Amount Input */}
                         <div className="space-y-1.5">
                             <label
                                 htmlFor="amount"
@@ -226,7 +213,6 @@ const FinanceModal = ({
                             )}
                         </div>
 
-                        {/* Transaction Type Radio Buttons */}
                         <div className="space-y-1.5">
                             <label className="flex items-center gap-2 text-sm font-medium text-slate-700">
                                 <TrendingUp
@@ -237,7 +223,6 @@ const FinanceModal = ({
                             </label>
                             <div className="flex gap-x-6 gap-y-2 pt-1 flex-wrap">
                                 {" "}
-                                {/* flex-wrap jika layar sempit */}
                                 <label className="flex items-center gap-2 cursor-pointer">
                                     <input
                                         type="radio"
@@ -272,7 +257,6 @@ const FinanceModal = ({
                             )}
                         </div>
 
-                        {/* Date Input */}
                         <div className="space-y-1.5">
                             <label
                                 htmlFor="date"
@@ -304,10 +288,8 @@ const FinanceModal = ({
                         </div>
                     </div>
 
-                    {/* Footer Modal / Tombol Aksi */}
                     <div className="px-6 py-4 bg-slate-50/80 border-t border-slate-200/80 flex justify-between items-center sticky bottom-0">
                         {" "}
-                        {/* Tidak perlu rounded-b-2xl jika parent punya overflow-hidden */}
                         <div>
                             {onDelete && modalMode === "edit" && (
                                 <button

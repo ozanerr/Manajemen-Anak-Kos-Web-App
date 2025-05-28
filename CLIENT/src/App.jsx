@@ -6,7 +6,6 @@ import {
     useNavigate,
 } from "react-router-dom";
 import Home from "./pages/Home";
-import AddPost from "./pages/AddPost";
 import PostDetail from "./pages/PostDetail";
 import SignIn from "./pages/SignIn";
 import { useDispatch, useSelector } from "react-redux";
@@ -38,7 +37,6 @@ function App() {
             <Navbar />
             <Routes>
                 <Route path="/" element={<Home />} />
-                <Route path="/addPost" element={<AddPost />} />
                 <Route path="/posts/:postId" element={<PostDetail />} />
                 <Route path="/signin" element={<SignIn />} />
                 <Route path="/deadline" element={<Deadline />} />

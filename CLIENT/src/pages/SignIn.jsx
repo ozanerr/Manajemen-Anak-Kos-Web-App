@@ -6,9 +6,9 @@ import {
     setPersistence,
     signInWithPopup,
 } from "firebase/auth";
-import { auth, gitHubProvider, googleProvider } from "../firebase/firebase"; // Pastikan path ini benar
+import { auth, gitHubProvider, googleProvider } from "../firebase/firebase";
 import { useNavigate } from "react-router-dom";
-import { KeyRound } from "lucide-react"; // Mengganti LogIn dengan KeyRound atau ikon netral lain
+import { KeyRound } from "lucide-react";
 
 export default function SignIn() {
     const navigate = useNavigate();
@@ -66,7 +66,6 @@ export default function SignIn() {
                 <div className="flex flex-col items-center mb-6">
                     <div className="p-3 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full shadow-lg mb-4 inline-block">
                         <KeyRound size={28} className="text-white" />{" "}
-                        {/* Mengganti ikon menjadi lebih netral */}
                     </div>
                     <h2 className="text-2xl sm:text-3xl font-bold text-slate-800">
                         Access Your Account {/* Judul diubah */}
@@ -102,13 +101,11 @@ export default function SignIn() {
                     our{" "}
                     <span className="font-medium text-blue-600 cursor-default">
                         {" "}
-                        {/* Diubah menjadi span, tidak bisa diklik */}
                         Terms of Service
                     </span>{" "}
                     and{" "}
                     <span className="font-medium text-blue-600 cursor-default">
                         {" "}
-                        {/* Diubah menjadi span, tidak bisa diklik */}
                         Privacy Policy
                     </span>
                     .

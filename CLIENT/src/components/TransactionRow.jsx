@@ -1,8 +1,6 @@
-// src/components/TransactionRow.jsx
 import React from "react";
 import { Edit2, Trash2 } from "lucide-react";
 
-// formatRupiah bisa diimpor dari file utilitas
 const formatRupiah = (amount) =>
     new Intl.NumberFormat("id-ID", {
         style: "currency",

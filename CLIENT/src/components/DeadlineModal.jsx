@@ -35,7 +35,7 @@ const DeadlineModal = ({
         handleChange({
             target: {
                 name: "end",
-                value: dateValue.replace("T", " "), // Tetap simpan dengan spasi jika format internal Anda seperti itu
+                value: dateValue.replace("T", " "),
             },
         });
     };
@@ -61,7 +61,7 @@ const DeadlineModal = ({
         } else {
             const dueDate = new Date(event.end.replace(" ", "T"));
             const now = new Date();
-            now.setSeconds(0, 0); // Abaikan detik dan milidetik untuk perbandingan yang lebih adil
+            now.setSeconds(0, 0);
             const inputDateWithoutSeconds = new Date(dueDate);
             inputDateWithoutSeconds.setSeconds(0, 0);
 
@@ -74,9 +74,8 @@ const DeadlineModal = ({
         return Object.keys(newErrors).length === 0;
     };
 
-    // Mengganti nama handleSave menjadi handleSubmit untuk konvensi form
     const handleSubmit = async (e) => {
-        e.preventDefault(); // Mencegah submit form default browser
+        e.preventDefault();
         const title = e.target.title.value;
         const description = e.target.description.value;
         const start = e.target.end.value;
@@ -94,7 +93,6 @@ const DeadlineModal = ({
         setIsSubmitting(true);
         try {
             await onSave(event);
-            // onClose();
         } finally {
             setIsSubmitting(false);
         }
@@ -105,23 +103,19 @@ const DeadlineModal = ({
             setIsSubmitting(true);
             try {
                 await onDelete();
-                // Pertimbangkan untuk menutup modal di sini jika onDelete berhasil,
-                // atau biarkan komponen parent yang menanganinya.
-                // onClose();
             } finally {
                 setIsSubmitting(false);
             }
         }
     };
 
-    if (!event) return null; // Sebaiknya event selalu objek, mungkin initialEvent bisa null/undefined?
+    if (!event) return null;
 
     const daysUntilDue = getDaysUntilDue();
 
-    // Mendapatkan tanggal dan waktu minimum untuk input datetime-local (saat ini)
     const getMinDateTime = () => {
         const now = new Date();
-        now.setMinutes(now.getMinutes() - now.getTimezoneOffset()); // Sesuaikan dengan timezone lokal
+        now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
         return now.toISOString().slice(0, 16);
     };
 
@@ -131,7 +125,6 @@ const DeadlineModal = ({
                 className="bg-white rounded-2xl shadow-2xl w-full max-w-md max-h-[90vh] overflow-hidden transform transition-all duration-300 ease-out scale-100 flex flex-col"
                 onClick={(e) => e.stopPropagation()}
             >
-                {/* Header */}
                 <div className="bg-gradient-to-r from-blue-500 to-purple-600 px-6 py-4 text-white relative">
                     <button
                         onClick={onClose}
@@ -168,13 +161,11 @@ const DeadlineModal = ({
                         </div>
                     </div>
                 </div>
-                {/* Form Content */}
                 <form
                     onSubmit={handleSubmit}
                     className="flex-grow overflow-y-auto"
                 >
                     <div className="p-6 space-y-5">
-                        {/* Title Input */}
                         <div className="space-y-2">
                             <label
                                 htmlFor="title"
@@ -203,7 +194,6 @@ const DeadlineModal = ({
                             )}
                         </div>
 
-                        {/* Description Input */}
                         <div className="space-y-2">
                             <label
                                 htmlFor="description"
@@ -223,7 +213,6 @@ const DeadlineModal = ({
                             />
                         </div>
 
-                        {/* Due Date Input */}
                         <div className="space-y-2">
                             <label
                                 htmlFor="end"
@@ -236,9 +225,9 @@ const DeadlineModal = ({
                                 id="end"
                                 name="end"
                                 type="datetime-local"
-                                value={event.end?.replace(" ", "T") || ""} // datetime-local membutuhkan format dengan "T"
+                                value={event.end?.replace(" ", "T") || ""}
                                 onChange={handleDateChange}
-                                min={getMinDateTime()} // Atur tanggal minimum ke waktu saat ini
+                                min={getMinDateTime()}
                                 className={`w-full px-4 py-3 border rounded-xl shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent ${
                                     errors.end
                                         ? "border-red-300 bg-red-50"
@@ -254,12 +243,11 @@ const DeadlineModal = ({
                         </div>
                     </div>
 
-                    {/* Footer / Form Actions */}
                     <div className="px-6 py-4 bg-gray-50 border-t border-gray-200 flex justify-between items-center sticky bottom-0">
                         <div>
                             {onDelete && modalMode === "edit" && (
                                 <button
-                                    type="button" // Pastikan ini type="button" agar tidak men-submit form
+                                    type="button"
                                     onClick={handleDelete}
                                     disabled={isSubmitting}
                                     className="flex items-center gap-2 px-4 py-2 text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50"
@@ -272,7 +260,7 @@ const DeadlineModal = ({
 
                         <div className="flex gap-3">
                             <button
-                                type="button" // Pastikan ini type="button"
+                                type="button"
                                 onClick={onClose}
                                 disabled={isSubmitting}
                                 className="px-6 py-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors disabled:opacity-50"
@@ -280,7 +268,7 @@ const DeadlineModal = ({
                                 Cancel
                             </button>
                             <button
-                                type="submit" // Ini adalah tombol submit untuk form
+                                type="submit"
                                 disabled={isSubmitting}
                                 className="flex items-center gap-2 px-6 py-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg hover:from-blue-600 hover:to-purple-700 transition-all duration-200 disabled:opacity-50 shadow-md hover:shadow-lg cursor-pointer"
                             >
@@ -296,7 +284,6 @@ const DeadlineModal = ({
                         </div>
                     </div>
                 </form>{" "}
-                {/* Penutup tag form */}
             </div>
         </div>
     );

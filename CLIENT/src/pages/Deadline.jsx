@@ -25,7 +25,6 @@ import DeadlineItem from "../components/DeadlineItem";
 import { FiPlus } from "react-icons/fi";
 
 const Deadline = () => {
-    // 1. Semua useState Hooks
     const [selectedEvent, setSelectedEvent] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [modalMode, setModalMode] = useState("add");
@@ -110,7 +109,6 @@ const Deadline = () => {
         },
     ]);
 
-    // 2. Hooks dari library (useSelector, useCalendarApp, useNavigate)
     const { isloggedIn, isAuthLoading } = useSelector((state) => state.user);
     const navigate = useNavigate();
     const calendarAppInstance = useCalendarApp({
@@ -154,7 +152,6 @@ const Deadline = () => {
         },
     });
 
-    // 3. Semua useCallback dan useMemo Hooks
     const getDynamicPriority = useCallback((event, now) => {
         if (event.completed) return "completed";
         const dueDate = new Date(event.end.replace(" ", "T"));
@@ -218,13 +215,13 @@ const Deadline = () => {
                     : ev
             )
         );
-    }, []); // setEvents adalah fungsi yang stabil dari useState, jadi dependensi kosong aman
+    }, []);
 
     const handleOpenEditModal = useCallback((eventToEdit) => {
         setSelectedEvent(eventToEdit);
         setModalMode("edit");
         setIsModalOpen(true);
-    }, []); // Dependensi kosong karena setter state tidak perlu disertakan
+    }, []);
 
     const sortedEvents = useMemo(
         () =>
@@ -236,7 +233,6 @@ const Deadline = () => {
         [events]
     );
 
-    // 4. Semua useEffect Hooks
     useEffect(() => {
         if (calendarAppInstance) {
             const formattedEvents = events.map((event) => {
@@ -271,7 +267,6 @@ const Deadline = () => {
         }
     }, [isAuthLoading, isloggedIn, navigate]);
 
-    // Fungsi reguler (bukan Hooks) bisa didefinisikan setelah Hooks atau sebelum return JSX
     const handleModalSave = (eventDataFromModal) => {
         let updatedEvents;
         if (modalMode === "edit") {
@@ -322,7 +317,6 @@ const Deadline = () => {
         setIsModalOpen(true);
     };
 
-    // Kondisi Early Return
     if (isAuthLoading) {
         return (
             <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 flex flex-col justify-center items-center p-4">
@@ -337,7 +331,6 @@ const Deadline = () => {
         return null;
     }
 
-    // Return JSX Utama
     return (
         <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">

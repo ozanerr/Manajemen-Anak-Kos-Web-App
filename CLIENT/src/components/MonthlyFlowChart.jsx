@@ -1,4 +1,3 @@
-// src/components/MonthlyFlowChart.jsx (Buat file baru atau sesuaikan path)
 import React from "react";
 import {
     AreaChart,
@@ -11,7 +10,6 @@ import {
     CartesianGrid,
 } from "recharts";
 
-// formatRupiah bisa diimpor dari file utilitas jika Anda memindahkannya
 const formatRupiah = (amount) =>
     new Intl.NumberFormat("id-ID", {
         style: "currency",
@@ -32,7 +30,6 @@ const MonthlyFlowChart = ({ data }) => {
             </h2>
             <div className="h-[250px] sm:h-[300px]">
                 {" "}
-                {/* Kontrol tinggi di sini */}
                 <ResponsiveContainer width="100%" height="100%">
                     <AreaChart
                         data={data}

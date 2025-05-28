@@ -13,14 +13,12 @@ import {
 } from "lucide-react";
 
 import FinanceModal from "../components/FinanceModal";
-import FinancialStatCard from "../components/FinancialStatCard"; // Impor baru
-import MonthlyFlowChart from "../components/MonthlyFlowChart"; // Impor baru
-import TransactionRow from "../components/TransactionRow"; // Impor baru
-import TransactionCardMobile from "../components/TransactionCardMobile"; // Impor baru
+import FinancialStatCard from "../components/FinancialStatCard";
+import MonthlyFlowChart from "../components/MonthlyFlowChart";
+import TransactionRow from "../components/TransactionRow";
+import TransactionCardMobile from "../components/TransactionCardMobile";
 
-// Data awal transaksi dan formatRupiah bisa dipindah ke file utilitas jika diinginkan
 const initialTransactions = [
-    // ...data transaksi Anda...
     {
         id: 1,
         name: "Bayar uang kos",
@@ -100,9 +98,7 @@ const initialTransactions = [
     },
 ];
 
-const formatRupiah = (amount, includeSign = false) => {
-    /* ... implementasi sama ... */
-};
+const formatRupiah = (amount, includeSign = false) => {};
 
 const Finance = () => {
     const { isloggedIn, isAuthLoading } = useSelector((state) => state.user);
@@ -114,7 +110,6 @@ const Finance = () => {
     const [financeModalMode, setFinanceModalMode] = useState("add");
     const [currentTime, setCurrentTime] = useState(new Date());
 
-    // ... useEffect dan kalkulasi financialStats, monthlyChartData tetap sama ...
     useEffect(() => {
         const timerId = setInterval(
             () => setCurrentTime(new Date()),
@@ -229,7 +224,7 @@ const Finance = () => {
         setCurrentTransaction(transactionToEdit);
         setFinanceModalMode("edit");
         setIsFinanceModalOpen(true);
-    }, []); // useCallback karena di-pass ke TransactionRow/Card
+    }, []);
 
     const handleSaveTransaction = (transactionDataFromModal) => {
         if (financeModalMode === "add") {
@@ -267,7 +262,6 @@ const Finance = () => {
                     prev.filter((t) => t.id !== transactionId)
                 );
             }
-            // Jika modal masih terbuka dari edit, tutup
             if (
                 isFinanceModalOpen &&
                 currentTransaction &&
@@ -297,7 +291,6 @@ const Finance = () => {
     return (
         <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                {/* ... Header (Judul + Tombol Add Transaction) ... */}
                 <div className="mb-8 flex flex-col sm:flex-row justify-between sm:items-center gap-4">
                     <div>
                         <h1 className="text-3xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent">
@@ -315,7 +308,6 @@ const Finance = () => {
                     </button>
                 </div>
 
-                {/* Menggunakan FinancialStatCard */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                     <FinancialStatCard
                         title="Total Balance"
@@ -370,12 +362,10 @@ const Finance = () => {
                     />
                 </div>
 
-                {/* Menggunakan MonthlyFlowChart */}
                 <div className="mb-8 bg-white/70 backdrop-blur-md rounded-2xl border border-white/30 shadow-xl overflow-hidden p-4 sm:p-6">
                     <MonthlyFlowChart data={monthlyChartData} />
                 </div>
 
-                {/* Histori Transaksi */}
                 <div className="bg-white/70 backdrop-blur-md rounded-2xl border border-white/30 shadow-xl overflow-hidden p-4 sm:p-6">
                     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4">
                         <h2 className="text-xl sm:text-2xl font-bold text-gray-800">
@@ -383,7 +373,6 @@ const Finance = () => {
                         </h2>
                     </div>
                     <div className="overflow-x-auto -mx-4 sm:-mx-6 px-4 sm:px-6">
-                        {/* Tampilan Tabel Desktop */}
                         <table className="min-w-full text-left text-xs sm:text-sm hidden sm:table">
                             <thead>
                                 <tr className="border-b border-gray-300/70">
@@ -432,7 +421,6 @@ const Finance = () => {
                                 )}
                             </tbody>
                         </table>
-                        {/* Tampilan Kartu Mobile */}
                         <div className="sm:hidden space-y-4">
                             {transactions.length > 0 ? (
                                 transactions.map((tx) => (
@@ -457,7 +445,6 @@ const Finance = () => {
                     {transactions.length === 0 && (
                         <div className="text-center py-10 text-gray-500 mt-4 sm:hidden">
                             {" "}
-                            {/* Tampil hanya di mobile jika tabel kosong */}
                             Add one to get started!
                         </div>
                     )}

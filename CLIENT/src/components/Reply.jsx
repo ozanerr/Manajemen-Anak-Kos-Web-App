@@ -6,7 +6,6 @@ import {
 import { useSelector } from "react-redux";
 import { MoreHorizontal, Edit, Trash, Loader2, UserCircle } from "lucide-react";
 
-// Placeholder untuk formatter (Sama seperti di PostDetail)
 const formatter = {
     format: (date) => {
         if (!date) return "Invalid date";
@@ -76,7 +75,6 @@ const Reply = ({ reply, commentId, postId }) => {
     };
 
     return (
-        // Kartu Reply dengan tema, sedikit berbeda dari Comment untuk hierarki
         <article className="p-3 sm:p-4 text-sm bg-slate-100/70 backdrop-blur-sm rounded-xl border border-slate-200/60 shadow-md relative">
             <footer className="flex justify-between items-start sm:items-center mb-1.5">
                 <div className="flex items-center space-x-2">

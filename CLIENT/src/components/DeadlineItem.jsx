@@ -1,4 +1,4 @@
-// src/components/DeadlineItem.jsx (Buat file baru atau sesuaikan path)
+// src/components/DeadlineItem.jsx
 import React from "react";
 import { Clock, CheckCircle2, AlertTriangle, Bell } from "lucide-react";
 
@@ -10,14 +10,14 @@ const DeadlineItem = ({
     daysUntil,
     isEventOverdue,
     isEventDueToday,
-    getPriorityColor, // Fungsi ini tetap di-pass dari parent agar styling konsisten
+    getPriorityColor,
 }) => {
     const handleCardClick = () => {
         onOpenEditModal(event);
     };
 
     const handleToggleCompleteClick = (e) => {
-        e.stopPropagation(); // Mencegah card click saat tombol complete diklik
+        e.stopPropagation();
         onToggleComplete(event.id);
     };
 

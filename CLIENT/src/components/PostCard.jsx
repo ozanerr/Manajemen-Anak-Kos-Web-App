@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom"; // Link tetap diimpor untuk tombol "Read more" dan judul post
+import { Link } from "react-router-dom";
 import {
     MoreHorizontal,
     Edit,
@@ -8,7 +8,6 @@ import {
     Heart,
 } from "lucide-react";
 
-// Placeholder untuk formatter (Sama seperti sebelumnya)
 const formatter = {
     format: (date) => {
         if (!date) return "Invalid date";
@@ -58,9 +57,7 @@ const PostCard = ({ post }) => {
 
     return (
         <div className="bg-white/80 backdrop-blur-lg rounded-xl border border-slate-200/70 shadow-lg overflow-hidden transition-all duration-300 ease-out hover:shadow-2xl group">
-            {/* Bagian Header Kartu: Info Pengguna & Aksi */}
             <div className="p-4 sm:p-5 flex items-center justify-between border-b border-slate-200/70">
-                {/* Mengganti Link dengan div, mempertahankan kelas untuk hover */}
                 <div
                     className="flex items-center space-x-3 group/userinfo cursor-default" // Tambahkan cursor-default
                 >
@@ -85,7 +82,6 @@ const PostCard = ({ post }) => {
                         </p>
                     </div>
                 </div>
-                {/* ... sisa kode untuk dropdown tetap sama ... */}
                 <div className="relative">
                     <button
                         onClick={(e) => {
@@ -121,10 +117,8 @@ const PostCard = ({ post }) => {
                 </div>
             </div>
 
-            {/* Konten Utama Kartu - Link di sini hanya untuk judul dan area konten */}
             <Link to={`/posts/${_id}`} className="block p-4 sm:p-5 group">
                 {" "}
-                {/* Group ditambahkan di sini jika hover pada judul/deskripsi ingin efek */}
                 {image && (
                     <div className="mb-4 rounded-lg overflow-hidden aspect-[16/10] sm:aspect-[16/9]">
                         <img
@@ -141,7 +135,6 @@ const PostCard = ({ post }) => {
                         </span>
                     )}
 
-                    {/* Judul post bisa tetap sebagai bagian dari Link utama atau Link terpisah */}
                     <h2 className="text-lg sm:text-xl font-bold text-slate-800 group-hover:text-blue-600 transition-colors mb-2 leading-tight">
                         {title || "Untitled Post"}
                     </h2>
@@ -154,7 +147,6 @@ const PostCard = ({ post }) => {
                 </div>
             </Link>
 
-            {/* Footer Kartu: Aksi & Info Tambahan */}
             <div className="px-4 sm:px-5 pb-4 sm:pb-5 border-t border-slate-200/70 pt-4 flex items-center justify-between">
                 <div className="flex items-center space-x-4">
                     <button className="flex items-center text-sm text-slate-500 hover:text-red-500 transition-colors group/like">
