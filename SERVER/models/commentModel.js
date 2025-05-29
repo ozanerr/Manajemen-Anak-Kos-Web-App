@@ -2,6 +2,10 @@ import mongoose, { Schema } from "mongoose";
 
 const commentSchema = new mongoose.Schema(
     {
+        uid: {
+            type: String,
+            required: true,
+        },
         postId: {
             type: Schema.Types.ObjectId,
             ref: "Post",
@@ -21,6 +25,10 @@ const commentSchema = new mongoose.Schema(
         },
         replies: [
             {
+                uid: {
+                    type: String,
+                    required: true,
+                },
                 username: {
                     type: String,
                     required: true,

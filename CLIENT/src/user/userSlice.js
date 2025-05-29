@@ -5,6 +5,7 @@ const initialState = {
     photoURL: "",
     isloggedIn: false,
     isAuthLoading: true,
+    uid: "",
 };
 
 export const userSlice = createSlice({
@@ -12,11 +13,12 @@ export const userSlice = createSlice({
     initialState,
     reducers: {
         setUser: (state, action) => {
-            const { displayName, photoURL } = action.payload;
+            const { displayName, photoURL, uid } = action.payload;
             state.displayName = displayName;
             state.photoURL = photoURL;
             state.isloggedIn = true;
             state.isAuthLoading = false;
+            state.uid = uid;
         },
         clearUser: (state, action) => {
             state.displayName = "";

@@ -24,10 +24,10 @@ const Discussion = () => {
         // refetch,
     } = useFetchPostsQuery() || {};
     const posts = postsResponse?.data || [];
+    console.log(posts);
 
-    const { displayName, photoURL, isloggedIn, isAuthLoading } = useSelector(
-        (state) => state.user
-    );
+    const { displayName, photoURL, isloggedIn, isAuthLoading, uid } =
+        useSelector((state) => state.user);
     const navigate = useNavigate();
 
     const [isPostModalOpen, setIsPostModalOpen] = useState(false);
@@ -54,6 +54,7 @@ const Discussion = () => {
             if (postModalMode === "add") {
                 const newPostData = {
                     ...postDataFromModal,
+                    uid: uid,
                     username: displayName || "Anonymous User",
                     imageProfile:
                         photoURL ||
@@ -78,6 +79,8 @@ const Discussion = () => {
             console.error(`Failed to ${postModalMode} post:`, err);
         }
     };
+
+    const handleDeletePost = () => {};
 
     if (isAuthLoading) {
         return (
@@ -184,7 +187,7 @@ const Discussion = () => {
                         setCurrentPostToEdit(null);
                     }}
                     onSave={handleSavePost}
-                    // onDelete={handleDeleteConfirmation}
+                    onDelete={handleDeletePost}
                 />
             )}
         </div>

@@ -434,7 +434,7 @@ const Deadline = () => {
                                         onClick={handleOpenAddModal}
                                         className="inline-flex items-center gap-2.5 bg-gradient-to-r from-blue-500 to-purple-600 text-white px-7 py-3 rounded-lg hover:from-blue-600 hover:to-purple-700 transition-all duration-200 shadow-lg hover:shadow-xl text-base font-medium"
                                     >
-                                        <PlusIconLucide size={18} /> Buat
+                                        {/* <PlusIconLucide size={18} /> Buat */}
                                         Deadline Pertama
                                     </button>
                                 </div>

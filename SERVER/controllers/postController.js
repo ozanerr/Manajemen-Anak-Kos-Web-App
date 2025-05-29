@@ -2,10 +2,11 @@ import Post from "../models/postModel.js";
 
 const createPost = async (req, res) => {
     try {
-        const { judul, deskripsi, kota, gambar, username, imageProfile } =
+        const { uid, judul, deskripsi, kota, gambar, username, imageProfile } =
             req.body;
 
         const newPost = await Post.create({
+            uid,
             judul,
             deskripsi,
             kota,

@@ -42,6 +42,7 @@ const PostDetail = () => {
         photoURL,
         isloggedIn,
         isAuthLoading: userAuthLoading,
+        uid,
     } = useSelector((state) => state.user);
 
     const [comment, setComment] = useState("");
@@ -80,6 +81,7 @@ const PostDetail = () => {
             await addComment({
                 postId: postId,
                 data: {
+                    uid: uid,
                     postId: postId,
                     username: displayName || "Anonymous",
                     comment: comment,
@@ -179,19 +181,19 @@ const PostDetail = () => {
                             {" "}
                             <img
                                 className="w-full h-full object-cover"
-                                src={post.image}
-                                alt={post.title || "Post image"}
+                                src={post.gambar}
+                                alt={post.judul || "Post image"}
                             />
                         </div>
                     )}
                     <div className="p-6 sm:p-8 md:p-10">
                         <div className="mb-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-y-3">
                             <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-slate-800 leading-tight break-words">
-                                {post.title}
+                                {post.judul}
                             </h1>
-                            {post.category && (
+                            {post.kota && (
                                 <span className="self-start sm:self-center mt-1 sm:mt-0 flex-shrink-0 bg-blue-100 text-blue-700 text-xs font-semibold px-3.5 py-1.5 rounded-full tracking-wide shadow-sm">
-                                    {post.category}
+                                    {post.kota}
                                 </span>
                             )}
                         </div>
@@ -223,8 +225,8 @@ const PostDetail = () => {
                         </div>
 
                         <div className="prose prose-slate max-w-none prose-base sm:prose-lg text-slate-700 leading-relaxed">
-                            {post.description &&
-                                post.description
+                            {post.deskripsi &&
+                                post.deskripsi
                                     .split("\n")
                                     .map((paragraph, index) => (
                                         <p
@@ -316,7 +318,8 @@ const PostDetail = () => {
                             : !commentsFetchLoading &&
                               !postFetchError && (
                                   <p className="text-slate-500 text-center py-4">
-                                        Belum ada komentar. Jadilah yang pertama untuk berkomentar!
+                                      Belum ada komentar. Jadilah yang pertama
+                                      untuk berkomentar!
                                   </p>
                               )}
                     </div>

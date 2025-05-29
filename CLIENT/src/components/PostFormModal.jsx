@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
     X,
     FileText,
@@ -61,25 +61,41 @@ const PostFormModal = ({
     onClose,
     onSave,
 }) => {
-    const defaultPost = {
+    const defaultPostValues = {
+        // Renamed from defaultPost to avoid confusion with 'post' state
+        uid: "", // This uid is part of post data structure, not the user's uid from auth
         judul: "",
         kota: "",
         deskripsi: "",
         gambar: "",
     };
 
-    const [post, setPost] = useState({ ...defaultPost, ...initialPostData });
+    // 'postForDefaultValues' state is now primarily for setting defaultValues and resetting the form
+    const [postForDefaultValues, setPostForDefaultValues] = useState({
+        ...defaultPostValues,
+        ...initialPostData,
+    });
     const [errors, setErrors] = useState({});
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const formRef = useRef(null); // Ref for the form element
 
     useEffect(() => {
         if (isOpen) {
-            setPost({
-                ...defaultPost,
+            // When modal opens or initialPostData changes, update state for defaultValues
+            // This will help re-populate defaultValue if the same modal instance is re-used with different initialData
+            const newDefaultValues = {
+                ...defaultPostValues,
                 ...initialPostData,
                 kota: initialPostData?.kota || "",
-            });
+            };
+            setPostForDefaultValues(newDefaultValues);
             setErrors({});
+            // Reset the form fields visually if the formRef is available
+            if (formRef.current) {
+                formRef.current.reset(); // Resets form to default HTML values
+                // For select, we might need to explicitly set its value if reset() doesn't cover it well with dynamic defaultValues
+                // However, defaultValue on select should handle this.
+            }
         }
     }, [isOpen, initialPostData]);
 
@@ -87,28 +103,24 @@ const PostFormModal = ({
         return null;
     }
 
-    const handleChange = (e) => {
-        const { name, value } = e.target;
-        setPost((prev) => ({ ...prev, [name]: value }));
-        if (errors[name]) {
-            setErrors((prevErrors) => ({ ...prevErrors, [name]: null }));
-        }
-    };
+    // No longer need handleChange for each input to update a central 'post' state
 
-    const validateForm = () => {
+    const validateForm = (data) => {
+        // 'data' is the form data collected on submit
         const newErrors = {};
-        if (!post.judul?.trim()) {
+        if (!data.judul?.trim()) {
             newErrors.judul = "Post judul is required";
         }
-        if (!post.deskripsi?.trim()) {
+        if (!data.deskripsi?.trim()) {
             newErrors.deskripsi = "Post deskripsi is required";
         }
-        if (!post.kota) {
+        if (!data.kota) {
+            // Select value will be empty string if not chosen
             newErrors.kota = "City is required";
         }
-        if (post.gambar?.trim()) {
+        if (data.gambar?.trim()) {
             try {
-                new URL(post.gambar);
+                new URL(data.gambar);
             } catch (_) {
                 newErrors.gambar = "Please enter a valid gambar URL";
             }
@@ -119,14 +131,37 @@ const PostFormModal = ({
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        if (!validateForm()) return;
+
+        const formData = new FormData(e.target);
+        const collectedPostData = {
+            judul: formData.get("judul"),
+            kota: formData.get("kota"),
+            deskripsi: formData.get("deskripsi"),
+            gambar: formData.get("gambar"),
+            // uid: postForDefaultValues.uid, // Include if uid is part of the editable form data and not added by parent
+        };
+
+        if (!validateForm(collectedPostData)) return;
+
         setIsSubmitting(true);
         try {
-            await onSave(post);
+            // The onSave function in Discussion.js will receive only these fields.
+            // It is responsible for adding user-specific uid, username, imageProfile.
+            await onSave(collectedPostData);
         } catch (error) {
             console.error("Error saving post:", error);
+            // Optionally, you could set a general error message here if the API call fails
+            // setErrors(prev => ({ ...prev, submit: "Failed to save post. " + error.message }));
         } finally {
             setIsSubmitting(false);
+        }
+    };
+
+    // Helper to clear specific error when user starts typing (optional, but good UX)
+    const handleInputChange = (e) => {
+        const { name } = e.target;
+        if (errors[name]) {
+            setErrors((prevErrors) => ({ ...prevErrors, [name]: null }));
         }
     };
 
@@ -146,24 +181,23 @@ const PostFormModal = ({
                     </button>
                     <div className="flex items-center gap-3">
                         <div className="p-2.5 bg-white/20 rounded-lg">
-                            {" "}
-                            <MessageSquarePlus size={22} />{" "}
+                            <MessageSquarePlus size={22} />
                         </div>
                         <div>
-                            {" "}
                             <h2 className="text-xl font-semibold">
-                                {" "}
                                 {modalMode === "edit"
                                     ? "Edit Postingan"
-                                    : "Buat Postingan Baru"}{" "}
-                            </h2>{" "}
+                                    : "Buat Postingan Baru"}
+                            </h2>
                         </div>
                     </div>
                 </div>
 
                 <form
+                    ref={formRef} // Attach ref to the form
                     onSubmit={handleSubmit}
                     className="flex-grow overflow-y-auto"
+                    noValidate // Prevent browser's default validation
                 >
                     <div className="p-6 space-y-5">
                         <div className="space-y-1.5">
@@ -181,8 +215,8 @@ const PostFormModal = ({
                                 id="judul"
                                 name="judul"
                                 type="text"
-                                value={post.judul}
-                                onChange={handleChange}
+                                defaultValue={postForDefaultValues.judul} // Use defaultValue
+                                onChange={handleInputChange} // Optional: for clearing specific error on type
                                 className={`w-full px-4 py-2.5 border rounded-xl shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
                                     errors.judul
                                         ? "border-red-400 bg-red-50/50"
@@ -192,8 +226,7 @@ const PostFormModal = ({
                             />
                             {errors.judul && (
                                 <p className="flex items-center gap-1.5 text-red-600 text-xs mt-1">
-                                    {" "}
-                                    <AlertCircle size={14} /> {errors.judul}{" "}
+                                    <AlertCircle size={14} /> {errors.judul}
                                 </p>
                             )}
                         </div>
@@ -209,19 +242,33 @@ const PostFormModal = ({
                             <select
                                 id="kota"
                                 name="kota"
-                                value={post.kota}
-                                onChange={handleChange}
+                                defaultValue={postForDefaultValues.kota} // Use defaultValue
+                                onChange={handleInputChange} // Optional
                                 className={`w-full px-4 py-2.5 border rounded-xl shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
                                     errors.kota
                                         ? "border-red-400 bg-red-50/50"
                                         : "border-slate-300 hover:border-slate-400 bg-slate-50/30"
                                 } text-slate-800 ${
-                                    !post.kota
+                                    // Conditional text color for placeholder
+                                    // This might be tricky with defaultValue, ensure default value is "" for placeholder to show
+                                    formRef.current?.elements.kota.value ===
+                                        "" && !postForDefaultValues.kota
                                         ? "text-slate-400"
                                         : "text-slate-800"
                                 }`}
                             >
-                                <option value="" disabled>
+                                <option
+                                    value=""
+                                    disabled={
+                                        modalMode === "add" &&
+                                        !postForDefaultValues.kota
+                                            ? false
+                                            : true
+                                    }
+                                >
+                                    {/* The logic for disabled and placeholder styling on select with defaultValue can be tricky.
+                                        It's often simpler to ensure the defaultValue is set correctly via postForDefaultValues.kota or empty string.
+                                    */}
                                     Pilih kota...
                                 </option>
                                 {daftarKotaIndonesia.map((namaKota) => (
@@ -232,8 +279,7 @@ const PostFormModal = ({
                             </select>
                             {errors.kota && (
                                 <p className="flex items-center gap-1.5 text-red-600 text-xs mt-1">
-                                    {" "}
-                                    <AlertCircle size={14} /> {errors.kota}{" "}
+                                    <AlertCircle size={14} /> {errors.kota}
                                 </p>
                             )}
                         </div>
@@ -252,8 +298,8 @@ const PostFormModal = ({
                             <textarea
                                 id="deskripsi"
                                 name="deskripsi"
-                                value={post.deskripsi}
-                                onChange={handleChange}
+                                defaultValue={postForDefaultValues.deskripsi} // Use defaultValue
+                                onChange={handleInputChange} // Optional
                                 rows={5}
                                 className={`w-full px-4 py-2.5 border rounded-xl shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none ${
                                     errors.deskripsi
@@ -264,8 +310,7 @@ const PostFormModal = ({
                             />
                             {errors.deskripsi && (
                                 <p className="flex items-center gap-1.5 text-red-600 text-xs mt-1">
-                                    {" "}
-                                    <AlertCircle size={14} /> {errors.deskripsi}{" "}
+                                    <AlertCircle size={14} /> {errors.deskripsi}
                                 </p>
                             )}
                         </div>
@@ -285,8 +330,8 @@ const PostFormModal = ({
                                 id="gambar"
                                 name="gambar"
                                 type="url"
-                                value={post.gambar}
-                                onChange={handleChange}
+                                defaultValue={postForDefaultValues.gambar} // Use defaultValue
+                                onChange={handleInputChange} // Optional
                                 className={`w-full px-4 py-2.5 border rounded-xl shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
                                     errors.gambar
                                         ? "border-red-400 bg-red-50/50"
@@ -296,8 +341,7 @@ const PostFormModal = ({
                             />
                             {errors.gambar && (
                                 <p className="flex items-center gap-1.5 text-red-600 text-xs mt-1">
-                                    {" "}
-                                    <AlertCircle size={14} /> {errors.gambar}{" "}
+                                    <AlertCircle size={14} /> {errors.gambar}
                                 </p>
                             )}
                         </div>

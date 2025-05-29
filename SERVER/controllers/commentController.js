@@ -4,9 +4,10 @@ import Comment from "../models/commentModel.js";
 const createComment = async (req, res) => {
     const postId = req.params.postId;
 
-    const { username, comment, imageProfile } = req.body;
+    const { uid, username, comment, imageProfile } = req.body;
     try {
         const createdComment = await Comment.create({
+            uid,
             postId,
             username,
             comment,
@@ -94,13 +95,14 @@ const createReply = async (req, res) => {
     try {
         const { postId, commentId } = req.params;
 
-        const { username, reply, imageProfile } = req.body;
+        const { uid, username, reply, imageProfile } = req.body;
 
         const createdReply = await Comment.findOneAndUpdate(
             { _id: commentId, postId: postId },
             {
                 $push: {
                     replies: {
+                        uid: uid,
                         username: username,
                         reply: reply,
                         imageProfile: imageProfile,

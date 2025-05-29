@@ -36,7 +36,7 @@ const formatter = {
 };
 
 const Comment = ({ comment, postId }) => {
-    const { displayName, photoURL } = useSelector((state) => state.user);
+    const { displayName, photoURL, uid } = useSelector((state) => state.user);
     const [reply, setReply] = useState("");
     const [showReplyBox, setShowReplyBox] = useState(false);
     const [showReplies, setShowReplies] = useState(false);
@@ -54,7 +54,7 @@ const Comment = ({ comment, postId }) => {
         useGetRepliesQuery({ commentId, postId });
     const replies = repliesResponse?.data;
 
-    const isOwner = comment.username === displayName;
+    const isOwner = comment.uid === uid;
 
     const replyButtonClicked = () => setShowReplyBox((prev) => !prev);
     const handleEditComment = () => {
@@ -103,6 +103,7 @@ const Comment = ({ comment, postId }) => {
                 postId: postId,
                 commentId: commentId,
                 data: {
+                    uid: uid,
                     username: displayName || "Anonim",
                     reply: reply,
                     imageProfile:

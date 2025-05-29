@@ -7,6 +7,7 @@ import {
     MessageCircle,
     Heart,
 } from "lucide-react";
+import { useSelector } from "react-redux";
 
 const formatter = {
     format: (date) => {
@@ -25,6 +26,13 @@ const formatter = {
 
 const PostCard = ({ post }) => {
     const [dropdownOpen, setDropdownOpen] = useState(false);
+
+    const { uid } = useSelector((state) => state.user);
+
+    const isOwner = post.uid === uid;
+    console.log(post.uid);
+    console.log(uid);
+    console.log(isOwner);
 
     const handleEditPost = (postId) => {
         console.log("Edit postingan:", postId);
@@ -82,7 +90,7 @@ const PostCard = ({ post }) => {
                         </p>
                     </div>
                 </div>
-                <div className="relative">
+                <div className="relative" hidden={!isOwner}>
                     <button
                         onClick={(e) => {
                             e.stopPropagation();
@@ -148,22 +156,6 @@ const PostCard = ({ post }) => {
             </Link>
 
             <div className="px-4 sm:px-5 pb-4 sm:pb-5 border-t border-slate-200/70 pt-4 flex items-center justify-between">
-                <div className="flex items-center space-x-4">
-                    <button className="flex items-center text-sm text-slate-500 hover:text-red-500 transition-colors group/like">
-                        <Heart
-                            size={18}
-                            className="mr-1.5 group-hover/like:fill-red-100 group-hover/like:stroke-red-500"
-                        />{" "}
-                        {likeCount}
-                    </button>
-                    <Link
-                        to={`/posts/${_id}#comments`}
-                        className="flex items-center text-sm text-slate-500 hover:text-blue-600 transition-colors"
-                    >
-                        <MessageCircle size={18} className="mr-1.5" />{" "}
-                        {commentCount}
-                    </Link>
-                </div>
                 <Link
                     to={`/posts/${_id}`}
                     className="inline-flex items-center text-xs sm:text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:ring-blue-300/50 rounded-lg px-3.5 py-2 sm:px-4 sm:py-2.5 transition-colors shadow hover:shadow-md"

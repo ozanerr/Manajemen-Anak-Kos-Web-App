@@ -21,6 +21,7 @@ export default function SignIn() {
             if (user) {
                 navigate("/");
             }
+            console.log(user);
         } catch (error) {
             console.error("Google Sign-In Error:", error);
         }
@@ -97,7 +98,8 @@ export default function SignIn() {
                 </div>
 
                 <div className="mt-8 text-slate-500 text-xs sm:text-sm">
-                    Dengan masuk, Anda menunjukkan bahwa Anda telah membaca dan setuju dengan{" "}
+                    Dengan masuk, Anda menunjukkan bahwa Anda telah membaca dan
+                    setuju dengan{" "}
                     <span className="font-medium text-blue-600 cursor-default">
                         {" "}
                         Ketentuan Layanan

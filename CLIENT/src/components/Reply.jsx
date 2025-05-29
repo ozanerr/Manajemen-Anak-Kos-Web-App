@@ -24,7 +24,7 @@ const formatter = {
 };
 
 const Reply = ({ reply, commentId, postId }) => {
-    const { displayName } = useSelector((state) => state.user);
+    const { displayName, uid } = useSelector((state) => state.user);
     const [dropdownOpen, setDropdownOpen] = useState(false);
     const [isEditingReply, setIsEditingReply] = useState(false);
     const [editedReply, setEditedReply] = useState(reply?.reply);
@@ -34,7 +34,7 @@ const Reply = ({ reply, commentId, postId }) => {
         useDeleteReplyMutation();
     const [editReply, { isLoading: isSavingEditReply }] =
         useEditReplyMutation();
-    const isOwner = reply.username === displayName;
+    const isOwner = reply.uid === uid;
 
     const handleEditReply = () => {
         setIsEditingReply(true);

@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 
 const deadlineSchema = new mongoose.Schema(
     {
-        userId: {
+        uid: {
             type: String,
             required: true,
         },
