@@ -63,6 +63,8 @@ const Discussion = () => {
                             0
                         )}&background=random&color=fff&font-size=0.5&bold=true`,
                 };
+                console.log("newPostData");
+                console.log(newPostData);
                 await addPost(newPostData).unwrap();
             } else if (postModalMode === "edit" && currentPostToEdit) {
                 console.log("Updating post (implement RTK hook):", {
@@ -99,7 +101,8 @@ const Discussion = () => {
                         Diskusi Komunitas
                     </h1>
                     <p className="text-gray-600 mt-1 text-base max-w-2xl mx-auto">
-                        Jelajahi topik, berbagi wawasan, dan terhubung dengan sesama anggota.
+                        Jelajahi topik, berbagi wawasan, dan terhubung dengan
+                        sesama anggota.
                     </p>
                 </div>
 
@@ -165,7 +168,7 @@ const Discussion = () => {
                 <button
                     onClick={() => openPostModal("add")}
                     className="fixed bottom-8 right-8 z-40 p-4 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-lg hover:from-blue-600 hover:to-purple-700 transition-all duration-200 hover:shadow-xl flex items-center justify-center cursor-pointer active:scale-95"
-                    title="Create New Post"
+                    title="Buat postingan baru"
                 >
                     <FiPlus size={24} />
                 </button>

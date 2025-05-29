@@ -62,10 +62,10 @@ const PostFormModal = ({
     onSave,
 }) => {
     const defaultPost = {
-        title: "",
+        judul: "",
         kota: "",
-        description: "",
-        image: "",
+        deskripsi: "",
+        gambar: "",
     };
 
     const [post, setPost] = useState({ ...defaultPost, ...initialPostData });
@@ -97,20 +97,20 @@ const PostFormModal = ({
 
     const validateForm = () => {
         const newErrors = {};
-        if (!post.title?.trim()) {
-            newErrors.title = "Post title is required";
+        if (!post.judul?.trim()) {
+            newErrors.judul = "Post judul is required";
         }
-        if (!post.description?.trim()) {
-            newErrors.description = "Post description is required";
+        if (!post.deskripsi?.trim()) {
+            newErrors.deskripsi = "Post deskripsi is required";
         }
         if (!post.kota) {
             newErrors.kota = "City is required";
         }
-        if (post.image?.trim()) {
+        if (post.gambar?.trim()) {
             try {
-                new URL(post.image);
+                new URL(post.gambar);
             } catch (_) {
-                newErrors.image = "Please enter a valid image URL";
+                newErrors.gambar = "Please enter a valid gambar URL";
             }
         }
         setErrors(newErrors);
@@ -168,7 +168,7 @@ const PostFormModal = ({
                     <div className="p-6 space-y-5">
                         <div className="space-y-1.5">
                             <label
-                                htmlFor="title"
+                                htmlFor="judul"
                                 className="flex items-center gap-2 text-sm font-medium text-slate-700"
                             >
                                 <FileText
@@ -178,22 +178,22 @@ const PostFormModal = ({
                                 Judul *
                             </label>
                             <input
-                                id="title"
-                                name="title"
+                                id="judul"
+                                name="judul"
                                 type="text"
-                                value={post.title}
+                                value={post.judul}
                                 onChange={handleChange}
                                 className={`w-full px-4 py-2.5 border rounded-xl shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
-                                    errors.title
+                                    errors.judul
                                         ? "border-red-400 bg-red-50/50"
                                         : "border-slate-300 hover:border-slate-400 bg-slate-50/30"
                                 } placeholder-slate-400 text-slate-800`}
                                 placeholder="Masukan judul postingan..."
                             />
-                            {errors.title && (
+                            {errors.judul && (
                                 <p className="flex items-center gap-1.5 text-red-600 text-xs mt-1">
                                     {" "}
-                                    <AlertCircle size={14} /> {errors.title}{" "}
+                                    <AlertCircle size={14} /> {errors.judul}{" "}
                                 </p>
                             )}
                         </div>
@@ -240,7 +240,7 @@ const PostFormModal = ({
 
                         <div className="space-y-1.5">
                             <label
-                                htmlFor="description"
+                                htmlFor="deskripsi"
                                 className="flex items-center gap-2 text-sm font-medium text-slate-700"
                             >
                                 <AlignLeft
@@ -250,30 +250,29 @@ const PostFormModal = ({
                                 Deskripsi *
                             </label>
                             <textarea
-                                id="description"
-                                name="description"
-                                value={post.description}
+                                id="deskripsi"
+                                name="deskripsi"
+                                value={post.deskripsi}
                                 onChange={handleChange}
                                 rows={5}
                                 className={`w-full px-4 py-2.5 border rounded-xl shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none ${
-                                    errors.description
+                                    errors.deskripsi
                                         ? "border-red-400 bg-red-50/50"
                                         : "border-slate-300 hover:border-slate-400 bg-slate-50/30"
                                 } placeholder-slate-400 text-slate-800`}
                                 placeholder="Tulis konten postingan Anda di sini..."
                             />
-                            {errors.description && (
+                            {errors.deskripsi && (
                                 <p className="flex items-center gap-1.5 text-red-600 text-xs mt-1">
                                     {" "}
-                                    <AlertCircle size={14} />{" "}
-                                    {errors.description}{" "}
+                                    <AlertCircle size={14} /> {errors.deskripsi}{" "}
                                 </p>
                             )}
                         </div>
 
                         <div className="space-y-1.5">
                             <label
-                                htmlFor="image"
+                                htmlFor="gambar"
                                 className="flex items-center gap-2 text-sm font-medium text-slate-700"
                             >
                                 <ImageIcon
@@ -283,22 +282,22 @@ const PostFormModal = ({
                                 URL Gambar (Opsional)
                             </label>
                             <input
-                                id="image"
-                                name="image"
+                                id="gambar"
+                                name="gambar"
                                 type="url"
-                                value={post.image}
+                                value={post.gambar}
                                 onChange={handleChange}
                                 className={`w-full px-4 py-2.5 border rounded-xl shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
-                                    errors.image
+                                    errors.gambar
                                         ? "border-red-400 bg-red-50/50"
                                         : "border-slate-300 hover:border-slate-400 bg-slate-50/30"
                                 } placeholder-slate-400 text-slate-800`}
                                 placeholder="https://example.com/image.jpg"
                             />
-                            {errors.image && (
+                            {errors.gambar && (
                                 <p className="flex items-center gap-1.5 text-red-600 text-xs mt-1">
                                     {" "}
-                                    <AlertCircle size={14} /> {errors.image}{" "}
+                                    <AlertCircle size={14} /> {errors.gambar}{" "}
                                 </p>
                             )}
                         </div>

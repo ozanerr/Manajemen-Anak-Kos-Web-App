@@ -2,19 +2,19 @@ import mongoose from "mongoose";
 
 const postSchema = new mongoose.Schema(
     {
-        title: {
+        judul: {
             type: String,
             required: true,
         },
-        description: {
+        deskripsi: {
             type: String,
             required: true,
         },
-        category: {
+        kota: {
             type: String,
             required: true,
         },
-        image: {
+        gambar: {
             type: String,
             default: null,
         },

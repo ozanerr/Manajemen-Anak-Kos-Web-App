@@ -31,7 +31,9 @@ const PostCard = ({ post }) => {
         setDropdownOpen(false);
     };
     const handleDeletePost = (postId) => {
-        if (window.confirm("Apakah Anda yakin ingin menghapus postingan ini?")) {
+        if (
+            window.confirm("Apakah Anda yakin ingin menghapus postingan ini?")
+        ) {
             console.log("Menghapus Posting:", postId);
         }
         setDropdownOpen(false);
@@ -39,10 +41,10 @@ const PostCard = ({ post }) => {
 
     const {
         _id,
-        title,
-        category,
-        description,
-        image,
+        judul,
+        kota,
+        deskripsi,
+        gambar,
         username,
         imageProfile,
         createdAt,
@@ -58,9 +60,7 @@ const PostCard = ({ post }) => {
     return (
         <div className="bg-white/80 backdrop-blur-lg rounded-xl border border-slate-200/70 shadow-lg overflow-hidden transition-all duration-300 ease-out hover:shadow-2xl group">
             <div className="p-4 sm:p-5 flex items-center justify-between border-b border-slate-200/70">
-                <div
-                    className="flex items-center space-x-3 group/userinfo cursor-default"
-                >
+                <div className="flex items-center space-x-3 group/userinfo cursor-default">
                     <img
                         className="w-10 h-10 rounded-full object-cover border-2 border-white shadow-sm group-hover/userinfo:ring-2 group-hover/userinfo:ring-blue-400 transition-all"
                         src={
@@ -102,14 +102,15 @@ const PostCard = ({ post }) => {
                                 onClick={() => handleEditPost(_id)}
                                 className="w-full text-left flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-700 hover:bg-blue-500/10 hover:text-blue-600 transition-colors rounded-md"
                             >
-                                <Edit size={16} className="opacity-70" /> Edit Postingan
+                                <Edit size={16} className="opacity-70" /> Edit
+                                Postingan
                             </button>
                             <button
                                 onClick={() => handleDeletePost(_id)}
                                 className="w-full text-left flex items-center gap-2.5 px-4 py-2.5 text-sm text-red-600 hover:bg-red-500/10 hover:text-red-700 transition-colors rounded-md"
                             >
-                                <Trash size={16} className="opacity-70" />{" "}
-                                Hapus Postingan
+                                <Trash size={16} className="opacity-70" /> Hapus
+                                Postingan
                             </button>
                         </div>
                     )}
@@ -118,29 +119,29 @@ const PostCard = ({ post }) => {
 
             <Link to={`/posts/${_id}`} className="block p-4 sm:p-5 group">
                 {" "}
-                {image && (
+                {gambar && (
                     <div className="mb-4 rounded-lg overflow-hidden aspect-[16/10] sm:aspect-[16/9]">
                         <img
                             className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-                            src={image}
-                            alt={title || "Gambar Postingan"}
+                            src={gambar}
+                            alt={judul || "Gambar Postingan"}
                         />
                     </div>
                 )}
-                <div className={!image ? "mt-1" : ""}>
-                    {category && (
+                <div className={!gambar ? "mt-1" : ""}>
+                    {kota && (
                         <span className="inline-block bg-gradient-to-r from-blue-100 to-indigo-100 text-blue-700 text-xs px-3 py-1 rounded-full font-semibold mb-3 tracking-wide shadow-sm">
-                            {category}
+                            {kota}
                         </span>
                     )}
 
                     <h2 className="text-lg sm:text-xl font-bold text-slate-800 group-hover:text-blue-600 transition-colors mb-2 leading-tight">
-                        {title || "Postingan Tanpa Judul"}
+                        {judul || "Postingan Tanpa Judul"}
                     </h2>
 
                     <p className="text-slate-600 text-sm leading-relaxed line-clamp-3 mb-5">
-                        {description
-                            ? description
+                        {deskripsi
+                            ? deskripsi
                             : "Tidak ada deskripsi yang tersedia."}
                     </p>
                 </div>
