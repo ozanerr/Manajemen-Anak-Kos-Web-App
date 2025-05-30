@@ -1,13 +1,9 @@
+// src/components/PostCard.jsx
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import {
-    MoreHorizontal,
-    Edit,
-    Trash,
-    MessageCircle,
-    Heart,
-} from "lucide-react";
+import { MoreHorizontal, Edit, Trash } from "lucide-react";
 import { useSelector } from "react-redux";
+import { useDeletePostMutation } from "../features/posts/postsApi";
 
 const formatter = {
     format: (date) => {
@@ -24,25 +20,24 @@ const formatter = {
     },
 };
 
-const PostCard = ({ post }) => {
+const PostCard = ({ post, onEditRequest }) => {
     const [dropdownOpen, setDropdownOpen] = useState(false);
-
     const { uid } = useSelector((state) => state.user);
-
     const isOwner = post.uid === uid;
-    console.log(post.uid);
-    console.log(uid);
-    console.log(isOwner);
+    const [deletePost] = useDeletePostMutation();
 
-    const handleEditPost = (postId) => {
-        console.log("Edit postingan:", postId);
+    const handleEditClick = () => {
+        if (onEditRequest) {
+            onEditRequest(post);
+        }
         setDropdownOpen(false);
     };
-    const handleDeletePost = (postId) => {
+
+    const handleDeletePost = () => {
         if (
             window.confirm("Apakah Anda yakin ingin menghapus postingan ini?")
         ) {
-            console.log("Menghapus Posting:", postId);
+            deletePost(post._id);
         }
         setDropdownOpen(false);
     };
@@ -61,9 +56,6 @@ const PostCard = ({ post }) => {
     if (!post) {
         return null;
     }
-
-    const likeCount = post.likeCount || Math.floor(Math.random() * 100);
-    const commentCount = post.commentCount || Math.floor(Math.random() * 20);
 
     return (
         <div className="bg-white/80 backdrop-blur-lg rounded-xl border border-slate-200/70 shadow-lg overflow-hidden transition-all duration-300 ease-out hover:shadow-2xl group">
@@ -90,47 +82,48 @@ const PostCard = ({ post }) => {
                         </p>
                     </div>
                 </div>
-                <div className="relative" hidden={!isOwner}>
-                    <button
-                        onClick={(e) => {
-                            e.stopPropagation();
-                            setDropdownOpen(!dropdownOpen);
-                        }}
-                        className="p-2 text-slate-500 rounded-full hover:bg-slate-500/10 hover:text-slate-700 focus:outline-none transition-colors"
-                        aria-label="Post options"
-                    >
-                        <MoreHorizontal size={20} />
-                    </button>
-                    {dropdownOpen && (
-                        <div
-                            className="absolute right-0 mt-2 w-48 bg-white/95 backdrop-blur-md rounded-lg shadow-xl border border-slate-200/50 z-30 py-1.5 origin-top-right animate-fade-in-down"
-                            onClick={(e) => e.stopPropagation()}
+                {isOwner && (
+                    <div className="relative">
+                        <button
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                setDropdownOpen(!dropdownOpen);
+                            }}
+                            className="p-2 text-slate-500 rounded-full hover:bg-slate-500/10 hover:text-slate-700 focus:outline-none transition-colors"
+                            aria-label="Post options"
                         >
-                            <button
-                                onClick={() => handleEditPost(_id)}
-                                className="w-full text-left flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-700 hover:bg-blue-500/10 hover:text-blue-600 transition-colors rounded-md"
+                            <MoreHorizontal size={20} />
+                        </button>
+                        {dropdownOpen && (
+                            <div
+                                className="absolute right-0 mt-2 w-48 bg-white/95 backdrop-blur-md rounded-lg shadow-xl border border-slate-200/50 z-30 py-1.5 origin-top-right animate-fade-in-down"
+                                onClick={(e) => e.stopPropagation()}
                             >
-                                <Edit size={16} className="opacity-70" /> Edit
-                                Postingan
-                            </button>
-                            <button
-                                onClick={() => handleDeletePost(_id)}
-                                className="w-full text-left flex items-center gap-2.5 px-4 py-2.5 text-sm text-red-600 hover:bg-red-500/10 hover:text-red-700 transition-colors rounded-md"
-                            >
-                                <Trash size={16} className="opacity-70" /> Hapus
-                                Postingan
-                            </button>
-                        </div>
-                    )}
-                </div>
+                                <button
+                                    onClick={handleEditClick}
+                                    className="w-full text-left flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-700 hover:bg-blue-500/10 hover:text-blue-600 transition-colors rounded-md"
+                                >
+                                    <Edit size={16} className="opacity-70" />{" "}
+                                    Edit Postingan
+                                </button>
+                                <button
+                                    onClick={handleDeletePost}
+                                    className="w-full text-left flex items-center gap-2.5 px-4 py-2.5 text-sm text-red-600 hover:bg-red-500/10 hover:text-red-700 transition-colors rounded-md"
+                                >
+                                    <Trash size={16} className="opacity-70" />{" "}
+                                    Hapus Postingan
+                                </button>
+                            </div>
+                        )}
+                    </div>
+                )}
             </div>
 
-            <Link to={`/posts/${_id}`} className="block p-4 sm:p-5 group">
-                {" "}
+            <Link to={`/posts/${_id}`} className="block p-4 sm:p-5 group/link">
                 {gambar && (
                     <div className="mb-4 rounded-lg overflow-hidden aspect-[16/10] sm:aspect-[16/9]">
                         <img
-                            className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                            className="w-full h-full object-cover transition-transform duration-300 group-hover/link:scale-105"
                             src={gambar}
                             alt={judul || "Gambar Postingan"}
                         />
@@ -142,11 +135,9 @@ const PostCard = ({ post }) => {
                             {kota}
                         </span>
                     )}
-
-                    <h2 className="text-lg sm:text-xl font-bold text-slate-800 group-hover:text-blue-600 transition-colors mb-2 leading-tight">
+                    <h2 className="text-lg sm:text-xl font-bold text-slate-800 group-hover/link:text-blue-600 transition-colors mb-2 leading-tight">
                         {judul || "Postingan Tanpa Judul"}
                     </h2>
-
                     <p className="text-slate-600 text-sm leading-relaxed line-clamp-3 mb-5">
                         {deskripsi
                             ? deskripsi

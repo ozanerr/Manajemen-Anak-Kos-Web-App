@@ -29,11 +29,13 @@ export default function SignIn() {
 
     const handleSignInGitHub = async () => {
         try {
+            await setPersistence(auth, browserSessionPersistence);
             const result = await signInWithPopup(auth, gitHubProvider);
             const user = result.user;
             if (user) {
                 navigate("/");
             }
+            console.log(user);
         } catch (error) {
             console.error("GitHub Sign-In Error:", error);
         }

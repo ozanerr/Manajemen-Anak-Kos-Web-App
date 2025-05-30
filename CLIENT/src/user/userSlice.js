@@ -19,12 +19,15 @@ export const userSlice = createSlice({
             state.isloggedIn = true;
             state.isAuthLoading = false;
             state.uid = uid;
+            state.payload = action.payload;
         },
         clearUser: (state, action) => {
             state.displayName = "";
             state.photoURL = "";
             state.isloggedIn = false;
             state.isAuthLoading = false;
+            state.uid = "";
+            state.payload = "";
         },
     },
 });

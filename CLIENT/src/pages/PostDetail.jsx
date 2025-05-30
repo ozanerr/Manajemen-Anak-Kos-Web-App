@@ -43,6 +43,7 @@ const PostDetail = () => {
         isloggedIn,
         isAuthLoading: userAuthLoading,
         uid,
+        payload,
     } = useSelector((state) => state.user);
 
     const [comment, setComment] = useState("");
@@ -83,7 +84,7 @@ const PostDetail = () => {
                 data: {
                     uid: uid,
                     postId: postId,
-                    username: displayName || "Anonymous",
+                    username: displayName || payload.reloadUserInfo.screenName,
                     comment: comment,
                     imageProfile:
                         photoURL ||

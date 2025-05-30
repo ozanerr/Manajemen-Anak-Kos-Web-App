@@ -1,7 +1,10 @@
+// src/pages/Discussion.jsx
 import React, { useState, useEffect } from "react";
 import {
     useFetchPostsQuery,
     useAddPostMutation,
+    useEditPostMutation,
+    useDeletePostMutation,
 } from "../features/posts/postsApi";
 import PostCard from "../components/PostCard";
 import PostFormModal from "../components/PostFormModal";
@@ -12,8 +15,8 @@ import {
     MessageSquarePlus,
     AlertTriangle as AlertTriangleIcon,
     Loader2,
+    Plus as PlusIconLucide,
 } from "lucide-react";
-import { Plus as PlusIconLucide } from "lucide-react";
 
 const Discussion = () => {
     const {
@@ -21,12 +24,10 @@ const Discussion = () => {
         isError,
         isLoading,
         error,
-        // refetch,
     } = useFetchPostsQuery() || {};
     const posts = postsResponse?.data || [];
-    console.log(posts);
 
-    const { displayName, photoURL, isloggedIn, isAuthLoading, uid } =
+    const { displayName, photoURL, isloggedIn, isAuthLoading, uid, payload } =
         useSelector((state) => state.user);
     const navigate = useNavigate();
 
@@ -34,8 +35,11 @@ const Discussion = () => {
     const [currentPostToEdit, setCurrentPostToEdit] = useState(null);
     const [postModalMode, setPostModalMode] = useState("add");
 
-    const [addPost, { isLoading: isAddingPost, error: addPostError }] =
-        useAddPostMutation() || {};
+    const [addPost, { isLoading: isAddingPost }] = useAddPostMutation() || {};
+    const [editPost] = useEditPostMutation();
+
+    const [deletePostMutation, { isLoading: isDeletingPost }] =
+        useDeletePostMutation() || {};
 
     useEffect(() => {
         if (!isAuthLoading && !isloggedIn) {
@@ -55,7 +59,7 @@ const Discussion = () => {
                 const newPostData = {
                     ...postDataFromModal,
                     uid: uid,
-                    username: displayName || "Anonymous User",
+                    username: displayName || payload.reloadUserInfo.screenName,
                     imageProfile:
                         photoURL ||
                         `https://ui-avatars.com/api/?name=${(
@@ -64,23 +68,60 @@ const Discussion = () => {
                             0
                         )}&background=random&color=fff&font-size=0.5&bold=true`,
                 };
-                console.log("newPostData");
-                console.log(newPostData);
                 await addPost(newPostData).unwrap();
             } else if (postModalMode === "edit" && currentPostToEdit) {
-                console.log("Updating post (implement RTK hook):", {
+                console.log(currentPostToEdit._id);
+                console.log(postDataFromModal);
+                await editPost({
                     postId: currentPostToEdit._id,
-                    ...postDataFromModal,
+                    data: postDataFromModal,
                 });
             }
             setIsPostModalOpen(false);
             setCurrentPostToEdit(null);
         } catch (err) {
-            console.error(`Failed to ${postModalMode} post:`, err);
+            if (postModalMode === "add") {
+                console.error(`Failed to add post:`, err);
+                alert(
+                    `Gagal menambahkan postingan: ${
+                        err.data?.message ||
+                        err.message ||
+                        "Error tidak diketahui"
+                    }`
+                );
+            } else {
+                console.error(
+                    `Failed to ${postModalMode} post (simulated or actual):`,
+                    err
+                );
+            }
         }
     };
 
-    const handleDeletePost = () => {};
+    const handleDeletePostFromModal = async () => {
+        if (currentPostToEdit && currentPostToEdit._id) {
+            if (
+                window.confirm(
+                    "Apakah Anda yakin ingin menghapus postingan ini dari modal?"
+                )
+            ) {
+                try {
+                    await deletePostMutation(currentPostToEdit._id).unwrap();
+                    setIsPostModalOpen(false);
+                    setCurrentPostToEdit(null);
+                } catch (err) {
+                    console.error("Failed to delete post from modal:", err);
+                    alert(
+                        `Gagal menghapus postingan: ${
+                            err.data?.message ||
+                            err.message ||
+                            "Error tidak diketahui"
+                        }`
+                    );
+                }
+            }
+        }
+    };
 
     if (isAuthLoading) {
         return (
@@ -96,6 +137,8 @@ const Discussion = () => {
         return null;
     }
 
+    const isActuallySaving = postModalMode === "add" ? isAddingPost : false;
+
     return (
         <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
             <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-8">
@@ -109,38 +152,15 @@ const Discussion = () => {
                     </p>
                 </div>
 
-                {isLoading && (
-                    <div className="text-center py-20">
-                        <Loader2 className="animate-spin rounded-full h-12 w-12 text-blue-600 mx-auto" />
-                        <p className="text-slate-500 text-lg mt-4">
-                            Loading discussions...
-                        </p>
-                    </div>
-                )}
-                {isError && (
-                    <div className="text-center py-10 bg-red-50/80 backdrop-blur-sm rounded-xl border border-red-300/70 p-6 max-w-md mx-auto shadow-lg">
-                        <AlertTriangleIcon
-                            size={40}
-                            className="mx-auto text-red-500 mb-3"
-                        />
-                        <p className="text-red-700 font-semibold text-lg">
-                            Failed to Load Posts
-                        </p>
-                        <p className="text-red-600 mt-1 text-sm">
-                            {error?.data?.message ||
-                                error?.error ||
-                                "An unexpected error occurred. Please try again later."}
-                        </p>
-                    </div>
-                )}
-
                 {!isLoading && !isError && posts && posts.length > 0 && (
                     <div className="w-full max-w-3xl mx-auto space-y-6 sm:space-y-8">
                         {posts.map((post) => (
                             <PostCard
                                 key={post?._id}
                                 post={post}
-                                // onEditRequest={() => openPostModal("edit", post)}
+                                onEditRequest={() =>
+                                    openPostModal("edit", post)
+                                }
                             />
                         ))}
                     </div>
@@ -187,7 +207,13 @@ const Discussion = () => {
                         setCurrentPostToEdit(null);
                     }}
                     onSave={handleSavePost}
-                    onDelete={handleDeletePost}
+                    onDelete={
+                        postModalMode === "edit"
+                            ? handleDeletePostFromModal
+                            : undefined
+                    }
+                    isSaving={isActuallySaving}
+                    isDeleting={isDeletingPost}
                 />
             )}
         </div>

@@ -36,7 +36,9 @@ const formatter = {
 };
 
 const Comment = ({ comment, postId }) => {
-    const { displayName, photoURL, uid } = useSelector((state) => state.user);
+    const { displayName, photoURL, uid, payload } = useSelector(
+        (state) => state.user
+    );
     const [reply, setReply] = useState("");
     const [showReplyBox, setShowReplyBox] = useState(false);
     const [showReplies, setShowReplies] = useState(false);
@@ -104,7 +106,7 @@ const Comment = ({ comment, postId }) => {
                 commentId: commentId,
                 data: {
                     uid: uid,
-                    username: displayName || "Anonim",
+                    username: displayName || payload.reloadUserInfo.screenName,
                     reply: reply,
                     imageProfile:
                         photoURL ||

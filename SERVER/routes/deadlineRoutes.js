@@ -8,9 +8,9 @@ import {
 
 const router = express.Router();
 
-router.get("/:userId/getDeadline", getDeadlines);
+router.get("/:uid/getDeadline", getDeadlines);
 router.post("/createDeadline", createDeadline);
-router.put("/:userId/:deadlinesId/editDeadline", editDeadline);
-router.delete("/:userId/:deadlinesId/deleteDeadline", deleteDeadline);
+router.put("/:uid/:deadlinesId/editDeadline", editDeadline);
+router.delete("/:uid/:deadlinesId/deleteDeadline", deleteDeadline);
 
 export default router;

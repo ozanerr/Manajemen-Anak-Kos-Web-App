@@ -63,16 +63,16 @@ const editPost = async (req, res) => {
     try {
         const { postId } = req.params;
 
-        const { title, description, category, image } = req.body;
+        const { judul, deskripsi, kota, gambar } = req.body;
 
         const editedPost = await Post.findOneAndUpdate(
             { _id: postId },
             {
                 $set: {
-                    title: title,
-                    description: description,
-                    category: category,
-                    image: image,
+                    judul: judul,
+                    deskripsi: deskripsi,
+                    kota: kota,
+                    gambar: gambar,
                 },
             },
             { new: true }

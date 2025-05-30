@@ -19,6 +19,21 @@ export const postsApi = rootApi.injectEndpoints({
             }),
             invalidatesTags: ["POST"],
         }),
+        deletePost: builder.mutation({
+            query: (postId) => ({
+                url: `posts/${postId}/deletePost`,
+                method: "DELETE",
+            }),
+            invalidatesTags: ["POST"],
+        }),
+        editPost: builder.mutation({
+            query: ({ postId, data }) => ({
+                url: `posts/${postId}/editPost`,
+                method: "PUT",
+                body: data,
+            }),
+            invalidatesTags: ["POST"],
+        }),
     }),
 });
 
@@ -26,4 +41,6 @@ export const {
     useFetchPostsQuery,
     useFetchSinglePostQuery,
     useAddPostMutation,
+    useDeletePostMutation,
+    useEditPostMutation,
 } = postsApi;
