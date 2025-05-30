@@ -2,16 +2,16 @@ import Deadline from "../models/deadlineModel.js";
 
 const createDeadline = async (req, res) => {
     try {
-        const { userId } = req.params;
+        const { uid } = req.params;
         const { title, description, start, end } = req.body;
 
         // Cek apakah dokumen deadline milik user sudah ada
-        const existing = await Deadline.findOne({ userId });
+        const existing = await Deadline.findOne({ uid });
 
         if (existing) {
             // Jika sudah ada, tambahkan deadline baru
             const updated = await Deadline.findOneAndUpdate(
-                { userId },
+                { uid },
                 {
                     $push: {
                         deadlines: {
@@ -33,9 +33,10 @@ const createDeadline = async (req, res) => {
         } else {
             // Jika belum ada, buat dokumen baru
             const newDeadline = await Deadline.create({
-                userId,
+                uid,
                 deadlines: [
                     {
+                        uid,
                         title,
                         description,
                         start,
@@ -60,8 +61,8 @@ const createDeadline = async (req, res) => {
 
 const getDeadlines = async (req, res) => {
     try {
-        const { userId } = req.params;
-        const deadline = await Deadline.findById(userId);
+        const { uid } = req.params;
+        const deadline = await Deadline.findById(uid);
 
         return res.status(201).json({
             status: "Success",
@@ -77,11 +78,11 @@ const getDeadlines = async (req, res) => {
 
 const deleteDeadline = async (req, res) => {
     try {
-        const { userId, deadlinesId } = req.params;
+        const { uid, deadlinesId } = req.params;
 
         const deletedReply = await Deadline.findOneAndUpdate(
             {
-                userId: userId,
+                uid: uid,
             },
             {
                 $pull: { deadlines: { _id: deadlinesId } },
@@ -105,13 +106,13 @@ const deleteDeadline = async (req, res) => {
 
 const editDeadline = async (req, res) => {
     try {
-        const { userId, deadlinesId } = req.params;
+        const { uid, deadlinesId } = req.params;
 
         const { title, description, start, end } = req.body;
 
         const updatedReply = await Deadline.findOneAndUpdate(
             {
-                userId: userId,
+                uid: uid,
                 "deadlines._id": deadlinesId,
             },
             {

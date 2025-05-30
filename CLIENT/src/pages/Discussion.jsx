@@ -134,7 +134,7 @@ const Discussion = () => {
         );
     }
     if (!isloggedIn) {
-        return null;
+        navigate("/signin");
     }
 
     const isActuallySaving = postModalMode === "add" ? isAddingPost : false;

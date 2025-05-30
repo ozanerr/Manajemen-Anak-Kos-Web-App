@@ -3,7 +3,7 @@ import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
 const Home = () => {
-    const { displayName, photoURL, isloggedIn } = useSelector(
+    const { displayName, photoURL, isloggedIn, payload } = useSelector(
         (state) => state.user
     );
 
@@ -20,9 +20,7 @@ const Home = () => {
             <h1 className="text-4xl font-bold mb-4">
                 Selamat datang di Halaman Home
             </h1>
-            <p className="text-lg text-gray-700">
-                Ini adalah halaman home.
-            </p>
+            <p className="text-lg text-gray-700">Ini adalah halaman home.</p>
         </div>
     );
 };

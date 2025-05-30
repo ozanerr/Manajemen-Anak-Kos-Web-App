@@ -329,7 +329,7 @@ const Deadline = () => {
         );
     }
     if (!isloggedIn) {
-        return null;
+        navigate("/signin");
     }
 
     return (

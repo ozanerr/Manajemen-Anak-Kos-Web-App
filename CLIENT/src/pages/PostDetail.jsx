@@ -112,7 +112,9 @@ const PostDetail = () => {
         );
     }
 
-    if (!isloggedIn) return null;
+    if (!isloggedIn) {
+        navigate("/signin");
+    }
 
     if (postFetchError) {
         return (

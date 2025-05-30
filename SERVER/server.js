@@ -16,6 +16,7 @@ app.use(cors());
 app.use("/api/posts", postRoutes);
 app.use("/api/comments", commentRoutes);
 app.use("/api/deadline", deadlineRoutes);
+// app.use("/api/finance");
 
 //connect database
 ConnectDB();

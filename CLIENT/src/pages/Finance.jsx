@@ -314,10 +314,17 @@ const Finance = () => {
     };
 
     if (isAuthLoading) {
-        /* ... loading state ... */
+        return (
+            <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 flex flex-col justify-center items-center p-4">
+                <Loader2 className="h-12 w-12 animate-spin text-blue-600" />
+                <p className="text-slate-600 text-lg mt-4">
+                    Loading keuangan...
+                </p>
+            </div>
+        );
     }
     if (!isloggedIn) {
-        /* ... null ... */
+        navigate("/signin");
     }
 
     return (

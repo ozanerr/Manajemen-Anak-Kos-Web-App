@@ -8,8 +8,8 @@ import {
 
 const router = express.Router();
 
-router.get("/:uid/getDeadline", getDeadlines);
-router.post("/createDeadline", createDeadline);
+router.get("/:uid/getDeadlines", getDeadlines);
+router.post("/:uid/createDeadline", createDeadline);
 router.put("/:uid/:deadlinesId/editDeadline", editDeadline);
 router.delete("/:uid/:deadlinesId/deleteDeadline", deleteDeadline);
 

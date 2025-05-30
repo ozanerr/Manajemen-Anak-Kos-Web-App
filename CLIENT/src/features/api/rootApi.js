@@ -1,10 +1,10 @@
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
+import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
 export const rootApi = createApi({
-    reducerPath: 'api',
+    reducerPath: "api",
     baseQuery: fetchBaseQuery({
-        baseUrl: 'http://localhost:5000/api'
+        baseUrl: "http://localhost:5000/api",
     }),
     endpoints: (builder) => ({}),
-    tagTypes: ['POST', 'COMMENT', 'REPLY']
-})
+    tagTypes: ["POST", "COMMENT", "REPLY", "DEADLINE"],
+});
