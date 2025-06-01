@@ -62,7 +62,7 @@ const createDeadline = async (req, res) => {
 const getDeadlines = async (req, res) => {
     try {
         const { uid } = req.params;
-        const deadline = await Deadline.findById(uid);
+        const deadline = await Deadline.findOne({ uid: uid });
 
         return res.status(201).json({
             status: "Success",
@@ -110,7 +110,7 @@ const editDeadline = async (req, res) => {
 
         const { title, description, start, end } = req.body;
 
-        const updatedReply = await Deadline.findOneAndUpdate(
+        const editedDeadline = await Deadline.findOneAndUpdate(
             {
                 uid: uid,
                 "deadlines._id": deadlinesId,
@@ -126,6 +126,11 @@ const editDeadline = async (req, res) => {
                 arrayFilters: [{ "elem._id": deadlinesId }],
             }
         );
+
+        return res.status(201).json({
+            status: "Success",
+            data: editedDeadline,
+        });
     } catch (error) {
         res.status(400).json({
             status: "Failed",

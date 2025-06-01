@@ -1,5 +1,3 @@
-// src/Deadline.jsx
-
 import React, { useState, useEffect, useCallback, useMemo } from "react";
 import {
     Calendar as CalendarIcon,
@@ -14,15 +12,35 @@ import {
     Loader2,
 } from "lucide-react";
 import { useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom"; // 'data' import from react-router-dom seems unused
 import { useCalendarApp, ScheduleXCalendar } from "@schedule-x/react";
 import { createViewMonthGrid } from "@schedule-x/calendar";
-import { createDragAndDropPlugin } from "@schedule-x/drag-and-drop";
+// import { createDragAndDropPlugin } from "@schedule-x/drag-and-drop"; // Uncomment if you use it
 import "@schedule-x/theme-default/dist/index.css";
 import DeadlineModal from "../components/DeadlineModal";
 import StatCard from "../components/StatCard";
 import DeadlineItem from "../components/DeadlineItem";
 import { FiPlus } from "react-icons/fi";
+import {
+    useCreateDeadlineMutation,
+    useDeleteDeadlineMutation,
+    useEditDeadlineMutation,
+    useFetchDeadlinesQuery,
+} from "../features/deadlines/deadlinesApi";
+
+const LoadingScreen = ({ message }) => (
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 flex flex-col justify-center items-center p-4">
+        <Loader2 className="h-12 w-12 animate-spin text-blue-600" />
+        <p className="text-slate-600 text-lg mt-4">{message}</p>
+    </div>
+);
+
+const ErrorScreen = ({ message }) => (
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 flex flex-col justify-center items-center p-4">
+        <AlertTriangle className="h-12 w-12 text-red-500" />
+        <p className="text-red-600 text-lg mt-4">{message}</p>
+    </div>
+);
 
 const Deadline = () => {
     const [selectedEvent, setSelectedEvent] = useState(null);
@@ -30,87 +48,43 @@ const Deadline = () => {
     const [modalMode, setModalMode] = useState("add");
     const [currentTime, setCurrentTime] = useState(new Date());
     const [viewMode, setViewMode] = useState("calendar");
-    const [events, setEvents] = useState([
-        {
-            id: 1,
-            title: "Tugas Lewat Kemarin",
-            description: "Harusnya selesai kemarin.",
-            start: "2025-05-26 09:00",
-            end: "2025-05-26 17:00",
-            completed: false,
-            priority: "penting",
-        },
-        {
-            id: 2,
-            title: "Tugas Jatuh Tempo Hari Ini (Sudah Lewat)",
-            description: "Jatuh tempo beberapa jam lalu.",
-            end: (() => {
-                const d = new Date();
-                d.setDate(d.getDate());
-                d.setHours(10, 0, 0, 0);
-                return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(
-                    2,
-                    "0"
-                )}-${String(d.getDate()).padStart(2, "0")} ${String(
-                    d.getHours()
-                ).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
-            })(),
-            start: (() => {
-                const d = new Date();
-                d.setDate(d.getDate());
-                d.setHours(9, 0, 0, 0);
-                return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(
-                    2,
-                    "0"
-                )}-${String(d.getDate()).padStart(2, "0")} ${String(
-                    d.getHours()
-                ).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
-            })(),
-            completed: false,
-            priority: "Tinggi",
-        },
-        {
-            id: 3,
-            title: "Tugas Jatuh Tempo Nanti (Hari Ini)",
-            description: "Masih ada waktu beberapa jam lagi.",
-            end: (() => {
-                const d = new Date();
-                d.setDate(d.getDate());
-                d.setHours(23, 0, 0, 0);
-                return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(
-                    2,
-                    "0"
-                )}-${String(d.getDate()).padStart(2, "0")} ${String(
-                    d.getHours()
-                ).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
-            })(),
-            start: (() => {
-                const d = new Date();
-                d.setDate(d.getDate());
-                d.setHours(22, 0, 0, 0);
-                return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(
-                    2,
-                    "0"
-                )}-${String(d.getDate()).padStart(2, "0")} ${String(
-                    d.getHours()
-                ).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
-            })(),
-            completed: false,
-            priority: "sedang",
-        },
-        {
-            id: 4,
-            title: "Tugas Selesai (Tapi Lewat)",
-            description: "Sudah selesai tapi telat.",
-            end: "2025-05-26 10:00",
-            start: "2025-05-26 09:00",
-            completed: true,
-            priority: "rendah",
-        },
-    ]);
+    const [addDeadlineMutation, { isLoading: isAddingDeadline }] =
+        useCreateDeadlineMutation();
+    const [deleteDeadline] = useDeleteDeadlineMutation();
+    const [editDeadline] = useEditDeadlineMutation();
 
-    const { isloggedIn, isAuthLoading } = useSelector((state) => state.user);
+    const { isloggedIn, isAuthLoading, uid } = useSelector(
+        (state) => state.user
+    );
+
+    const {
+        data: deadlinesResponse,
+        isLoading: isLoadingDeadlines,
+        isError: isErrorDeadlines,
+        isFetching: isFetchingDeadlines,
+        isUninitialized: isDeadlinesUninitialized,
+    } = useFetchDeadlinesQuery(uid, {
+        skip: !uid,
+    });
+
+    const processedServerData = useMemo(() => {
+        if (!deadlinesResponse?.data) {
+            return [];
+        }
+        return deadlinesResponse.data.map((event) => ({
+            ...event,
+            id: String(event._id || event.id),
+            start: String(event.start).includes("T")
+                ? String(event.start)
+                : String(event.start).replace(" ", "T"),
+            end: String(event.end).includes("T")
+                ? String(event.end)
+                : String(event.end).replace(" ", "T"),
+        }));
+    }, [deadlinesResponse?.data]);
+
     const navigate = useNavigate();
+
     const calendarAppInstance = useCalendarApp({
         locale: "id-ID",
         views: [createViewMonthGrid()],
@@ -118,7 +92,7 @@ const Deadline = () => {
         plugins: [],
         callbacks: {
             onEventClick: (clickedEventData) => {
-                const originalEvent = events.find(
+                const originalEvent = processedServerData.find(
                     (e) => String(e.id) === String(clickedEventData.id)
                 );
                 if (originalEvent) {
@@ -126,7 +100,11 @@ const Deadline = () => {
                     setModalMode("edit");
                     setIsModalOpen(true);
                 } else {
-                    console.warn("Event not found in state:", clickedEventData);
+                    console.warn(
+                        "Event not found in processedServerData:",
+                        clickedEventData,
+                        processedServerData
+                    );
                     const fallbackEvent = {
                         ...clickedEventData,
                         start: clickedEventData.start
@@ -154,8 +132,9 @@ const Deadline = () => {
     });
 
     const getDynamicPriority = useCallback((event, now) => {
+        if (!event || !event.end) return "sedang";
         if (event.completed) return "completed";
-        const dueDate = new Date(event.end.replace(" ", "T"));
+        const dueDate = new Date(String(event.end).replace(" ", "T"));
         if (dueDate < now) return "penting";
         const diffTime = dueDate.getTime() - now.getTime();
         const diffHours = diffTime / (1000 * 60 * 60);
@@ -183,38 +162,52 @@ const Deadline = () => {
 
     const getDaysUntilDue = useCallback((dateString, now) => {
         if (!dateString) return null;
-        const dueDate = new Date(dateString.replace(" ", "T"));
-        const diffTime = dueDate - now;
+        const dueDate = new Date(String(dateString).replace(" ", "T"));
+        const diffTime = dueDate.getTime() - now.getTime();
         return diffTime > 0
             ? Math.ceil(diffTime / (1000 * 60 * 60 * 24))
             : Math.floor(diffTime / (1000 * 60 * 60 * 24));
     }, []);
 
     const stats = useMemo(() => {
-        const total = events.length;
-        const completed = events.filter((e) => e.completed).length;
-        const overdue = events.filter(
+        const dataToUse = processedServerData;
+        const total = dataToUse.length;
+        const completed = dataToUse.filter((e) => e.completed).length;
+        const overdue = dataToUse.filter(
             (e) =>
-                !e.completed && new Date(e.end.replace(" ", "T")) < currentTime
+                e.end &&
+                !e.completed &&
+                new Date(String(e.end).replace(" ", "T")) < currentTime
         ).length;
-        const upcoming = events.filter((e) => {
-            if (e.completed) return false;
-            const dueDate = new Date(e.end.replace(" ", "T"));
+        const upcoming = dataToUse.filter((e) => {
+            if (!e.end || e.completed) return false;
+            const dueDate = new Date(String(e.end).replace(" ", "T"));
             if (dueDate < currentTime) return false;
-            const diffTime = dueDate - currentTime;
+            const diffTime = dueDate.getTime() - currentTime.getTime();
             const diffDays = diffTime / (1000 * 60 * 60 * 24);
             return diffDays >= 0 && diffDays <= 7;
         }).length;
         return { total, completed, overdue, upcoming };
-    }, [events, currentTime]);
+    }, [processedServerData, currentTime]);
+
+    const sortedEventsForList = useMemo(
+        () =>
+            [...processedServerData].sort((a, b) => {
+                const dateA = a.end
+                    ? new Date(String(a.end).replace(" ", "T"))
+                    : 0;
+                const dateB = b.end
+                    ? new Date(String(b.end).replace(" ", "T"))
+                    : 0;
+                return dateA - dateB;
+            }),
+        [processedServerData]
+    );
 
     const toggleComplete = useCallback((id) => {
-        setEvents((currentEvents) =>
-            currentEvents.map((ev) =>
-                String(ev.id) === String(id)
-                    ? { ...ev, completed: !ev.completed }
-                    : ev
-            )
+        console.log(id);
+        console.warn(
+            "Perlu implementasi UpdateDeadlineMutation untuk mengubah status 'completed' di server."
         );
     }, []);
 
@@ -224,78 +217,40 @@ const Deadline = () => {
         setIsModalOpen(true);
     }, []);
 
-    const sortedEvents = useMemo(
-        () =>
-            [...events].sort(
-                (a, b) =>
-                    new Date(a.end.replace(" ", "T")) -
-                    new Date(b.end.replace(" ", "T"))
-            ),
-        [events]
-    );
-
-    useEffect(() => {
-        if (calendarAppInstance) {
-            const formattedEvents = events.map((event) => {
-                const dynamicPrio = getDynamicPriority(event, currentTime);
-                let calendarName = event.completed ? "completed" : dynamicPrio;
-                return {
-                    ...event,
-                    id: String(event.id),
-                    start: event.start.includes("T")
-                        ? event.start
-                        : event.start.replace(" ", "T"),
-                    end: event.end.includes("T")
-                        ? event.end
-                        : event.end.replace(" ", "T"),
-                    calendar: calendarName,
-                };
-            });
-            calendarAppInstance.events.set(formattedEvents);
+    const handleModalDelete = async (id) => {
+        try {
+            console.log(uid);
+            console.log(id);
+            await deleteDeadline({ uid: uid, deadlinesId: id }).unwrap();
+        } catch (error) {
+            alert("gagal hapus data");
         }
-    }, [events, calendarAppInstance, currentTime, getDynamicPriority]);
-
-    useEffect(() => {
-        const timerId = setInterval(() => {
-            setCurrentTime(new Date());
-        }, 60000); // Setiap 1 menit
-        return () => clearInterval(timerId);
-    }, []);
-
-    useEffect(() => {
-        if (!isAuthLoading && !isloggedIn) {
-            navigate("/signin");
-        }
-    }, [isAuthLoading, isloggedIn, navigate]);
-
-    const handleModalSave = (eventDataFromModal) => {
-        let updatedEvents;
-        if (modalMode === "edit") {
-            updatedEvents = events.map((ev) =>
-                String(ev.id) === String(eventDataFromModal.id)
-                    ? { ...eventDataFromModal }
-                    : ev
-            );
-        } else {
-            const newEvent = {
-                ...eventDataFromModal,
-                id: String(Date.now()),
-                completed: false,
-            };
-            updatedEvents = [...events, newEvent];
-        }
-        setEvents(updatedEvents);
         setIsModalOpen(false);
         setSelectedEvent(null);
     };
 
-    const handleModalDelete = () => {
-        if (selectedEvent && selectedEvent.id) {
-            setEvents(
-                events.filter(
-                    (ev) => String(ev.id) !== String(selectedEvent.id)
-                )
+    const handleModalSave = async (eventDataFromModal) => {
+        if (modalMode === "edit") {
+            console.warn(
+                "Perlu implementasi UpdateDeadlineMutation untuk menyimpan perubahan event di server."
             );
+        } else {
+            const newEventDataForApi = {
+                title: eventDataFromModal.title,
+                description: eventDataFromModal.description,
+                start: eventDataFromModal.start,
+                end: eventDataFromModal.end,
+                priority: eventDataFromModal.priority,
+                completed: false,
+            };
+            try {
+                await addDeadlineMutation({
+                    uid: uid,
+                    data: newEventDataForApi,
+                }).unwrap();
+            } catch (err) {
+                console.error("Gagal membuat deadline:", err);
+            }
         }
         setIsModalOpen(false);
         setSelectedEvent(null);
@@ -304,12 +259,16 @@ const Deadline = () => {
     const handleOpenAddModal = () => {
         const now = new Date();
         now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+        const defaultStartTime = new Date(now.getTime());
         const defaultEndTime = new Date(now.getTime() + 60 * 60 * 1000);
 
         setSelectedEvent({
             title: "",
             description: "",
-            start: now.toISOString().slice(0, 16).replace("T", " "),
+            start: defaultStartTime
+                .toISOString()
+                .slice(0, 16)
+                .replace("T", " "),
             end: defaultEndTime.toISOString().slice(0, 16).replace("T", " "),
             completed: false,
             priority: "sedang",
@@ -318,185 +277,261 @@ const Deadline = () => {
         setIsModalOpen(true);
     };
 
+    useEffect(() => {
+        if (calendarAppInstance) {
+            const eventsForCalendar = processedServerData.map((event) => {
+                const dynamicPrio = getDynamicPriority(event, currentTime);
+                return {
+                    ...event,
+                    cssClass: `event-${dynamicPrio.toLowerCase()}`,
+                };
+            });
+            calendarAppInstance.events.set(eventsForCalendar);
+        }
+    }, [
+        processedServerData,
+        calendarAppInstance,
+        currentTime,
+        getDynamicPriority,
+        getPriorityColor,
+    ]);
+
+    useEffect(() => {
+        const timerId = setInterval(() => {
+            setCurrentTime(new Date());
+        }, 60000);
+        return () => clearInterval(timerId);
+    }, []);
+
+    useEffect(() => {
+        if (!isAuthLoading && !isloggedIn && uid) {
+            // Tambah cek uid jika perlu sebelum navigasi
+            navigate("/signin");
+        }
+    }, [isAuthLoading, isloggedIn, uid, navigate]);
+
     if (isAuthLoading) {
-        return (
-            <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 flex flex-col justify-center items-center p-4">
-                <Loader2 className="h-12 w-12 animate-spin text-blue-600" />
-                <p className="text-slate-600 text-lg mt-4">
-                    Memuat deadline Anda...
-                </p>
-            </div>
-        );
-    }
-    if (!isloggedIn) {
-        navigate("/signin");
+        return <LoadingScreen message="Autentikasi pengguna..." />;
     }
 
+    if (!isloggedIn || !uid) {
+        useEffect(() => {
+            navigate("/signin");
+        }, [navigate]); // Navigasi dalam useEffect
+        return (
+            <ErrorScreen message="Anda harus login untuk mengakses halaman ini." />
+        );
+    }
+
+    if (
+        isDeadlinesUninitialized ||
+        isLoadingDeadlines ||
+        (isFetchingDeadlines && !deadlinesResponse?.data)
+    ) {
+        return <LoadingScreen message="Memuat deadline Anda..." />;
+    }
+
+    if (isErrorDeadlines) {
+        return (
+            <ErrorScreen message="Gagal memuat deadline. Coba lagi nanti." />
+        );
+    }
+
+    const priorityStyles = `
+        .event-penting { background-color: #334155 !important; color: white !important; border-color: #0f172a !important; }
+        .event-tinggi { background-color: #FFEDD5 !important; color: #9A3412 !important; border-color: #FED7AA !important; }
+        .event-sedang { background-color: #FEF9C3 !important; color: #854D0E !important; border-color: #FEF08A !important; }
+        .event-rendah { background-color: #DCFCE7 !important; color: #166534 !important; border-color: #BBF7D0 !important; }
+        .event-completed { background-color: #F1F5F9 !important; color: #64748B !important; border-color: #E2E8F0 !important; }
+    `;
+
     return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                <div className="flex flex-col sm:flex-row items-center justify-between mb-8 gap-4">
-                    <div>
-                        <h1 className="text-3xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent">
-                            Manager Deadline
-                        </h1>
-                        <p className="text-gray-600 mt-1">
-                            Tetap terorganisir dan capai tujuan Anda.
-                        </p>
-                    </div>
-                    <div className="flex items-center gap-3 w-full sm:w-auto justify-end">
-                        <button
-                            onClick={() =>
-                                setViewMode(
+        <>
+            <style>{priorityStyles}</style>
+            <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                    <div className="flex flex-col sm:flex-row items-center justify-between mb-8 gap-4">
+                        <div>
+                            <h1 className="text-3xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent">
+                                Manager Deadline
+                            </h1>
+                            <p className="text-gray-600 mt-1">
+                                Tetap terorganisir dan capai tujuan Anda.
+                            </p>
+                        </div>
+                        <div className="flex items-center gap-3 w-full sm:w-auto justify-end">
+                            <button
+                                onClick={() =>
+                                    setViewMode(
+                                        viewMode === "calendar"
+                                            ? "list"
+                                            : "calendar"
+                                    )
+                                }
+                                className="p-3 text-gray-600 hover:text-gray-900 hover:bg-white/60 backdrop-blur-sm rounded-xl transition-all duration-200 border border-white/30 shadow-sm cursor-pointer"
+                                title={`Switch to ${
                                     viewMode === "calendar"
                                         ? "list"
                                         : "calendar"
-                                )
-                            }
-                            className="p-3 text-gray-600 hover:text-gray-900 hover:bg-white/60 backdrop-blur-sm rounded-xl transition-all duration-200 border border-white/30 shadow-sm cursor-pointer"
-                            title={`Switch to ${
-                                viewMode === "calendar" ? "list" : "calendar"
-                            } view`}
-                        >
-                            {viewMode === "calendar" ? (
-                                <List size={20} />
-                            ) : (
-                                <CalendarIcon size={20} />
-                            )}
-                        </button>
-                        <button
-                            onClick={handleOpenAddModal}
-                            className="flex items-center gap-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white px-4 py-2.5 sm:p-3 rounded-xl hover:from-blue-600 hover:to-purple-700 transition-all duration-200 shadow-lg hover:shadow-xl cursor-pointer"
-                            aria-label="Add Deadline"
-                        >
-                            <FiPlus size={20} />{" "}
-                            <span className="hidden sm:inline text-sm font-medium">
-                                Tambah Deadline
-                            </span>
-                        </button>
+                                } view`}
+                            >
+                                {viewMode === "calendar" ? (
+                                    <List size={20} />
+                                ) : (
+                                    <CalendarIcon size={20} />
+                                )}
+                            </button>
+                            <button
+                                onClick={handleOpenAddModal}
+                                disabled={isAddingDeadline}
+                                className="flex items-center gap-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white px-4 py-2.5 sm:p-3 rounded-xl hover:from-blue-600 hover:to-purple-700 transition-all duration-200 shadow-lg hover:shadow-xl cursor-pointer disabled:opacity-50"
+                                aria-label="Add Deadline"
+                            >
+                                <FiPlus size={20} />
+                                <span className="hidden sm:inline text-sm font-medium">
+                                    Tambah Deadline
+                                </span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8">
+                        <StatCard
+                            title="Total Deadlines"
+                            value={stats.total}
+                            IconComponent={Target}
+                            iconBgClass="bg-blue-100"
+                            iconColorClass="text-blue-600"
+                        />
+                        <StatCard
+                            title="Selesai"
+                            value={stats.completed}
+                            IconComponent={CheckCircle2}
+                            iconBgClass="bg-green-100"
+                            iconColorClass="text-green-600"
+                        />
+                        <StatCard
+                            title="Mendatang"
+                            value={stats.upcoming}
+                            IconComponent={Clock}
+                            iconBgClass="bg-yellow-100"
+                            iconColorClass="text-yellow-600"
+                        />
+                        <StatCard
+                            title="Terlambat"
+                            value={stats.overdue}
+                            IconComponent={AlertTriangle}
+                            iconBgClass="bg-red-100"
+                            iconColorClass="text-red-600"
+                        />
+                    </div>
+
+                    <div className="bg-white/70 backdrop-blur-md rounded-2xl border border-white/30 shadow-xl overflow-hidden">
+                        {viewMode === "calendar" ? (
+                            <div className="p-3 sm:p-4 md:p-6 min-h-[600px]">
+                                {calendarAppInstance && (
+                                    <ScheduleXCalendar
+                                        calendarApp={calendarAppInstance}
+                                    />
+                                )}
+                            </div>
+                        ) : (
+                            <div className="divide-y divide-slate-200/70">
+                                {sortedEventsForList.length === 0 ? (
+                                    <div className="text-center py-16 sm:py-20 px-6">
+                                        <Target
+                                            size={56}
+                                            className="mx-auto text-slate-400 mb-5"
+                                        />
+                                        <h3 className="text-2xl font-semibold text-slate-700 mb-3">
+                                            Tidak ada deadline ditemukan
+                                        </h3>
+                                        <p className="text-slate-500 mb-8">
+                                            Buat deadline pertama Anda untuk
+                                            memulai.
+                                        </p>
+                                        <button
+                                            onClick={handleOpenAddModal}
+                                            disabled={isAddingDeadline}
+                                            className="inline-flex items-center gap-2.5 bg-gradient-to-r from-blue-500 to-purple-600 text-white px-7 py-3 rounded-lg hover:from-blue-600 hover:to-purple-700 transition-all duration-200 shadow-lg hover:shadow-xl text-base font-medium disabled:opacity-50"
+                                        >
+                                            Buat Deadline Pertama
+                                        </button>
+                                    </div>
+                                ) : (
+                                    sortedEventsForList.map((event) => {
+                                        const daysUntil = getDaysUntilDue(
+                                            event.end,
+                                            currentTime
+                                        );
+                                        const eventDueDate = event.end
+                                            ? new Date(
+                                                  String(event.end).replace(
+                                                      " ",
+                                                      "T"
+                                                  )
+                                              )
+                                            : null;
+                                        const isEventOverdue =
+                                            eventDueDate &&
+                                            !event.completed &&
+                                            eventDueDate < currentTime;
+                                        const isEventDueToday =
+                                            eventDueDate &&
+                                            !event.completed &&
+                                            eventDueDate.toDateString() ===
+                                                currentTime.toDateString() &&
+                                            eventDueDate >= currentTime;
+                                        const dynamicPrio = getDynamicPriority(
+                                            event,
+                                            currentTime
+                                        );
+
+                                        return (
+                                            <DeadlineItem
+                                                key={event.id}
+                                                event={event}
+                                                onToggleComplete={
+                                                    toggleComplete
+                                                }
+                                                onOpenEditModal={
+                                                    handleOpenEditModal
+                                                }
+                                                dynamicPriority={dynamicPrio}
+                                                daysUntil={daysUntil}
+                                                isEventOverdue={isEventOverdue}
+                                                isEventDueToday={
+                                                    isEventDueToday
+                                                }
+                                                getPriorityColor={
+                                                    getPriorityColor
+                                                }
+                                            />
+                                        );
+                                    })
+                                )}
+                            </div>
+                        )}
                     </div>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8">
-                    <StatCard
-                        title="Total Deadlines"
-                        value={stats.total}
-                        IconComponent={Target}
-                        iconBgClass="bg-blue-100"
-                        iconColorClass="text-blue-600"
+                {isModalOpen && (
+                    <DeadlineModal
+                        initialEvent={selectedEvent}
+                        onSave={handleModalSave}
+                        modalMode={modalMode}
+                        onDelete={
+                            modalMode === "edit" ? handleModalDelete : undefined
+                        }
+                        onClose={() => {
+                            setIsModalOpen(false);
+                            setSelectedEvent(null);
+                        }}
+                        isLoading={isAddingDeadline}
                     />
-                    <StatCard
-                        title="Selesai"
-                        value={stats.completed}
-                        IconComponent={CheckCircle2}
-                        iconBgClass="bg-green-100"
-                        iconColorClass="text-green-600"
-                    />
-                    <StatCard
-                        title="Mendatang"
-                        value={stats.upcoming}
-                        IconComponent={Clock}
-                        iconBgClass="bg-yellow-100"
-                        iconColorClass="text-yellow-600"
-                    />
-                    <StatCard
-                        title="Terlambat"
-                        value={stats.overdue}
-                        IconComponent={AlertTriangle}
-                        iconBgClass="bg-red-100"
-                        iconColorClass="text-red-600"
-                    />
-                </div>
-
-                <div className="bg-white/70 backdrop-blur-md rounded-2xl border border-white/30 shadow-xl overflow-hidden">
-                    {viewMode === "calendar" ? (
-                        <div className="p-3 sm:p-4 md:p-6 min-h-[600px]">
-                            <ScheduleXCalendar
-                                calendarApp={calendarAppInstance}
-                            />
-                        </div>
-                    ) : (
-                        <div className="divide-y divide-slate-200/70">
-                            {sortedEvents.length === 0 ? (
-                                <div className="text-center py-16 sm:py-20 px-6">
-                                    <Target
-                                        size={56}
-                                        className="mx-auto text-slate-400 mb-5"
-                                    />
-                                    <h3 className="text-2xl font-semibold text-slate-700 mb-3">
-                                        Tidak ada deadline ditemukan
-                                    </h3>
-                                    <p className="text-slate-500 mb-8">
-                                        Buat deadline pertama Anda untuk
-                                        memulai.
-                                    </p>
-                                    <button
-                                        onClick={handleOpenAddModal}
-                                        className="inline-flex items-center gap-2.5 bg-gradient-to-r from-blue-500 to-purple-600 text-white px-7 py-3 rounded-lg hover:from-blue-600 hover:to-purple-700 transition-all duration-200 shadow-lg hover:shadow-xl text-base font-medium"
-                                    >
-                                        {/* <PlusIconLucide size={18} /> Buat */}
-                                        Deadline Pertama
-                                    </button>
-                                </div>
-                            ) : (
-                                sortedEvents.map((event) => {
-                                    const daysUntil = getDaysUntilDue(
-                                        event.end,
-                                        currentTime
-                                    );
-                                    const eventDueDate = new Date(
-                                        event.end.replace(" ", "T")
-                                    );
-                                    const isEventOverdue =
-                                        !event.completed &&
-                                        eventDueDate < currentTime;
-                                    const isEventDueToday =
-                                        !event.completed &&
-                                        eventDueDate.toDateString() ===
-                                            currentTime.toDateString() &&
-                                        eventDueDate >= currentTime;
-                                    const dynamicPrio = getDynamicPriority(
-                                        event,
-                                        currentTime
-                                    );
-
-                                    return (
-                                        <DeadlineItem
-                                            key={event.id}
-                                            event={event}
-                                            onToggleComplete={toggleComplete}
-                                            onOpenEditModal={
-                                                handleOpenEditModal
-                                            }
-                                            dynamicPriority={dynamicPrio}
-                                            daysUntil={daysUntil}
-                                            isEventOverdue={isEventOverdue}
-                                            isEventDueToday={isEventDueToday}
-                                            getPriorityColor={getPriorityColor}
-                                        />
-                                    );
-                                })
-                            )}
-                        </div>
-                    )}
-                </div>
+                )}
             </div>
-
-            {isModalOpen && (
-                <DeadlineModal
-                    initialEvent={selectedEvent}
-                    onSave={handleModalSave}
-                    modalMode={modalMode}
-                    onDelete={
-                        modalMode === "edit" ? handleModalDelete : undefined
-                    }
-                    onClose={() => {
-                        setIsModalOpen(false);
-                        setSelectedEvent(null);
-                    }}
-                />
-            )}
-        </div>
+        </>
     );
 };
 

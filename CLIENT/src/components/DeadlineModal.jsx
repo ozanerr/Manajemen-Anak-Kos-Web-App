@@ -102,7 +102,7 @@ const DeadlineModal = ({
         if (window.confirm("Apakah Anda yakin ingin menghapus deadline ini?")) {
             setIsSubmitting(true);
             try {
-                await onDelete();
+                await onDelete(event._id);
             } finally {
                 setIsSubmitting(false);
             }

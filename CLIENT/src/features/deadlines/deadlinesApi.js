@@ -1,3 +1,4 @@
+import { data } from "react-router-dom";
 import { rootApi } from "../api/rootApi";
 
 export const deadlinesApi = rootApi.injectEndpoints({
@@ -17,5 +18,27 @@ export const deadlinesApi = rootApi.injectEndpoints({
             }),
             invalidatesTags: ["DEADLINE"],
         }),
+        deleteDeadline: builder.mutation({
+            query: ({ uid, deadlinesId }) => ({
+                url: `deadline/${uid}/${deadlinesId}/deleteDeadline`,
+                method: "DELETE",
+            }),
+            invalidatesTags: ["DEADLINE"],
+        }),
+        editDeadline: builder.mutation({
+            query: ({ uid, deadlinesId, data }) => ({
+                url: `deadline/${uid}/${deadlinesId}/editDeadline`,
+                method: "PUT",
+                body: data,
+            }),
+            invalidatesTags: ["DEADLINE"],
+        }),
     }),
 });
+
+export const {
+    useCreateDeadlineMutation,
+    useFetchDeadlinesQuery,
+    useDeleteDeadlineMutation,
+    useEditDeadlineMutation,
+} = deadlinesApi;
