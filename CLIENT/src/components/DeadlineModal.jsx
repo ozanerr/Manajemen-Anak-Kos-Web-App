@@ -21,7 +21,26 @@ const DeadlineModal = ({
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     useEffect(() => {
-        setEvent({ ...initialEvent });
+        // Pastikan initialEvent.start dan initialEvent.end adalah objek Date atau null
+        // Jika masih string dari suatu tempat, konversi di sini atau pastikan sudah Date dari parent
+        const startDate =
+            initialEvent?.start instanceof Date
+                ? initialEvent.start
+                : initialEvent?.start
+                ? new Date(initialEvent.start)
+                : null;
+        const endDate =
+            initialEvent?.end instanceof Date
+                ? initialEvent.end
+                : initialEvent?.end
+                ? new Date(initialEvent.end)
+                : null;
+
+        setEvent({
+            ...initialEvent,
+            start: startDate,
+            end: endDate,
+        });
         setErrors({});
     }, [initialEvent]);
 
@@ -31,20 +50,44 @@ const DeadlineModal = ({
     };
 
     const handleDateChange = (e) => {
-        const dateValue = e.target.value;
-        handleChange({
-            target: {
-                name: "end",
-                value: dateValue.replace("T", " "),
-            },
-        });
+        const dateStringFromInput = e.target.value; // Format "YYYY-MM-DDTHH:mm"
+        if (dateStringFromInput) {
+            // Konversi string dari input <datetime-local> ke objek Date
+            // Ini akan diinterpretasikan sebagai waktu lokal
+            const newEndDate = new Date(dateStringFromInput);
+            setEvent((prev) => ({
+                ...prev,
+                end: newEndDate,
+                // Asumsi: Jika hanya ada satu field waktu, start bisa disamakan dengan end
+                // Jika start memiliki input terpisah, handle secara terpisah.
+                start: newEndDate,
+            }));
+        } else {
+            setEvent((prev) => ({
+                ...prev,
+                end: null,
+                start: null, // Sesuaikan jika start punya logika sendiri
+            }));
+        }
     };
 
     const getDaysUntilDue = () => {
-        if (!event.end) return null;
-        const dueDate = new Date(event.end.replace(" ", "T"));
+        if (!event.end || !(event.end instanceof Date) || isNaN(event.end))
+            return null;
+        const dueDate = event.end;
         const now = new Date();
-        const diffTime = dueDate - now;
+        // Bandingkan hanya tanggal, abaikan waktu untuk "days until"
+        const dueDateStartOfDay = new Date(
+            dueDate.getFullYear(),
+            dueDate.getMonth(),
+            dueDate.getDate()
+        );
+        const nowStartOfDay = new Date(
+            now.getFullYear(),
+            now.getMonth(),
+            now.getDate()
+        );
+        const diffTime = dueDateStartOfDay.getTime() - nowStartOfDay.getTime();
         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
         return diffDays;
     };
@@ -56,17 +99,30 @@ const DeadlineModal = ({
             newErrors.title = "Judul harus diisi";
         }
 
-        if (!event.end) {
-            newErrors.end = "Tanggal Batas Waktu harus diisi";
+        if (!event.end || !(event.end instanceof Date) || isNaN(event.end)) {
+            newErrors.end = "Tanggal Batas Waktu harus diisi dan valid";
         } else {
-            const dueDate = new Date(event.end.replace(" ", "T"));
+            const dueDate = event.end;
             const now = new Date();
-            now.setSeconds(0, 0);
-            const inputDateWithoutSeconds = new Date(dueDate);
-            inputDateWithoutSeconds.setSeconds(0, 0);
 
-            if (inputDateWithoutSeconds < now) {
-                newErrors.end = "Due date cannot be in the past";
+            // Untuk perbandingan "tidak boleh di masa lalu", kita bisa bandingkan waktu presisi menit
+            const dueDateForComparison = new Date(
+                dueDate.getFullYear(),
+                dueDate.getMonth(),
+                dueDate.getDate(),
+                dueDate.getHours(),
+                dueDate.getMinutes()
+            );
+            const nowForComparison = new Date(
+                now.getFullYear(),
+                now.getMonth(),
+                now.getDate(),
+                now.getHours(),
+                now.getMinutes()
+            );
+
+            if (dueDateForComparison < nowForComparison) {
+                newErrors.end = "Batas waktu tidak boleh di masa lalu";
             }
         }
 
@@ -76,23 +132,19 @@ const DeadlineModal = ({
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        const title = e.target.title.value;
-        const description = e.target.description.value;
-        const start = e.target.end.value;
-        const end = e.target.end.value;
 
-        setEvent({
-            title,
-            description,
-            start,
-            end,
-        });
-
+        // Gunakan state 'event' yang sudah memiliki title, description, dan objek Date untuk start/end
         if (!validateForm()) return;
 
         setIsSubmitting(true);
         try {
+            // 'event' yang dikirim ke onSave (handleModalSave di Deadline.jsx)
+            // memiliki start dan end sebagai objek Date.
+            // handleModalSave di Deadline.jsx akan mengonversinya ke ISOString.
             await onSave(event);
+        } catch (error) {
+            // Penanganan error bisa ditambahkan di sini jika onSave melempar error
+            console.error("Gagal menyimpan event:", error);
         } finally {
             setIsSubmitting(false);
         }
@@ -109,14 +161,30 @@ const DeadlineModal = ({
         }
     };
 
+    // Fungsi untuk memformat objek Date ke string "YYYY-MM-DDTHH:mm" untuk input datetime-local
+    // Ini menyesuaikan dengan timezone lokal pengguna.
+    const formatDateForDateTimeLocalInput = (date) => {
+        if (!date || !(date instanceof Date) || isNaN(date)) {
+            return "";
+        }
+        const year = date.getFullYear();
+        const month = (date.getMonth() + 1).toString().padStart(2, "0");
+        const day = date.getDate().toString().padStart(2, "0");
+        const hours = date.getHours().toString().padStart(2, "0");
+        const minutes = date.getMinutes().toString().padStart(2, "0");
+        return `${year}-${month}-${day}T${hours}:${minutes}`;
+    };
+
     if (!event) return null;
 
     const daysUntilDue = getDaysUntilDue();
 
     const getMinDateTime = () => {
         const now = new Date();
-        now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
-        return now.toISOString().slice(0, 16);
+        // Tidak perlu offset timezone di sini karena input datetime-local
+        // sudah bekerja dalam konteks waktu lokal pengguna.
+        // Cukup format ke string YYYY-MM-DDTHH:MM
+        return formatDateForDateTimeLocalInput(now);
     };
 
     return (
@@ -143,21 +211,19 @@ const DeadlineModal = ({
                                     ? "Edit Deadline"
                                     : "Tambah Deadline"}
                             </h2>
-                            {daysUntilDue !== null && event.end && (
-                                <p className="text-sm text-white/80">
-                                    {daysUntilDue > 0
-                                        ? `${daysUntilDue} hari${
-                                              daysUntilDue === 1 ? "" : "s"
-                                          } tersisa`
-                                        : daysUntilDue === 0
-                                        ? "Batas waktu hari ini"
-                                        : `${Math.abs(daysUntilDue)} day${
-                                              Math.abs(daysUntilDue) === 1
-                                                  ? ""
-                                                  : "s"
-                                          } terlewat`}
-                                </p>
-                            )}
+                            {daysUntilDue !== null &&
+                                event.end instanceof Date &&
+                                !isNaN(event.end) && (
+                                    <p className="text-sm text-white/80">
+                                        {daysUntilDue > 0
+                                            ? `${daysUntilDue} hari tersisa`
+                                            : daysUntilDue === 0
+                                            ? "Batas waktu hari ini"
+                                            : `${Math.abs(
+                                                  daysUntilDue
+                                              )} hari terlewat`}
+                                    </p>
+                                )}
                         </div>
                     </div>
                 </div>
@@ -225,7 +291,9 @@ const DeadlineModal = ({
                                 id="end"
                                 name="end"
                                 type="datetime-local"
-                                value={event.end?.replace(" ", "T") || ""}
+                                value={formatDateForDateTimeLocalInput(
+                                    event.end
+                                )}
                                 onChange={handleDateChange}
                                 min={getMinDateTime()}
                                 className={`w-full px-4 py-3 border rounded-xl shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent ${
@@ -283,7 +351,7 @@ const DeadlineModal = ({
                             </button>
                         </div>
                     </div>
-                </form>{" "}
+                </form>
             </div>
         </div>
     );

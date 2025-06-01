@@ -1,27 +1,27 @@
 import mongoose from "mongoose";
 
-const deadlineSchema = new mongoose.Schema(
+const financeSchema = new mongoose.Schema(
     {
         uid: {
             type: String,
             required: true,
         },
-        deadlines: [
+        finances: [
             {
-                title: {
+                transaksi: {
                     type: String,
                     required: true,
                 },
-                description: {
+                tipe: {
                     type: String,
                     required: true,
                 },
-                start: {
-                    type: Date,
+                jumlah: {
+                    type: String,
                     required: true,
                 },
-                end: {
-                    type: Date,
+                tanggal: {
+                    type: String,
                     required: true,
                 },
             },
@@ -30,6 +30,6 @@ const deadlineSchema = new mongoose.Schema(
     { timestamps: true }
 );
 
-const Deadline = mongoose.model("Deadline", deadlineSchema);
+const Finance = mongoose.model("Finance", financeSchema);
 
-export default Deadline;
+export default Finance;

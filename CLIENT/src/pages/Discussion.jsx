@@ -26,6 +26,7 @@ const Discussion = () => {
         error,
     } = useFetchPostsQuery() || {};
     const posts = postsResponse?.data || [];
+    console.log(posts);
 
     const { displayName, photoURL, isloggedIn, isAuthLoading, uid, payload } =
         useSelector((state) => state.user);

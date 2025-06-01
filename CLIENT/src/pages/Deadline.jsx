@@ -12,10 +12,9 @@ import {
     Loader2,
 } from "lucide-react";
 import { useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom"; // 'data' import from react-router-dom seems unused
+import { useNavigate } from "react-router-dom";
 import { useCalendarApp, ScheduleXCalendar } from "@schedule-x/react";
 import { createViewMonthGrid } from "@schedule-x/calendar";
-// import { createDragAndDropPlugin } from "@schedule-x/drag-and-drop"; // Uncomment if you use it
 import "@schedule-x/theme-default/dist/index.css";
 import DeadlineModal from "../components/DeadlineModal";
 import StatCard from "../components/StatCard";
@@ -71,16 +70,21 @@ const Deadline = () => {
         if (!deadlinesResponse?.data) {
             return [];
         }
-        return deadlinesResponse.data.map((event) => ({
-            ...event,
-            id: String(event._id || event.id),
-            start: String(event.start).includes("T")
-                ? String(event.start)
-                : String(event.start).replace(" ", "T"),
-            end: String(event.end).includes("T")
-                ? String(event.end)
-                : String(event.end).replace(" ", "T"),
-        }));
+        return deadlinesResponse.data.map((event) => {
+            const startVal =
+                event.start instanceof Date
+                    ? event.start
+                    : new Date(event.start);
+            const endVal =
+                event.end instanceof Date ? event.end : new Date(event.end);
+
+            return {
+                ...event,
+                id: String(event._id || event.id),
+                start: startVal,
+                end: endVal,
+            };
+        });
     }, [deadlinesResponse?.data]);
 
     const navigate = useNavigate();
@@ -134,7 +138,7 @@ const Deadline = () => {
     const getDynamicPriority = useCallback((event, now) => {
         if (!event || !event.end) return "sedang";
         if (event.completed) return "completed";
-        const dueDate = new Date(String(event.end).replace(" ", "T"));
+        const dueDate = event.end;
         if (dueDate < now) return "penting";
         const diffTime = dueDate.getTime() - now.getTime();
         const diffHours = diffTime / (1000 * 60 * 60);
@@ -160,9 +164,9 @@ const Deadline = () => {
         }
     }, []);
 
-    const getDaysUntilDue = useCallback((dateString, now) => {
-        if (!dateString) return null;
-        const dueDate = new Date(String(dateString).replace(" ", "T"));
+    const getDaysUntilDue = useCallback((dateObject, now) => {
+        if (!dateObject) return null;
+        const dueDate = dateObject;
         const diffTime = dueDate.getTime() - now.getTime();
         return diffTime > 0
             ? Math.ceil(diffTime / (1000 * 60 * 60 * 24))
@@ -174,14 +178,11 @@ const Deadline = () => {
         const total = dataToUse.length;
         const completed = dataToUse.filter((e) => e.completed).length;
         const overdue = dataToUse.filter(
-            (e) =>
-                e.end &&
-                !e.completed &&
-                new Date(String(e.end).replace(" ", "T")) < currentTime
+            (e) => e.end && !e.completed && e.end < currentTime
         ).length;
         const upcoming = dataToUse.filter((e) => {
             if (!e.end || e.completed) return false;
-            const dueDate = new Date(String(e.end).replace(" ", "T"));
+            const dueDate = e.end;
             if (dueDate < currentTime) return false;
             const diffTime = dueDate.getTime() - currentTime.getTime();
             const diffDays = diffTime / (1000 * 60 * 60 * 24);
@@ -193,13 +194,15 @@ const Deadline = () => {
     const sortedEventsForList = useMemo(
         () =>
             [...processedServerData].sort((a, b) => {
-                const dateA = a.end
-                    ? new Date(String(a.end).replace(" ", "T"))
-                    : 0;
-                const dateB = b.end
-                    ? new Date(String(b.end).replace(" ", "T"))
-                    : 0;
-                return dateA - dateB;
+                const timeA =
+                    a.end instanceof Date && !isNaN(a.end)
+                        ? a.end.getTime()
+                        : 0;
+                const timeB =
+                    b.end instanceof Date && !isNaN(b.end)
+                        ? b.end.getTime()
+                        : 0;
+                return timeA - timeB;
             }),
         [processedServerData]
     );
@@ -287,11 +290,13 @@ const Deadline = () => {
     };
 
     useEffect(() => {
-        if (calendarAppInstance) {
+        if (calendarAppInstance && processedServerData) {
             const eventsForCalendar = processedServerData.map((event) => {
                 const dynamicPrio = getDynamicPriority(event, currentTime);
                 return {
                     ...event,
+                    start: event.start.toISOString(),
+                    end: event.end.toISOString(),
                     cssClass: `event-${dynamicPrio.toLowerCase()}`,
                 };
             });
@@ -314,7 +319,6 @@ const Deadline = () => {
 
     useEffect(() => {
         if (!isAuthLoading && !isloggedIn && uid) {
-            // Tambah cek uid jika perlu sebelum navigasi
             navigate("/signin");
         }
     }, [isAuthLoading, isloggedIn, uid, navigate]);
@@ -326,7 +330,7 @@ const Deadline = () => {
     if (!isloggedIn || !uid) {
         useEffect(() => {
             navigate("/signin");
-        }, [navigate]); // Navigasi dalam useEffect
+        }, [navigate]);
         return (
             <ErrorScreen message="Anda harus login untuk mengakses halaman ini." />
         );
@@ -341,9 +345,9 @@ const Deadline = () => {
     }
 
     if (isErrorDeadlines) {
-        return (
-            <ErrorScreen message="Gagal memuat deadline. Coba lagi nanti." />
-        );
+        // return (
+        //     <ErrorScreen message="Gagal memuat deadline. Coba lagi nanti." />
+        // );
     }
 
     const priorityStyles = `
@@ -473,14 +477,8 @@ const Deadline = () => {
                                             event.end,
                                             currentTime
                                         );
-                                        const eventDueDate = event.end
-                                            ? new Date(
-                                                  String(event.end).replace(
-                                                      " ",
-                                                      "T"
-                                                  )
-                                              )
-                                            : null;
+                                        const eventDueDate = event.end;
+
                                         const isEventOverdue =
                                             eventDueDate &&
                                             !event.completed &&

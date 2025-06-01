@@ -19,6 +19,8 @@ const DeadlineItem = ({
         onToggleComplete(event.id);
     };
 
+    const isValidDate = event.end instanceof Date && !isNaN(event.end);
+
     return (
         <div
             key={event.id}
@@ -82,19 +84,24 @@ const DeadlineItem = ({
                                 )}
                                 <div className="flex items-center gap-1 text-xs text-gray-500">
                                     <Clock size={13} />
-                                    {new Date(
-                                        event.end.replace(" ", "T")
-                                    ).toLocaleDateString("id-ID", {
-                                        day: "numeric",
-                                        month: "short",
-                                    })}{" "}
-                                    at{" "}
-                                    {new Date(
-                                        event.end.replace(" ", "T")
-                                    ).toLocaleTimeString([], {
-                                        hour: "2-digit",
-                                        minute: "2-digit",
-                                    })}
+                                    {isValidDate ? (
+                                        <>
+                                            {event.end.toLocaleDateString(
+                                                "id-ID",
+                                                {
+                                                    day: "numeric",
+                                                    month: "short",
+                                                }
+                                            )}{" "}
+                                            at{" "}
+                                            {event.end.toLocaleTimeString([], {
+                                                hour: "2-digit",
+                                                minute: "2-digit",
+                                            })}
+                                        </>
+                                    ) : (
+                                        "Invalid Date"
+                                    )}
                                 </div>
                             </div>
                         </div>
