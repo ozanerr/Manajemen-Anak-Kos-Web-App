@@ -231,9 +231,18 @@ const Deadline = () => {
 
     const handleModalSave = async (eventDataFromModal) => {
         if (modalMode === "edit") {
-            console.warn(
-                "Perlu implementasi UpdateDeadlineMutation untuk menyimpan perubahan event di server."
-            );
+            console.log("id editt");
+            console.log(eventDataFromModal._id);
+            console.log(eventDataFromModal);
+            try {
+                await editDeadline({
+                    uid: uid,
+                    deadlinesId: eventDataFromModal._id,
+                    data: eventDataFromModal,
+                });
+            } catch (error) {
+                alert("error");
+            }
         } else {
             const newEventDataForApi = {
                 title: eventDataFromModal.title,

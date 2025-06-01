@@ -116,10 +116,12 @@ const editDeadline = async (req, res) => {
                 "deadlines._id": deadlinesId,
             },
             {
-                $set: { "deadlines.$[elem].title": title },
-                $set: { "deadlines.$[elem].description": description },
-                $set: { "deadlines.$[elem].start": start },
-                $set: { "deadlines.$[elem].end": end },
+                $set: {
+                    "deadlines.$[elem].title": title,
+                    "deadlines.$[elem].description": description,
+                    "deadlines.$[elem].start": start,
+                    "deadlines.$[elem].end": end,
+                },
             },
             {
                 new: true,
