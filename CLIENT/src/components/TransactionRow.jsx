@@ -48,13 +48,13 @@ const TransactionRow = ({ transaction, onEdit, onDelete }) => {
                 <div className="flex justify-center items-center gap-1">
                     <button
                         onClick={onEdit}
-                        className="p-1.5 text-blue-600 hover:text-blue-800 hover:bg-blue-100 rounded-md transition-colors"
+                        className="p-1.5 text-blue-600 hover:text-blue-800 hover:bg-blue-100 rounded-md transition-colors cursor-pointer"
                     >
                         <Edit2 size={16} />
                     </button>
                     <button
                         onClick={onDelete}
-                        className="p-1.5 text-red-500 hover:text-red-700 hover:bg-red-100 rounded-md transition-colors"
+                        className="p-1.5 text-red-500 hover:text-red-700 hover:bg-red-100 rounded-md transition-colors cursor-pointer"
                     >
                         <Trash2 size={16} />
                     </button>

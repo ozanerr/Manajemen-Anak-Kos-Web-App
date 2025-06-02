@@ -181,7 +181,7 @@ const FinanceModal = ({
                                 value={transaction.transaksi || ""}
                                 onChange={handleChange}
                                 className={`w-full px-4 py-2.5 border rounded-xl shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
-                                    errors.transaksi
+                                    errors.name
                                         ? "border-red-400 bg-red-50/50"
                                         : "border-slate-300 hover:border-slate-400 bg-slate-50/50"
                                 } placeholder-slate-400 text-slate-800`}
@@ -213,7 +213,7 @@ const FinanceModal = ({
                                 value={transaction.jumlah || ""}
                                 onChange={handleAmountChange}
                                 className={`w-full px-4 py-2.5 border rounded-xl shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
-                                    errors.jumlah
+                                    errors.amount
                                         ? "border-red-400 bg-red-50/50"
                                         : "border-slate-300 hover:border-slate-400 bg-slate-50/50"
                                 } placeholder-slate-400 text-slate-800`}
@@ -291,7 +291,7 @@ const FinanceModal = ({
                                 value={transaction.tanggal || ""}
                                 onChange={handleChange}
                                 className={`w-full px-4 py-2.5 border rounded-xl shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
-                                    errors.tanggal
+                                    errors.date
                                         ? "border-red-400 bg-red-50/50"
                                         : "border-slate-300 hover:border-slate-400 bg-slate-50/50"
                                 } placeholder-slate-400 text-slate-800`}
@@ -322,7 +322,7 @@ const FinanceModal = ({
                                 type="button"
                                 onClick={onClose}
                                 disabled={isSubmitting}
-                                className="px-5 py-2.5 text-sm font-medium text-slate-700 bg-slate-200/90 hover:bg-slate-300/90 rounded-lg transition-colors disabled:opacity-60 shadow-sm hover:shadow-md"
+                                className="px-5 py-2.5 text-sm font-medium text-slate-700 bg-slate-200/90 hover:bg-slate-300/90 rounded-lg transition-colors disabled:opacity-60 shadow-sm hover:shadow-md cursor-pointer"
                             >
                                 Batal
                             </button>
