@@ -166,11 +166,10 @@ const FinanceModal = ({
                                 type="text"
                                 value={transaction.name || ""}
                                 onChange={handleChange}
-                                className={`w-full px-4 py-2.5 border rounded-xl shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
-                                    errors.name
+                                className={`w-full px-4 py-2.5 border rounded-xl shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${errors.name
                                         ? "border-red-400 bg-red-50/50"
                                         : "border-slate-300 hover:border-slate-400 bg-slate-50/50"
-                                } placeholder-slate-400 text-slate-800`}
+                                    } placeholder-slate-400 text-slate-800`}
                                 placeholder="mis. Bahan Makanan, Gaji"
                             />
                             {errors.name && (
@@ -198,11 +197,10 @@ const FinanceModal = ({
                                 inputMode="numeric"
                                 value={transaction.amount || ""}
                                 onChange={handleAmountChange}
-                                className={`w-full px-4 py-2.5 border rounded-xl shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
-                                    errors.amount
+                                className={`w-full px-4 py-2.5 border rounded-xl shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${errors.amount
                                         ? "border-red-400 bg-red-50/50"
                                         : "border-slate-300 hover:border-slate-400 bg-slate-50/50"
-                                } placeholder-slate-400 text-slate-800`}
+                                    } placeholder-slate-400 text-slate-800`}
                                 placeholder="mis. 50000"
                             />
                             {errors.amount && (
@@ -273,11 +271,10 @@ const FinanceModal = ({
                                 type="date"
                                 value={transaction.date || ""}
                                 onChange={handleChange}
-                                className={`w-full px-4 py-2.5 border rounded-xl shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
-                                    errors.date
+                                className={`w-full px-4 py-2.5 border rounded-xl shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${errors.date
                                         ? "border-red-400 bg-red-50/50"
                                         : "border-slate-300 hover:border-slate-400 bg-slate-50/50"
-                                } placeholder-slate-400 text-slate-800`}
+                                    } placeholder-slate-400 text-slate-800`}
                             />
                             {errors.date && (
                                 <p className="flex items-center gap-1.5 text-red-600 text-xs mt-1">
@@ -306,7 +303,7 @@ const FinanceModal = ({
                                 type="button"
                                 onClick={onClose}
                                 disabled={isSubmitting}
-                                className="px-5 py-2.5 text-sm font-medium text-slate-700 bg-slate-200/90 hover:bg-slate-300/90 rounded-lg transition-colors disabled:opacity-60 shadow-sm hover:shadow-md"
+                                className="px-5 py-2.5 text-sm font-medium text-slate-700 bg-slate-200/90 hover:bg-slate-300/90 rounded-lg transition-colors disabled:opacity-60 shadow-sm hover:shadow-md cursor-pointer"
                             >
                                 Batal
                             </button>

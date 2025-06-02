@@ -363,9 +363,9 @@ const Deadline = () => {
             <style>{priorityStyles}</style>
             <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                    <div className="flex flex-col sm:flex-row items-center justify-between mb-8 gap-4">
+                    <div className="mb-5 flex flex-col sm:flex-row justify-between sm:items-center gap-4">
                         <div>
-                            <h1 className="text-3xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent">
+                            <h1 className="text-3xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent sm:py-1">
                                 Manager Deadline
                             </h1>
                             <p className="text-gray-600 mt-1">
@@ -401,7 +401,7 @@ const Deadline = () => {
                                 aria-label="Add Deadline"
                             >
                                 <FiPlus size={20} />
-                                <span className="hidden sm:inline text-sm font-medium">
+                                <span className="hidden sm:inline text-base font-medium">
                                     Tambah Deadline
                                 </span>
                             </button>

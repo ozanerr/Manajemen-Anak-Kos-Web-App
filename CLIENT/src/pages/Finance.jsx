@@ -330,9 +330,9 @@ const Finance = () => {
     return (
         <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                <div className="mb-8 flex flex-col sm:flex-row justify-between sm:items-center gap-4">
+                <div className="mb-5 flex flex-col sm:flex-row justify-between sm:items-center gap-4">
                     <div>
-                        <h1 className="text-3xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent">
+                        <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent sm:py-1">
                             Dasbor Keuangan
                         </h1>
                         <p className="text-gray-600 mt-1">
@@ -341,9 +341,12 @@ const Finance = () => {
                     </div>
                     <button
                         onClick={handleOpenAddModal}
-                        className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white px-5 py-2.5 rounded-xl hover:from-blue-600 hover:to-purple-700 transition-all duration-200 shadow-md hover:shadow-lg text-sm cursor-pointer"
+                        className="hidden sm:flex items-center gap-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white px-4 py-2.5 sm:p-3 rounded-xl hover:from-blue-600 hover:to-purple-700 transition-all duration-200 shadow-lg hover:shadow-xl cursor-pointer disabled:opacity-50"
                     >
-                        <PlusIconLucide className="w-4 h-4" /> Tambah Transaksi
+                        <PlusIconLucide size={20} />
+                        <span className="inline text-base font-medium">
+                            Tambah Transaksi
+                        </span>
                     </button>
                 </div>
 
@@ -383,25 +386,22 @@ const Finance = () => {
                             true
                         )}
                         IconComponent={ArrowLeftRight}
-                        iconContainerClass={`${
-                            financialStats.monthlyNetFlow >= 0
-                                ? "bg-blue-100"
-                                : "bg-orange-100"
-                        }`}
-                        iconClass={`${
-                            financialStats.monthlyNetFlow >= 0
-                                ? "text-blue-600"
-                                : "text-orange-500"
-                        }`}
-                        valueClass={`${
-                            financialStats.monthlyNetFlow >= 0
-                                ? "text-blue-600"
-                                : "text-orange-500"
-                        }`}
+                        iconContainerClass={`${financialStats.monthlyNetFlow >= 0
+                            ? "bg-blue-100"
+                            : "bg-orange-100"
+                            }`}
+                        iconClass={`${financialStats.monthlyNetFlow >= 0
+                            ? "text-blue-600"
+                            : "text-orange-500"
+                            }`}
+                        valueClass={`${financialStats.monthlyNetFlow >= 0
+                            ? "text-blue-600"
+                            : "text-orange-500"
+                            }`}
                     />
                 </div>
 
-                <div className="mb-8 bg-white/70 backdrop-blur-md rounded-2xl border border-white/30 shadow-xl overflow-hidden p-4 sm:p-6">
+                <div className="mb-8 bg-white/70 backdrop-blur-md rounded-2xl border border-white/30 shadow-xl overflow-hidden p-2 sm:p-6">
                     <MonthlyFlowChart data={monthlyChartData} />
                 </div>
 
@@ -492,10 +492,10 @@ const Finance = () => {
 
             <button
                 onClick={handleOpenAddModal}
-                className="sm:hidden fixed bottom-6 right-6 z-50 p-3.5 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-lg hover:from-blue-600 hover:to-purple-700 transition-all duration-200 hover:shadow-xl flex items-center justify-center cursor-pointer"
+                className="sm:hidden fixed bottom-8 right-8 z-50 p-3.5 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-lg hover:from-blue-600 hover:to-purple-700 transition-all duration-200 hover:shadow-xl flex items-center justify-center cursor-pointer active:scale-95"
                 title="Add Transaction"
             >
-                <FaPlus size={20} />
+                <FaPlus size={24} />
             </button>
 
             {isFinanceModalOpen && (

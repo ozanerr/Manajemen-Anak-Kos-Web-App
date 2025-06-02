@@ -11,13 +11,13 @@ const TransactionCardMobile = ({ transaction, onEdit, onDelete }) => {
     const { name, type, amount, date } = transaction;
     return (
         <div className="block mb-4 rounded-lg shadow-md overflow-hidden border border-gray-200/50 bg-slate-50/50 p-4">
-            <div className="space-y-2 text-sm">
+            <div className="space-y-2 text-xs">
                 <div className="flex justify-between items-start">
                     <span className="text-gray-700 font-semibold text-base mr-2 break-words">
                         {name}
                     </span>
                     <span
-                        className={`font-semibold text-lg whitespace-nowrap ${
+                        className={`font-semibold text-base whitespace-nowrap ${
                             type === "income"
                                 ? "text-green-600"
                                 : "text-red-600"
