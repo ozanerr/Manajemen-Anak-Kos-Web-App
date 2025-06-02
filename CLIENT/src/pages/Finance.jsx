@@ -17,6 +17,12 @@ import FinancialStatCard from "../components/FinancialStatCard";
 import MonthlyFlowChart from "../components/MonthlyFlowChart";
 import TransactionRow from "../components/TransactionRow";
 import TransactionCardMobile from "../components/TransactionCardMobile";
+import {
+    useCreateFinanceMutation,
+    useDeleteFinanceMutation,
+    useEditFinanceMutation,
+    useFetchFinanceQuery,
+} from "../features/finance/financeApi";
 
 const initialTransactions = [
     {
@@ -100,7 +106,7 @@ const initialTransactions = [
 
 const formatRupiah = (amount, includeSign = false) => {
     if (amount === null || amount === undefined) {
-        return "Rp0"; // Or some other placeholder
+        return "Rp0";
     }
 
     const numberFormat = new Intl.NumberFormat("id-ID", {
@@ -116,16 +122,9 @@ const formatRupiah = (amount, includeSign = false) => {
         if (amount > 0) {
             formattedAmount = "+ " + formattedAmount;
         } else if (amount < 0) {
-            // The default Intl.NumberFormat for IDR might already include a minus for negative,
-            // but explicitly adding it ensures consistency if you want a specific format like "- Rp..."
-            // For negative values, numberFormat.format(amount) would typically produce "-RpXXX".
-            // If you want "- Rp XXX", you'd adjust. Assuming standard negative format is fine.
-            // If Math.abs was used, we need to re-add the sign.
             formattedAmount = "- " + formattedAmount;
         }
-        // if amount is 0, no sign is needed.
     } else if (amount < 0) {
-        // If not including a specific sign for positives, but still want to show negative
         formattedAmount = "- " + formattedAmount;
     }
 
@@ -133,8 +132,14 @@ const formatRupiah = (amount, includeSign = false) => {
 };
 
 const Finance = () => {
-    const { isloggedIn, isAuthLoading } = useSelector((state) => state.user);
+    const { isloggedIn, isAuthLoading, uid } = useSelector(
+        (state) => state.user
+    );
     const navigate = useNavigate();
+    const [addFinance] = useCreateFinanceMutation();
+    const [editFinance] = useEditFinanceMutation();
+    const [deleteFinance] = useDeleteFinanceMutation();
+    const { data: financeData } = useFetchFinanceQuery(uid);
 
     const [transactions, setTransactions] = useState(initialTransactions);
     const [isFinanceModalOpen, setIsFinanceModalOpen] = useState(false);
@@ -241,12 +246,11 @@ const Finance = () => {
     }, [transactions, currentTime]);
 
     const handleOpenAddModal = () => {
-        const today = new Date().toISOString().split("T")[0];
         setCurrentTransaction({
-            name: "",
-            amount: "",
-            date: today,
-            type: "expense",
+            transaksi: "",
+            jumlah: "",
+            tanggal: new Date(),
+            tipe: "expense",
         });
         setFinanceModalMode("add");
         setIsFinanceModalOpen(true);
@@ -258,8 +262,14 @@ const Finance = () => {
         setIsFinanceModalOpen(true);
     }, []);
 
-    const handleSaveTransaction = (transactionDataFromModal) => {
+    const handleSaveTransaction = async (transactionDataFromModal) => {
         if (financeModalMode === "add") {
+            console.log(transactionDataFromModal);
+            try {
+                await addFinance({ uid: uid, data: transactionDataFromModal });
+            } catch (error) {
+                alert("gagal add finances");
+            }
             setTransactions((prev) => [
                 ...prev,
                 {
@@ -304,10 +314,9 @@ const Finance = () => {
             }
         },
         [isFinanceModalOpen, currentTransaction]
-    ); // useCallback karena di-pass
+    );
 
     const handleDeleteFromModal = () => {
-        // Fungsi ini dipanggil oleh tombol delete di modal
         if (currentTransaction && currentTransaction.id) {
             handleDeleteTransactionCallback(currentTransaction.id);
         }

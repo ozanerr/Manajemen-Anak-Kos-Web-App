@@ -4,6 +4,7 @@ import ConnectDB from "./config/db.js";
 import postRoutes from "./routes/postRoutes.js";
 import commentRoutes from "./routes/commentRoutes.js";
 import deadlineRoutes from "./routes/deadlineRoutes.js";
+import financeRoutes from "./routes/financeRoutes.js";
 import cors from "cors";
 
 dotenv.config();
@@ -16,7 +17,7 @@ app.use(cors());
 app.use("/api/posts", postRoutes);
 app.use("/api/comments", commentRoutes);
 app.use("/api/deadline", deadlineRoutes);
-// app.use("/api/finance");
+app.use("/api/finance", financeRoutes);
 
 //connect database
 ConnectDB();

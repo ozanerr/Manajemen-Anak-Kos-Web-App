@@ -17,11 +17,11 @@ const financeSchema = new mongoose.Schema(
                     required: true,
                 },
                 jumlah: {
-                    type: String,
+                    type: Number,
                     required: true,
                 },
                 tanggal: {
-                    type: String,
+                    type: Date,
                     required: true,
                 },
             },

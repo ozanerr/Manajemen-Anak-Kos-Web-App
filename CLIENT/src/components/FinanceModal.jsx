@@ -11,6 +11,35 @@ import {
     Loader2,
 } from "lucide-react";
 
+const defaultTransactionState = {
+    transaksi: "",
+    jumlah: "",
+    tanggal: new Date().toISOString().split("T")[0],
+    tipe: "expense",
+};
+
+const getInternalStateFromInitial = (initial) => {
+    if (!initial || Object.keys(initial).length === 0) {
+        return { ...defaultTransactionState };
+    }
+    return {
+        _id: initial._id || initial.id,
+        transaksi:
+            initial.transaksi ??
+            initial.name ??
+            defaultTransactionState.transaksi,
+        jumlah:
+            initial.jumlah !== undefined
+                ? String(Math.abs(Number(initial.jumlah)))
+                : initial.amount !== undefined
+                ? String(Math.abs(Number(initial.amount)))
+                : defaultTransactionState.jumlah,
+        tanggal:
+            initial.tanggal ?? initial.date ?? defaultTransactionState.tanggal,
+        tipe: initial.tipe ?? initial.type ?? defaultTransactionState.tipe,
+    };
+};
+
 const FinanceModal = ({
     initialTransaction,
     modalMode,
@@ -18,40 +47,20 @@ const FinanceModal = ({
     onDelete,
     onSave,
 }) => {
-    const defaultTransaction = {
-        name: "",
-        amount: "",
-        date: new Date().toISOString().split("T")[0],
-        type: "expense",
-    };
-
-    const [transaction, setTransaction] = useState({
-        ...defaultTransaction,
-        ...initialTransaction,
-    });
+    const [transaction, setTransaction] = useState(() =>
+        getInternalStateFromInitial(initialTransaction)
+    );
     const [errors, setErrors] = useState({});
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     useEffect(() => {
-        setTransaction({
-            ...defaultTransaction,
-            ...initialTransaction,
-            amount: initialTransaction?.amount
-                ? String(Math.abs(initialTransaction.amount))
-                : "",
-            date: initialTransaction?.date || defaultTransaction.date,
-            type: initialTransaction?.type || defaultTransaction.type,
-        });
+        setTransaction(getInternalStateFromInitial(initialTransaction));
         setErrors({});
     }, [initialTransaction]);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
-        if (name === "type") {
-            setTransaction((prev) => ({ ...prev, [name]: value }));
-        } else {
-            setTransaction((prev) => ({ ...prev, [name]: value }));
-        }
+        setTransaction((prev) => ({ ...prev, [name]: value }));
         if (errors[name]) {
             setErrors((prevErrors) => ({ ...prevErrors, [name]: null }));
         }
@@ -60,30 +69,30 @@ const FinanceModal = ({
     const handleAmountChange = (e) => {
         let value = e.target.value;
         value = value.replace(/[^0-9]/g, "");
-        setTransaction((prev) => ({ ...prev, amount: value }));
-        if (errors.amount) {
-            // Hapus error amount jika ada
-            setErrors((prevErrors) => ({ ...prevErrors, amount: null }));
+        setTransaction((prev) => ({ ...prev, jumlah: value }));
+        if (errors.jumlah) {
+            setErrors((prevErrors) => ({ ...prevErrors, jumlah: null }));
         }
     };
 
     const validateForm = () => {
         const newErrors = {};
-        const numericAmount = parseFloat(transaction.amount);
+        const jumlahStr = String(transaction.jumlah || "");
+        const numericJumlah = parseFloat(jumlahStr);
 
-        if (!transaction.name?.trim()) {
-            newErrors.name = "Nama transaksi harus diisi";
+        if (!transaction.transaksi?.trim()) {
+            newErrors.transaksi = "Nama transaksi harus diisi";
         }
-        if (!transaction.amount?.trim()) {
-            newErrors.amount = "Jumlah harus diisi";
-        } else if (isNaN(numericAmount) || numericAmount <= 0) {
-            newErrors.amount = "Jumlah harus berupa angka positif";
+        if (!jumlahStr.trim()) {
+            newErrors.jumlah = "Jumlah harus diisi";
+        } else if (isNaN(numericJumlah) || numericJumlah <= 0) {
+            newErrors.jumlah = "Jumlah harus berupa angka positif";
         }
-        if (!transaction.date) {
-            newErrors.date = "Tanggal transaksi harus diisi";
+        if (!transaction.tanggal) {
+            newErrors.tanggal = "Tanggal transaksi harus diisi";
         }
-        if (!transaction.type) {
-            newErrors.type = "Tipe transaksi harus dipilih";
+        if (!transaction.tipe) {
+            newErrors.tipe = "Tipe transaksi harus dipilih";
         }
 
         setErrors(newErrors);
@@ -97,9 +106,16 @@ const FinanceModal = ({
         setIsSubmitting(true);
         try {
             const transactionToSave = {
-                ...transaction,
-                amount: parseFloat(transaction.amount),
+                transaksi: transaction.transaksi,
+                jumlah: parseFloat(transaction.jumlah),
+                tanggal: transaction.tanggal,
+                tipe: transaction.tipe,
             };
+
+            if (transaction._id) {
+                transactionToSave._id = transaction._id;
+            }
+
             await onSave(transactionToSave);
         } catch (error) {
             console.error("Failed to save transaction from modal:", error);
@@ -120,12 +136,10 @@ const FinanceModal = ({
     return (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
             <div
-                className="bg-white rounded-2xl shadow-2xl w-full max-w-md max-h-[95vh] transform transition-all duration-300 ease-out scale-100 flex flex-col overflow-hidden" // Ditambahkan overflow-hidden
+                className="bg-white rounded-2xl shadow-2xl w-full max-w-md max-h-[95vh] transform transition-all duration-300 ease-out scale-100 flex flex-col overflow-hidden"
                 onClick={(e) => e.stopPropagation()}
             >
-                {/* Header Modal */}
                 <div className="bg-gradient-to-r from-blue-500 to-purple-600 px-6 py-4 text-white relative">
-                    {" "}
                     <button
                         onClick={onClose}
                         className="absolute top-3.5 right-3.5 text-white/70 hover:text-white transition-colors p-1.5 rounded-full hover:bg-white/20 cursor-pointer"
@@ -154,60 +168,60 @@ const FinanceModal = ({
                     <div className="p-6 space-y-5">
                         <div className="space-y-1.5">
                             <label
-                                htmlFor="name"
+                                htmlFor="transaksi"
                                 className="flex items-center gap-2 text-sm font-medium text-slate-700"
                             >
-                                <Edit3 size={16} className="text-slate-500" />{" "}
+                                <Edit3 size={16} className="text-slate-500" />
                                 Nama Transaksi *
                             </label>
                             <input
-                                id="name"
-                                name="name"
+                                id="transaksi"
+                                name="transaksi"
                                 type="text"
-                                value={transaction.name || ""}
+                                value={transaction.transaksi || ""}
                                 onChange={handleChange}
                                 className={`w-full px-4 py-2.5 border rounded-xl shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
-                                    errors.name
+                                    errors.transaksi
                                         ? "border-red-400 bg-red-50/50"
                                         : "border-slate-300 hover:border-slate-400 bg-slate-50/50"
                                 } placeholder-slate-400 text-slate-800`}
                                 placeholder="mis. Bahan Makanan, Gaji"
                             />
-                            {errors.name && (
+                            {errors.transaksi && (
                                 <p className="flex items-center gap-1.5 text-red-600 text-xs mt-1">
-                                    <AlertCircle size={14} /> {errors.name}
+                                    <AlertCircle size={14} /> {errors.transaksi}{" "}
                                 </p>
                             )}
                         </div>
 
                         <div className="space-y-1.5">
                             <label
-                                htmlFor="amount"
+                                htmlFor="jumlah"
                                 className="flex items-center gap-2 text-sm font-medium text-slate-700"
                             >
                                 <DollarSign
                                     size={16}
                                     className="text-slate-500"
-                                />{" "}
+                                />
                                 Jumlah (IDR) *
                             </label>
                             <input
-                                id="amount"
-                                name="amount"
+                                id="jumlah"
+                                name="jumlah"
                                 type="text"
                                 inputMode="numeric"
-                                value={transaction.amount || ""}
+                                value={transaction.jumlah || ""}
                                 onChange={handleAmountChange}
                                 className={`w-full px-4 py-2.5 border rounded-xl shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
-                                    errors.amount
+                                    errors.jumlah
                                         ? "border-red-400 bg-red-50/50"
                                         : "border-slate-300 hover:border-slate-400 bg-slate-50/50"
                                 } placeholder-slate-400 text-slate-800`}
                                 placeholder="mis. 50000"
                             />
-                            {errors.amount && (
+                            {errors.jumlah && (
                                 <p className="flex items-center gap-1.5 text-red-600 text-xs mt-1">
-                                    <AlertCircle size={14} /> {errors.amount}
+                                    <AlertCircle size={14} /> {errors.jumlah}{" "}
                                 </p>
                             )}
                         </div>
@@ -217,17 +231,18 @@ const FinanceModal = ({
                                 <TrendingUp
                                     size={16}
                                     className="text-slate-500"
-                                />{" "}
+                                />
                                 Tipe *
                             </label>
                             <div className="flex gap-x-6 gap-y-2 pt-1 flex-wrap">
-                                {" "}
                                 <label className="flex items-center gap-2 cursor-pointer">
                                     <input
                                         type="radio"
-                                        name="type"
-                                        value="income"
-                                        checked={transaction.type === "income"}
+                                        name="tipe"
+                                        value="Pemasukan"
+                                        checked={
+                                            transaction.tipe === "Pemasukan"
+                                        }
                                         onChange={handleChange}
                                         className="form-radio h-4 w-4 text-blue-600 transition duration-150 ease-in-out focus:ring-blue-500"
                                     />
@@ -238,9 +253,11 @@ const FinanceModal = ({
                                 <label className="flex items-center gap-2 cursor-pointer">
                                     <input
                                         type="radio"
-                                        name="type"
-                                        value="expense"
-                                        checked={transaction.type === "expense"}
+                                        name="tipe"
+                                        value="Pengeluaran"
+                                        checked={
+                                            transaction.tipe === "Pengeluaran"
+                                        }
                                         onChange={handleChange}
                                         className="form-radio h-4 w-4 text-red-600 transition duration-150 ease-in-out focus:ring-red-500"
                                     />
@@ -249,46 +266,45 @@ const FinanceModal = ({
                                     </span>
                                 </label>
                             </div>
-                            {errors.type && (
+                            {errors.tipe && (
                                 <p className="flex items-center gap-1.5 text-red-600 text-xs mt-1">
-                                    <AlertCircle size={14} /> {errors.type}
+                                    <AlertCircle size={14} /> {errors.tipe}{" "}
                                 </p>
                             )}
                         </div>
 
                         <div className="space-y-1.5">
                             <label
-                                htmlFor="date"
+                                htmlFor="tanggal"
                                 className="flex items-center gap-2 text-sm font-medium text-slate-700"
                             >
                                 <CalendarIcon
                                     size={16}
                                     className="text-slate-500"
-                                />{" "}
+                                />
                                 Tanggal *
                             </label>
                             <input
-                                id="date"
-                                name="date"
+                                id="tanggal"
+                                name="tanggal"
                                 type="date"
-                                value={transaction.date || ""}
+                                value={transaction.tanggal || ""}
                                 onChange={handleChange}
                                 className={`w-full px-4 py-2.5 border rounded-xl shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
-                                    errors.date
+                                    errors.tanggal
                                         ? "border-red-400 bg-red-50/50"
                                         : "border-slate-300 hover:border-slate-400 bg-slate-50/50"
                                 } placeholder-slate-400 text-slate-800`}
                             />
-                            {errors.date && (
+                            {errors.tanggal && (
                                 <p className="flex items-center gap-1.5 text-red-600 text-xs mt-1">
-                                    <AlertCircle size={14} /> {errors.date}
+                                    <AlertCircle size={14} /> {errors.tanggal}{" "}
                                 </p>
                             )}
                         </div>
                     </div>
 
                     <div className="px-6 py-4 bg-slate-50/80 border-t border-slate-200/80 flex justify-between items-center sticky bottom-0">
-                        {" "}
                         <div>
                             {onDelete && modalMode === "edit" && (
                                 <button

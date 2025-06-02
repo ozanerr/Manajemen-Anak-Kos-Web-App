@@ -6,16 +6,24 @@ import { useSelector } from "react-redux";
 import { useDeletePostMutation } from "../features/posts/postsApi";
 
 const formatter = {
-    format: (date) => {
-        if (!date) return "Invalid date";
+    format: (dateInput) => {
+        if (!dateInput) return "Invalid date";
         try {
-            return new Date(date).toLocaleDateString("id-ID", {
-                year: "numeric",
-                month: "long",
-                day: "numeric",
-            });
+            const d = new Date(dateInput);
+
+            // Mendapatkan tanggal, bulan, dan tahun
+            const day = d.getDate();
+            const month = d.toLocaleDateString("id-ID", { month: "long" });
+            const year = d.getFullYear();
+
+            // Mendapatkan jam dan menit (dengan padding nol jika perlu)
+            const hours = d.getHours().toString().padStart(2, "0");
+            const minutes = d.getMinutes().toString().padStart(2, "0");
+
+            return `${day} ${month} ${year} pukul ${hours}.${minutes}`;
         } catch (e) {
-            return "Invalid date";
+            console.error("Error formatting date:", e, "Input was:", dateInput);
+            return "Invalid date"; // Mengembalikan string jika terjadi error
         }
     },
 };
@@ -77,7 +85,8 @@ const PostCard = ({ post, onEditRequest }) => {
                         </p>
                         <p className="text-xs text-slate-500 group-hover/userinfo:text-slate-600 transition-colors">
                             <time dateTime={createdAt}>
-                                {formatter.format(new Date(createdAt))}
+                                {/* Menggunakan formatter.format dengan createdAt langsung */}
+                                {formatter.format(createdAt)}
                             </time>
                         </p>
                     </div>
