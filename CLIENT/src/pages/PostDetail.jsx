@@ -17,6 +17,7 @@ import {
     ArrowLeft,
     UserCircle,
 } from "lucide-react";
+import { useGetNewUrlPhotoMutation } from "../features/cloudinary/cloudinaryApi";
 
 // Placeholder untuk formatter
 const formatter = {
@@ -75,6 +76,22 @@ const PostDetail = () => {
     } = useFetchCommentsQuery(postId) || {};
     const comments = commentsResponse?.data;
 
+    const [getUrlPhoto, { data: newPhotoUrl, isSuccess }] =
+        useGetNewUrlPhotoMutation();
+    const [newUrl, setNewUrl] = useState(null);
+
+    useEffect(() => {
+        if (photoURL) {
+            getUrlPhoto({ imageProfile: photoURL });
+        }
+    }, [photoURL]);
+
+    useEffect(() => {
+        if (isSuccess) {
+            setNewUrl(newPhotoUrl.cloudinaryUrl);
+        }
+    }, [isSuccess, newPhotoUrl]);
+
     const submitHandler = async (e) => {
         e.preventDefault();
         if (!comment.trim()) return;
@@ -87,7 +104,7 @@ const PostDetail = () => {
                     username: displayName || payload.reloadUserInfo.screenName,
                     comment: comment,
                     imageProfile:
-                        photoURL ||
+                        newUrl ||
                         `https://ui-avatars.com/api/?name=${(
                             displayName || "A"
                         ).charAt(

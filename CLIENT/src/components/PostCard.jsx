@@ -71,12 +71,7 @@ const PostCard = ({ post, onEditRequest }) => {
                 <div className="flex items-center space-x-3 group/userinfo cursor-default">
                     <img
                         className="w-10 h-10 rounded-full object-cover border-2 border-white shadow-sm group-hover/userinfo:ring-2 group-hover/userinfo:ring-blue-400 transition-all"
-                        src={
-                            imageProfile ||
-                            `https://ui-avatars.com/api/?name=${
-                                username || "U"
-                            }&background=random&color=fff&font-size=0.5&bold=true`
-                        }
+                        src={imageProfile}
                         alt={username || "Profil pengguna"}
                     />
                     <div>

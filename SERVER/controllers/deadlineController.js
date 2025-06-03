@@ -5,11 +5,9 @@ const createDeadline = async (req, res) => {
         const { uid } = req.params;
         const { title, description, start, end } = req.body;
 
-        // Cek apakah dokumen deadline milik user sudah ada
         const existing = await Deadline.findOne({ uid });
 
         if (existing) {
-            // Jika sudah ada, tambahkan deadline baru
             const updated = await Deadline.findOneAndUpdate(
                 { uid },
                 {

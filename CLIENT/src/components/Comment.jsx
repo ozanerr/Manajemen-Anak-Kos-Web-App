@@ -17,6 +17,8 @@ import {
     Loader2,
     UserCircle,
 } from "lucide-react";
+import { useGetNewUrlPhotoMutation } from "../features/cloudinary/cloudinaryApi";
+import { useEffect } from "react";
 
 const formatter = {
     format: (date) => {
@@ -57,6 +59,22 @@ const Comment = ({ comment, postId }) => {
     const replies = repliesResponse?.data;
 
     const isOwner = comment.uid === uid;
+
+    const [getUrlPhoto, { data: newPhotoUrl, isSuccess }] =
+        useGetNewUrlPhotoMutation();
+    const [newUrl, setNewUrl] = useState(null);
+
+    useEffect(() => {
+        if (photoURL) {
+            getUrlPhoto({ imageProfile: photoURL });
+        }
+    }, [photoURL]);
+
+    useEffect(() => {
+        if (isSuccess) {
+            setNewUrl(newPhotoUrl.cloudinaryUrl);
+        }
+    }, [isSuccess, newPhotoUrl]);
 
     const replyButtonClicked = () => setShowReplyBox((prev) => !prev);
     const handleEditComment = () => {
@@ -109,7 +127,7 @@ const Comment = ({ comment, postId }) => {
                     username: displayName || payload.reloadUserInfo.screenName,
                     reply: reply,
                     imageProfile:
-                        photoURL ||
+                        newUrl ||
                         `https://ui-avatars.com/api/?name=${(
                             displayName || "A"
                         ).charAt(0)}&background=random&color=fff`,

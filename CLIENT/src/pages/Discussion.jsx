@@ -17,6 +17,7 @@ import {
     Loader2,
     Plus as PlusIconLucide,
 } from "lucide-react";
+import { useGetNewUrlPhotoMutation } from "../features/cloudinary/cloudinaryApi";
 
 const Discussion = () => {
     const {
@@ -26,7 +27,6 @@ const Discussion = () => {
         error,
     } = useFetchPostsQuery() || {};
     const posts = postsResponse?.data || [];
-    console.log(posts);
 
     const { displayName, photoURL, isloggedIn, isAuthLoading, uid, payload } =
         useSelector((state) => state.user);
@@ -38,6 +38,21 @@ const Discussion = () => {
 
     const [addPost, { isLoading: isAddingPost }] = useAddPostMutation() || {};
     const [editPost] = useEditPostMutation();
+    const [getUrlPhoto, { data: newPhotoUrl, isSuccess }] =
+        useGetNewUrlPhotoMutation();
+    const [newUrl, setNewUrl] = useState(null);
+
+    useEffect(() => {
+        if (photoURL) {
+            getUrlPhoto({ imageProfile: photoURL });
+        }
+    }, [photoURL]);
+
+    useEffect(() => {
+        if (isSuccess) {
+            setNewUrl(newPhotoUrl.cloudinaryUrl);
+        }
+    }, [isSuccess, newPhotoUrl]);
 
     const [deletePostMutation, { isLoading: isDeletingPost }] =
         useDeletePostMutation() || {};
@@ -62,7 +77,7 @@ const Discussion = () => {
                     uid: uid,
                     username: displayName || payload.reloadUserInfo.screenName,
                     imageProfile:
-                        photoURL ||
+                        newUrl ||
                         `https://ui-avatars.com/api/?name=${(
                             displayName || "A"
                         ).charAt(
@@ -71,8 +86,6 @@ const Discussion = () => {
                 };
                 await addPost(newPostData).unwrap();
             } else if (postModalMode === "edit" && currentPostToEdit) {
-                console.log(currentPostToEdit._id);
-                console.log(postDataFromModal);
                 await editPost({
                     postId: currentPostToEdit._id,
                     data: postDataFromModal,
@@ -124,7 +137,7 @@ const Discussion = () => {
         }
     };
 
-    if (isAuthLoading) {
+    if (isAuthLoading || newUrl === null) {
         return (
             <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 flex flex-col justify-center items-center p-4">
                 <Loader2 className="h-12 w-12 animate-spin text-blue-600" />
