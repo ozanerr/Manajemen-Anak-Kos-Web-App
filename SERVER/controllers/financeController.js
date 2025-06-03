@@ -92,7 +92,7 @@ const deleteFinance = async (req, res) => {
                 uid: uid,
             },
             {
-                $pull: { Finances: { _id: financeId } },
+                $pull: { finances: { _id: financeId } },
             },
             {
                 new: true,
@@ -113,26 +113,26 @@ const deleteFinance = async (req, res) => {
 
 const editFinance = async (req, res) => {
     try {
-        const { uid, FinancesId } = req.params;
+        const { uid, financeId } = req.params;
 
         const { transaksi, tipe, jumlah, tanggal } = req.body;
 
         const editedFinance = await Finance.findOneAndUpdate(
             {
                 uid: uid,
-                "Finances._id": FinancesId,
+                "finances._id": financeId,
             },
             {
                 $set: {
-                    "Finances.$[elem].title": transaksi,
-                    "Finances.$[elem].description": tipe,
-                    "Finances.$[elem].start": jumlah,
-                    "Finances.$[elem].end": tanggal,
+                    "finances.$[elem].title": transaksi,
+                    "finances.$[elem].description": tipe,
+                    "finances.$[elem].start": jumlah,
+                    "finances.$[elem].end": tanggal,
                 },
             },
             {
                 new: true,
-                arrayFilters: [{ "elem._id": FinancesId }],
+                arrayFilters: [{ "elem._id": financeId }],
             }
         );
 

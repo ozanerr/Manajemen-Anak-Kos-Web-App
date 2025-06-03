@@ -40,6 +40,23 @@ const getInternalStateFromInitial = (initial) => {
     };
 };
 
+const formatDateForInput = (dateValue) => {
+    if (!dateValue) {
+        return;
+    }
+
+    try {
+        const d = new Date(dateValue);
+        const year = d.getFullYear();
+        const month = (d.getMonth() + 1).toString().padStart(2, "0"); // Bulan 0-indexed
+        const day = d.getDate().toString().padStart(2, "0");
+
+        return `${year}-${month}-${day}`;
+    } catch (e) {
+        console.error(e);
+    }
+};
+
 const FinanceModal = ({
     initialTransaction,
     modalMode,
@@ -50,6 +67,7 @@ const FinanceModal = ({
     const [transaction, setTransaction] = useState(() =>
         getInternalStateFromInitial(initialTransaction)
     );
+    console.log(typeof transaction.tanggal);
     const [errors, setErrors] = useState({});
     const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -115,6 +133,7 @@ const FinanceModal = ({
             if (transaction._id) {
                 transactionToSave._id = transaction._id;
             }
+            console.log(transactionToSave);
 
             await onSave(transactionToSave);
         } catch (error) {
@@ -210,7 +229,7 @@ const FinanceModal = ({
                                 name="jumlah"
                                 type="text"
                                 inputMode="numeric"
-                                value={transaction.jumlah || ""}
+                                value={transaction.jumlah}
                                 onChange={handleAmountChange}
                                 className={`w-full px-4 py-2.5 border rounded-xl shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
                                     errors.amount
@@ -288,7 +307,7 @@ const FinanceModal = ({
                                 id="tanggal"
                                 name="tanggal"
                                 type="date"
-                                value={transaction.tanggal || ""}
+                                value={formatDateForInput(transaction.tanggal)}
                                 onChange={handleChange}
                                 className={`w-full px-4 py-2.5 border rounded-xl shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
                                     errors.date

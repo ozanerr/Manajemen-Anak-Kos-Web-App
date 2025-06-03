@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { MoreHorizontal, Edit, Trash } from "lucide-react";
 import { useSelector } from "react-redux";
-import { useDeletePostMutation } from "../features/posts/postsApi";
+import { useDeletePostMutation } from "../../features/posts/postsApi";
 
 const formatter = {
     format: (dateInput) => {
@@ -11,12 +11,10 @@ const formatter = {
         try {
             const d = new Date(dateInput);
 
-            // Mendapatkan tanggal, bulan, dan tahun
             const day = d.getDate();
             const month = d.toLocaleDateString("id-ID", { month: "long" });
             const year = d.getFullYear();
 
-            // Mendapatkan jam dan menit (dengan padding nol jika perlu)
             const hours = d.getHours().toString().padStart(2, "0");
             const minutes = d.getMinutes().toString().padStart(2, "0");
 

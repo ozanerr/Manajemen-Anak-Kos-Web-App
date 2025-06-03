@@ -8,7 +8,6 @@ import {
     TrendingUp,
     TrendingDown,
     ArrowLeftRight,
-    Info,
     Loader2,
 } from "lucide-react";
 
@@ -24,110 +23,27 @@ import {
     useFetchFinanceQuery,
 } from "../features/finance/financeApi";
 
-const initialTransactions = [
-    {
-        id: 1,
-        name: "Bayar uang kos",
-        amount: 800000,
-        type: "expense",
-        date: "2025-08-18",
-    },
-    {
-        id: 2,
-        name: "Makan Siang",
-        amount: 50000,
-        type: "expense",
-        date: "2025-06-22",
-    },
-    {
-        id: 3,
-        name: "Gaji Bulan Mei",
-        amount: 20000000,
-        type: "income",
-        date: "2025-05-11",
-    },
-    {
-        id: 4,
-        name: "Bonus Proyek",
-        amount: 5000000,
-        type: "income",
-        date: "2025-04-20",
-    },
-    {
-        id: 5,
-        name: "Belanja Online",
-        amount: 350000,
-        type: "expense",
-        date: "2025-03-15",
-    },
-    {
-        id: 6,
-        name: "Gaji Bulan April",
-        amount: 18000000,
-        type: "income",
-        date: "2025-04-10",
-    },
-    {
-        id: 7,
-        name: "Tagihan Listrik April",
-        amount: 450000,
-        type: "expense",
-        date: "2025-04-25",
-    },
-    {
-        id: 8,
-        name: "Gaji Bulan Juni",
-        amount: 21000000,
-        type: "income",
-        date: "2025-06-10",
-    },
-    {
-        id: 9,
-        name: "Investasi Saham",
-        amount: 2000000,
-        type: "expense",
-        date: "2025-06-15",
-    },
-    {
-        id: 10,
-        name: "Belanja Bulanan Mei",
-        amount: 1500000,
-        type: "expense",
-        date: "2025-05-02",
-    },
-    {
-        id: 11,
-        name: "Transportasi Mei",
-        amount: 300000,
-        type: "expense",
-        date: "2025-05-20",
-    },
-];
-
 const formatRupiah = (amount, includeSign = false) => {
-    if (amount === null || amount === undefined) {
+    if (amount === null || amount === undefined || isNaN(parseFloat(amount))) {
         return "Rp0";
     }
-
+    const numericAmount = parseFloat(amount);
     const numberFormat = new Intl.NumberFormat("id-ID", {
         style: "currency",
         currency: "IDR",
         minimumFractionDigits: 0,
         maximumFractionDigits: 0,
     });
-
-    let formattedAmount = numberFormat.format(Math.abs(amount));
-
+    let formattedAmount = numberFormat.format(Math.abs(numericAmount));
     if (includeSign) {
-        if (amount > 0) {
+        if (numericAmount > 0) {
             formattedAmount = "+ " + formattedAmount;
-        } else if (amount < 0) {
+        } else if (numericAmount < 0) {
             formattedAmount = "- " + formattedAmount;
         }
-    } else if (amount < 0) {
+    } else if (numericAmount < 0) {
         formattedAmount = "- " + formattedAmount;
     }
-
     return formattedAmount;
 };
 
@@ -136,12 +52,36 @@ const Finance = () => {
         (state) => state.user
     );
     const navigate = useNavigate();
-    const [addFinance] = useCreateFinanceMutation();
-    const [editFinance] = useEditFinanceMutation();
-    const [deleteFinance] = useDeleteFinanceMutation();
-    const { data: financeData } = useFetchFinanceQuery(uid);
 
-    const [transactions, setTransactions] = useState(initialTransactions);
+    const {
+        data: financeApiResponse,
+        isLoading: isLoadingFinance,
+        isError: isFinanceError,
+        error: financeFetchError,
+        refetch: refetchFinances, // Anda bisa gunakan ini jika tag invalidation belum sempurna
+    } = useFetchFinanceQuery(uid, {
+        skip: !uid, // Jangan jalankan query jika uid belum ada
+    });
+
+    // Ekstrak transaksi. Asumsi backend (getFinances) mengembalikan { status: "Success", data: arrayOfFinances }
+    const transactions = useMemo(() => {
+        if (financeApiResponse && Array.isArray(financeApiResponse.data)) {
+            return financeApiResponse.data;
+        }
+        // Jika struktur backend adalah { data: { Finances: [...] } } seperti di createFinance, sesuaikan:
+        // if (financeApiResponse && financeApiResponse.data && Array.isArray(financeApiResponse.data.finances)) {
+        //     return financeApiResponse.data.finances;
+        // }
+        return [];
+    }, [financeApiResponse]);
+
+    const [addFinance, { isLoading: isAddingFinance }] =
+        useCreateFinanceMutation();
+    const [editFinance, { isLoading: isEditingFinance }] =
+        useEditFinanceMutation();
+    const [deleteFinance, { isLoading: isDeletingFinance }] =
+        useDeleteFinanceMutation();
+
     const [isFinanceModalOpen, setIsFinanceModalOpen] = useState(false);
     const [currentTransaction, setCurrentTransaction] = useState(null);
     const [financeModalMode, setFinanceModalMode] = useState("add");
@@ -167,23 +107,30 @@ const Finance = () => {
         const currentYear = now.getFullYear();
         let totalIncomeThisMonth = 0;
         let totalExpensesThisMonth = 0;
+
         transactions.forEach((tx) => {
-            const txDate = new Date(tx.date);
+            const txDate = new Date(tx.tanggal);
+            const amount = parseFloat(tx.jumlah);
+            const type = tx.tipe; // Field dari backend adalah 'tipe'
+
             if (
+                !isNaN(txDate.getTime()) &&
                 txDate.getMonth() === currentMonth &&
                 txDate.getFullYear() === currentYear
             ) {
-                if (tx.type === "income") {
-                    totalIncomeThisMonth += tx.amount;
-                } else {
-                    totalExpensesThisMonth += tx.amount;
+                if (type === "Pemasukan") {
+                    // Pastikan ini sesuai dengan nilai string dari backend Anda
+                    totalIncomeThisMonth += amount;
+                } else if (type === "Pengeluaran") {
+                    // Pastikan ini sesuai
+                    totalExpensesThisMonth += amount;
                 }
             }
         });
-        const balance = transactions.reduce(
-            (acc, tx) => acc + (tx.type === "income" ? tx.amount : -tx.amount),
-            0
-        );
+        const balance = transactions.reduce((acc, tx) => {
+            const amount = parseFloat(tx.jumlah);
+            return acc + (tx.tipe === "Pemasukan" ? amount : -amount); // Sesuaikan "Pemasukan"
+        }, 0);
         return {
             balance,
             monthlyIncome: totalIncomeThisMonth,
@@ -211,6 +158,7 @@ const Finance = () => {
         const endDate = new Date(currentTime);
         const startDate = new Date(currentTime);
         startDate.setMonth(startDate.getMonth() - 11);
+
         for (let i = 0; i < 12; i++) {
             const d = new Date(startDate);
             d.setMonth(startDate.getMonth() + i);
@@ -225,16 +173,24 @@ const Finance = () => {
             };
         }
         transactions.forEach((tx) => {
-            const txDate = new Date(tx.date);
-            if (txDate >= startDate && txDate <= endDate) {
+            const txDate = new Date(tx.tanggal);
+            const amount = parseFloat(tx.jumlah);
+            const type = tx.tipe; // Field dari backend adalah 'tipe'
+            if (
+                !isNaN(txDate.getTime()) &&
+                txDate >= startDate &&
+                txDate <= endDate
+            ) {
                 const monthKey = `${monthNames[txDate.getMonth()]} '${String(
                     txDate.getFullYear()
                 ).slice(2)}`;
                 if (dataByMonth[monthKey]) {
-                    if (tx.type === "income") {
-                        dataByMonth[monthKey].income += tx.amount;
-                    } else {
-                        dataByMonth[monthKey].expense += tx.amount;
+                    if (type === "Pemasukan") {
+                        // Sesuaikan "Pemasukan"
+                        dataByMonth[monthKey].income += amount;
+                    } else if (type === "Pengeluaran") {
+                        // Sesuaikan "Pengeluaran"
+                        dataByMonth[monthKey].expense += amount;
                     }
                     dataByMonth[monthKey].net =
                         dataByMonth[monthKey].income -
@@ -246,47 +202,68 @@ const Finance = () => {
     }, [transactions, currentTime]);
 
     const handleOpenAddModal = () => {
+        // FinanceModal menggunakan 'transaksi', 'jumlah', 'tanggal', 'tipe'
         setCurrentTransaction({
             transaksi: "",
             jumlah: "",
             tanggal: new Date(),
-            tipe: "expense",
+            tipe: "Pengeluaran", // Default
         });
         setFinanceModalMode("add");
         setIsFinanceModalOpen(true);
     };
 
     const handleOpenEditModal = useCallback((transactionToEdit) => {
-        setCurrentTransaction(transactionToEdit);
+        // transactionToEdit dari backend sudah memiliki field: _id, transaksi, tipe, jumlah, tanggal
+        setCurrentTransaction({
+            ...transactionToEdit,
+            // FinanceModal akan menangani konversi string tanggal dari backend menjadi Date object jika diperlukan,
+            // dan kemudian ke string "YYYY-MM-DD" untuk inputnya.
+            // Pastikan FinanceModal.getInternalStateFromInitial menangani `initialTransaction.tanggal` sebagai string dari backend.
+        });
         setFinanceModalMode("edit");
         setIsFinanceModalOpen(true);
     }, []);
 
     const handleSaveTransaction = async (transactionDataFromModal) => {
-        if (financeModalMode === "add") {
-            console.log(transactionDataFromModal);
-            try {
-                await addFinance({ uid: uid, data: transactionDataFromModal });
-            } catch (error) {
-                alert("gagal add finances");
+        // transactionDataFromModal dari FinanceModal:
+        // { transaksi: string, jumlah: number, tanggal: Date object, tipe: string, _id?: string }
+
+        const payloadForApi = {
+            transaksi: transactionDataFromModal.transaksi,
+            tipe: transactionDataFromModal.tipe,
+            jumlah: transactionDataFromModal.jumlah,
+            tanggal: transactionDataFromModal.tanggal,
+        };
+
+        try {
+            if (financeModalMode === "add") {
+                await addFinance({ uid: uid, data: payloadForApi }).unwrap();
+            } else if (transactionDataFromModal._id) {
+                await editFinance({
+                    uid: uid,
+                    financeId: transactionDataFromModal._id, // Pastikan ini nama param yang benar di backend API
+                    data: payloadForApi,
+                }).unwrap();
             }
-            setTransactions((prev) => [
-                ...prev,
-                {
-                    ...transactionDataFromModal,
-                    id:
-                        prev.length > 0
-                            ? Math.max(...prev.map((t) => t.id)) + 1
-                            : 1,
-                },
-            ]);
-        } else {
-            setTransactions((prev) =>
-                prev.map((t) =>
-                    t.id === transactionDataFromModal.id
-                        ? transactionDataFromModal
-                        : t
-                )
+            // Jika RTK Query tags dikonfigurasi, data akan otomatis refresh.
+            // Jika tidak, uncomment refetchFinances();
+            // refetchFinances();
+        } catch (error) {
+            console.error(
+                `Gagal ${
+                    financeModalMode === "add" ? "menambah" : "mengedit"
+                } keuangan:`,
+                error
+            );
+            alert(
+                `Gagal ${
+                    financeModalMode === "add" ? "menambah" : "mengedit"
+                } keuangan: ${
+                    error?.data?.message ||
+                    error?.message ||
+                    "Terjadi kesalahan"
+                }`
             );
         }
         setIsFinanceModalOpen(false);
@@ -294,46 +271,83 @@ const Finance = () => {
     };
 
     const handleDeleteTransactionCallback = useCallback(
-        (transactionId) => {
+        async (transactionId) => {
             if (
                 window.confirm(
                     "Apakah Anda yakin ingin menghapus transaksi ini?"
                 )
             ) {
-                setTransactions((prev) =>
-                    prev.filter((t) => t.id !== transactionId)
-                );
+                try {
+                    await deleteFinance({
+                        uid: uid,
+                        financeId: transactionId,
+                    }).unwrap(); // Pastikan financeId adalah param yang benar
+                    // refetchFinances(); // Jika perlu
+                } catch (error) {
+                    console.error("Gagal menghapus keuangan:", error);
+                    alert(
+                        `Gagal menghapus keuangan: ${
+                            error?.data?.message ||
+                            error?.message ||
+                            "Terjadi kesalahan"
+                        }`
+                    );
+                }
             }
             if (
                 isFinanceModalOpen &&
                 currentTransaction &&
-                currentTransaction.id === transactionId
+                currentTransaction._id === transactionId
             ) {
                 setIsFinanceModalOpen(false);
                 setCurrentTransaction(null);
             }
         },
-        [isFinanceModalOpen, currentTransaction]
+        [uid, deleteFinance, isFinanceModalOpen, currentTransaction]
     );
 
     const handleDeleteFromModal = () => {
-        if (currentTransaction && currentTransaction.id) {
-            handleDeleteTransactionCallback(currentTransaction.id);
+        if (currentTransaction && currentTransaction._id) {
+            handleDeleteTransactionCallback(currentTransaction._id);
         }
     };
 
-    if (isAuthLoading) {
+    // Tampilkan loading jika otentikasi sedang berjalan ATAU jika UID sudah ada tapi data keuangan masih loading
+    if (isAuthLoading || (uid && isLoadingFinance)) {
         return (
             <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 flex flex-col justify-center items-center p-4">
                 <Loader2 className="h-12 w-12 animate-spin text-blue-600" />
                 <p className="text-slate-600 text-lg mt-4">
-                    Loading keuangan...
+                    Loading data keuangan...
                 </p>
             </div>
         );
     }
-    if (!isloggedIn) {
+
+    // Navigasi jika belum login (setelah auth loading selesai)
+    if (!isAuthLoading && !isloggedIn) {
         navigate("/signin");
+        return null; // Penting untuk menghentikan render lebih lanjut
+    }
+
+    // Tampilkan error jika ada masalah saat mengambil data keuangan
+    if (isFinanceError) {
+        return (
+            <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 flex flex-col justify-center items-center p-4 text-red-600">
+                <p>
+                    Error memuat data keuangan:{" "}
+                    {financeFetchError?.data?.message ||
+                        financeFetchError?.error ||
+                        "Terjadi kesalahan tidak diketahui"}
+                </p>
+                <button
+                    onClick={refetchFinances}
+                    className="mt-4 px-4 py-2 bg-blue-500 text-white rounded"
+                >
+                    Coba Lagi
+                </button>
+            </div>
+        );
     }
 
     return (
@@ -350,6 +364,7 @@ const Finance = () => {
                     </div>
                     <button
                         onClick={handleOpenAddModal}
+                        disabled={isAddingFinance || isEditingFinance} // Disable tombol saat proses simpan/edit
                         className="hidden sm:flex items-center gap-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white px-4 py-2.5 sm:p-3 rounded-xl hover:from-blue-600 hover:to-purple-700 transition-all duration-200 shadow-lg hover:shadow-xl cursor-pointer disabled:opacity-50"
                     >
                         <PlusIconLucide size={20} />
@@ -445,17 +460,17 @@ const Finance = () => {
                                 </tr>
                             </thead>
                             <tbody className="sm:divide-y sm:divide-gray-200/50">
-                                {transactions.length > 0 ? (
+                                {transactions && transactions.length > 0 ? (
                                     transactions.map((tx) => (
                                         <TransactionRow
-                                            key={`desktop-${tx.id}`}
-                                            transaction={tx}
+                                            key={tx._id} // Gunakan _id unik dari backend
+                                            transaction={tx} // Mengirim field: transaksi, tipe, jumlah, tanggal, _id
                                             onEdit={() =>
                                                 handleOpenEditModal(tx)
                                             }
                                             onDelete={() =>
                                                 handleDeleteTransactionCallback(
-                                                    tx.id
+                                                    tx._id
                                                 )
                                             }
                                         />
@@ -466,46 +481,51 @@ const Finance = () => {
                                             colSpan={5}
                                             className="text-center py-10 text-gray-500"
                                         >
-                                            Belum ada transaksi.
+                                            {isLoadingFinance
+                                                ? "Memuat transaksi..."
+                                                : "Belum ada transaksi."}
                                         </td>
                                     </tr>
                                 )}
                             </tbody>
                         </table>
                         <div className="sm:hidden space-y-4">
-                            {transactions.length > 0 ? (
+                            {transactions && transactions.length > 0 ? (
                                 transactions.map((tx) => (
                                     <TransactionCardMobile
-                                        key={`mobile-${tx.id}`}
-                                        transaction={tx}
+                                        key={tx._id} // Gunakan _id unik dari backend
+                                        transaction={tx} // Mengirim field: transaksi, tipe, jumlah, tanggal, _id
                                         onEdit={() => handleOpenEditModal(tx)}
                                         onDelete={() =>
                                             handleDeleteTransactionCallback(
-                                                tx.id
+                                                tx._id
                                             )
                                         }
                                     />
                                 ))
                             ) : (
                                 <div className="text-center py-10 text-gray-500">
-                                    Belum ada transaksi.
+                                    {isLoadingFinance
+                                        ? "Memuat transaksi..."
+                                        : "Belum ada transaksi."}
                                 </div>
                             )}
                         </div>
                     </div>
-                    {transactions.length === 0 && (
-                        <div className="text-center py-10 text-gray-500 mt-4 sm:hidden">
-                            {" "}
-                            Tambahkan satu untuk memulai!
-                        </div>
-                    )}
+                    {(!transactions || transactions.length === 0) &&
+                        !isLoadingFinance && (
+                            <div className="text-center py-10 text-gray-500 mt-4 sm:hidden">
+                                Tambahkan satu untuk memulai!
+                            </div>
+                        )}
                 </div>
             </div>
 
             <button
                 onClick={handleOpenAddModal}
-                className="sm:hidden fixed bottom-8 right-8 z-50 p-3.5 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-lg hover:from-blue-600 hover:to-purple-700 transition-all duration-200 hover:shadow-xl flex items-center justify-center cursor-pointer active:scale-95"
-                title="Add Transaction"
+                disabled={isAddingFinance || isEditingFinance}
+                className="sm:hidden fixed bottom-8 right-8 z-50 p-3.5 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-lg hover:from-blue-600 hover:to-purple-700 transition-all duration-200 hover:shadow-xl flex items-center justify-center cursor-pointer active:scale-95 disabled:opacity-50"
+                title="Tambah Transaksi"
             >
                 <FaPlus size={24} />
             </button>
@@ -520,9 +540,12 @@ const Finance = () => {
                     }}
                     onSave={handleSaveTransaction}
                     onDelete={
-                        financeModalMode === "edit"
+                        financeModalMode === "edit" && currentTransaction
                             ? handleDeleteFromModal
                             : undefined
+                    }
+                    isProcessing={
+                        isAddingFinance || isEditingFinance || isDeletingFinance
                     }
                 />
             )}

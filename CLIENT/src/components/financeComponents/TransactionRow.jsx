@@ -8,36 +8,36 @@ const formatRupiah = (amount) =>
     }).format(Math.abs(amount));
 
 const TransactionRow = ({ transaction, onEdit, onDelete }) => {
-    const { id, name, type, amount, date } = transaction;
+    const { _id, transaksi, tipe, jumlah, tanggal } = transaction;
     return (
         <tr className="hover:bg-blue-500/5 transition-colors duration-150 ease-in-out">
             <td className="py-3.5 px-4">
-                <span className="text-gray-700 font-medium">{name}</span>
+                <span className="text-gray-700 font-medium">{transaksi}</span>
             </td>
             <td className="py-3.5 px-4">
                 <span
                     className={`px-2 py-0.5 rounded-full text-xs font-medium ${
-                        type === "income"
+                        tipe === "Pemasukan"
                             ? "bg-green-100 text-green-700"
                             : "bg-red-100 text-red-700"
                     }`}
                 >
-                    {type === "income" ? "Pemasukan" : "Pengeluaran"}
+                    {tipe === "Pemasukan" ? "Pemasukan" : "Pengeluaran"}
                 </span>
             </td>
             <td className="py-3.5 px-4 text-left">
                 <span
                     className={`font-semibold ${
-                        type === "income" ? "text-green-600" : "text-red-600"
+                        tipe === "Pemasukan" ? "text-green-600" : "text-red-600"
                     }`}
                 >
-                    {type === "income" ? "+" : "-"}
-                    {formatRupiah(amount)}
+                    {tipe === "Pemasukan" ? "+" : "-"}
+                    {formatRupiah(jumlah)}
                 </span>
             </td>
             <td className="py-3.5 px-4">
                 <span className="text-gray-500">
-                    {new Date(date).toLocaleDateString("id-ID", {
+                    {new Date(tanggal).toLocaleDateString("id-ID", {
                         day: "numeric",
                         month: "short",
                         year: "numeric",
