@@ -28,14 +28,14 @@ import {
 } from "../features/deadlines/deadlinesApi";
 
 const LoadingScreen = ({ message }) => (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 flex flex-col justify-center items-center p-4">
+    <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col justify-center items-center p-4">
         <Loader2 className="h-12 w-12 animate-spin text-blue-600" />
         <p className="text-slate-600 text-lg mt-4">{message}</p>
     </div>
 );
 
 const ErrorScreen = ({ message }) => (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 flex flex-col justify-center items-center p-4">
+    <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col justify-center items-center p-4">
         <AlertTriangle className="h-12 w-12 text-red-500" />
         <p className="text-red-600 text-lg mt-4">{message}</p>
     </div>
@@ -361,7 +361,6 @@ const Deadline = () => {
     return (
         <>
             <style>{priorityStyles}</style>
-            <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                     <div className="mb-5 flex flex-col sm:flex-row justify-between sm:items-center gap-4">
                         <div>
@@ -537,7 +536,6 @@ const Deadline = () => {
                         isLoading={isAddingDeadline}
                     />
                 )}
-            </div>
         </>
     );
 };

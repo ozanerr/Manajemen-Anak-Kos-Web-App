@@ -139,7 +139,7 @@ const Discussion = () => {
 
     if (isAuthLoading || newUrl === null) {
         return (
-            <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 flex flex-col justify-center items-center p-4">
+            <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col justify-center items-center p-4">
                 <Loader2 className="h-12 w-12 animate-spin text-blue-600" />
                 <p className="text-slate-600 text-lg mt-4">
                     Loading discussions...
@@ -154,7 +154,7 @@ const Discussion = () => {
     const isActuallySaving = postModalMode === "add" ? isAddingPost : false;
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
+        <>
             <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-8">
                 <div className="text-center mb-10 sm:mb-12">
                     <h1 className="text-3xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent">
@@ -230,7 +230,7 @@ const Discussion = () => {
                     isDeleting={isDeletingPost}
                 />
             )}
-        </div>
+        </>
     );
 };
 

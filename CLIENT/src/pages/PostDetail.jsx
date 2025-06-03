@@ -120,7 +120,7 @@ const PostDetail = () => {
 
     if (userAuthLoading || postFetchLoading) {
         return (
-            <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 flex flex-col justify-center items-center p-4">
+            <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col justify-center items-center p-4">
                 <Loader2 className="h-12 w-12 animate-spin text-blue-600" />
                 <p className="text-slate-600 text-lg mt-4">
                     Memuat postingan, harap tunggu...
@@ -135,7 +135,7 @@ const PostDetail = () => {
 
     if (postFetchError) {
         return (
-            <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 flex flex-col justify-center items-center p-4">
+            <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col justify-center items-center p-4">
                 <div className="text-center bg-white/80 backdrop-blur-md rounded-xl border border-red-300/70 p-8 max-w-md mx-auto shadow-2xl">
                     <AlertTriangle
                         size={48}
@@ -161,7 +161,7 @@ const PostDetail = () => {
 
     if (!post) {
         return (
-            <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 flex flex-col justify-center items-center p-4">
+            <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col justify-center items-center p-4">
                 <div className="text-center bg-white/80 backdrop-blur-md rounded-xl border border-yellow-300/70 p-8 max-w-md mx-auto shadow-2xl">
                     <Info size={48} className="mx-auto text-yellow-500 mb-4" />
                     <p className="text-yellow-700 font-semibold text-xl mb-2">
@@ -182,7 +182,7 @@ const PostDetail = () => {
     }
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 py-8 sm:py-12">
+        <div className="py-8 sm:py-12">
             <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
                 <button
                     onClick={() => navigate("/discussion")}

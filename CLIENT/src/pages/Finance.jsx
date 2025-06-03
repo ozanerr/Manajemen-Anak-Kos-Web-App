@@ -315,7 +315,7 @@ const Finance = () => {
     // Tampilkan loading jika otentikasi sedang berjalan ATAU jika UID sudah ada tapi data keuangan masih loading
     if (isAuthLoading || (uid && isLoadingFinance)) {
         return (
-            <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 flex flex-col justify-center items-center p-4">
+            <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col justify-center items-center p-4">
                 <Loader2 className="h-12 w-12 animate-spin text-blue-600" />
                 <p className="text-slate-600 text-lg mt-4">
                     Loading data keuangan...
@@ -327,13 +327,13 @@ const Finance = () => {
     // Navigasi jika belum login (setelah auth loading selesai)
     if (!isAuthLoading && !isloggedIn) {
         navigate("/signin");
-        return null; // Penting untuk menghentikan render lebih lanjut
+        return null;
     }
 
     // Tampilkan error jika ada masalah saat mengambil data keuangan
     if (isFinanceError) {
         return (
-            <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 flex flex-col justify-center items-center p-4 text-red-600">
+            <div className="text-red-600">
                 <p>
                     Error memuat data keuangan:{" "}
                     {financeFetchError?.data?.message ||
@@ -351,7 +351,7 @@ const Finance = () => {
     }
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
+        <>
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                 <div className="mb-5 flex flex-col sm:flex-row justify-between sm:items-center gap-4">
                     <div>
@@ -549,7 +549,7 @@ const Finance = () => {
                     }
                 />
             )}
-        </div>
+        </>
     );
 };
 

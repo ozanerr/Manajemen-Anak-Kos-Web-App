@@ -34,16 +34,21 @@ function App() {
 
     return (
         <Router>
-            <Navbar />
-            <Routes>
-                <Route path="/" element={<Home />} />
-                <Route path="/posts/:postId" element={<PostDetail />} />
-                <Route path="/signin" element={<SignIn />} />
-                <Route path="/deadline" element={<Deadline />} />
-                <Route path="/finance" element={<Finance />} />
-                <Route path="/discussion" element={<Discussion />} />
-            </Routes>
+            <div className="min-h-screen flex flex-col bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
+                <Navbar />
+                <main className="flex-grow">
+                    <Routes>
+                        <Route path="/" element={<Home />} />
+                        <Route path="/posts/:postId" element={<PostDetail />} />
+                        <Route path="/signin" element={<SignIn />} />
+                        <Route path="/deadline" element={<Deadline />} />
+                        <Route path="/finance" element={<Finance />} />
+                        <Route path="/discussion" element={<Discussion />} />
+                    </Routes>
+                </main>
+            </div>
         </Router>
+
     );
 }
 

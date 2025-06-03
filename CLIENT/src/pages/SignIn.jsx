@@ -42,7 +42,7 @@ export default function SignIn() {
     };
 
     return (
-        <div className="relative flex items-center justify-center min-h-screen overflow-hidden bg-gradient-to-br from-slate-100 via-blue-100 to-indigo-200 p-4">
+        <div className="relative flex items-center justify-center overflow-hidden bg-gradient-to-br from-slate-100 via-blue-100 to-indigo-200 p-4">
             <motion.div
                 className="absolute inset-0 z-0"
                 animate={{
