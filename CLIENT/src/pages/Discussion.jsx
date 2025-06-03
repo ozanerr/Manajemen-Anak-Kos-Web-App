@@ -1,4 +1,3 @@
-// src/pages/Discussion.jsx
 import React, { useState, useEffect } from "react";
 import {
     useFetchPostsQuery,
@@ -10,7 +9,7 @@ import PostCard from "../components/discussionComponents/PostCard";
 import PostFormModal from "../components/discussionComponents/PostFormModal";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { FiPlus } from "react-icons/fi";
+import { FaPlus } from "react-icons/fa6";
 import {
     MessageSquarePlus,
     AlertTriangle as AlertTriangleIcon,
@@ -187,27 +186,27 @@ const Discussion = () => {
                             className="mx-auto text-slate-400 mb-5"
                         />
                         <h3 className="text-2xl font-semibold text-slate-700 mb-3">
-                            It's quiet here...
+                            Sangat diam disini...
                         </h3>
                         <p className="text-slate-500 mb-8">
-                            No discussions have started yet. Why not kick things
-                            off?
+                           Belum ada diskusi yang dimulai. Mengapa tidak memulainya?
                         </p>
                         <button
                             onClick={() => openPostModal("add")}
                             className="inline-flex items-center gap-2.5 bg-gradient-to-r from-blue-500 to-purple-600 text-white px-7 py-3 rounded-lg hover:from-blue-600 hover:to-purple-700 transition-all duration-200 shadow-lg hover:shadow-xl text-base font-medium"
                         >
-                            <PlusIconLucide size={18} /> Create New Post
+                            <PlusIconLucide size={18} /> 
+                            Buat Postingan Baru
                         </button>
                     </div>
                 )}
 
                 <button
                     onClick={() => openPostModal("add")}
-                    className="fixed bottom-8 right-8 z-40 p-4 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-lg hover:from-blue-600 hover:to-purple-700 transition-all duration-200 hover:shadow-xl flex items-center justify-center cursor-pointer active:scale-95"
+                    className="fixed bottom-8 right-8 z-50 p-3.5 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-lg hover:from-blue-600 hover:to-purple-700 transition-all duration-200 hover:shadow-xl flex items-center justify-center cursor-pointer active:scale-95 disabled:opacity-50"
                     title="Buat postingan baru"
                 >
-                    <FiPlus size={24} />
+                    <FaPlus size={24} />
                 </button>
             </div>
 

@@ -318,7 +318,7 @@ const DeadlineModal = ({
                                     type="button"
                                     onClick={handleDelete}
                                     disabled={isSubmitting}
-                                    className="flex items-center gap-2 px-4 py-2 text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50"
+                                    className="flex items-center gap-2 px-4 py-2 text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50 cursor-pointer"
                                 >
                                     <Trash2 size={16} />
                                     Hapus
@@ -331,7 +331,7 @@ const DeadlineModal = ({
                                 type="button"
                                 onClick={onClose}
                                 disabled={isSubmitting}
-                                className="px-6 py-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors disabled:opacity-50"
+                                className="px-6 py-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors disabled:opacity-50 cursor-pointer"
                             >
                                 Batal
                             </button>

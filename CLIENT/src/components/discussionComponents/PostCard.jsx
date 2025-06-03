@@ -91,7 +91,7 @@ const PostCard = ({ post, onEditRequest }) => {
                                 e.stopPropagation();
                                 setDropdownOpen(!dropdownOpen);
                             }}
-                            className="p-2 text-slate-500 rounded-full hover:bg-slate-500/10 hover:text-slate-700 focus:outline-none transition-colors"
+                            className="p-2 text-slate-500 rounded-full hover:bg-slate-500/10 hover:text-slate-700 focus:outline-none transition-colors cursor-pointer"
                             aria-label="Post options"
                         >
                             <MoreHorizontal size={20} />
@@ -103,14 +103,14 @@ const PostCard = ({ post, onEditRequest }) => {
                             >
                                 <button
                                     onClick={handleEditClick}
-                                    className="w-full text-left flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-700 hover:bg-blue-500/10 hover:text-blue-600 transition-colors rounded-md"
+                                    className="w-full text-left flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-700 hover:bg-blue-500/10 hover:text-blue-600 transition-colors rounded-md cursor-pointer"
                                 >
                                     <Edit size={16} className="opacity-70" />{" "}
                                     Edit Postingan
                                 </button>
                                 <button
                                     onClick={handleDeletePost}
-                                    className="w-full text-left flex items-center gap-2.5 px-4 py-2.5 text-sm text-red-600 hover:bg-red-500/10 hover:text-red-700 transition-colors rounded-md"
+                                    className="w-full text-left flex items-center gap-2.5 px-4 py-2.5 text-sm text-red-600 hover:bg-red-500/10 hover:text-red-700 transition-colors rounded-md cursor-pointer"
                                 >
                                     <Trash size={16} className="opacity-70" />{" "}
                                     Hapus Postingan

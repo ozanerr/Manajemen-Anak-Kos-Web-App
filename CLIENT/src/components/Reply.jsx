@@ -105,7 +105,7 @@ const Reply = ({ reply, commentId, postId }) => {
                     <div className="relative flex-shrink-0">
                         <button
                             onClick={() => setDropdownOpen(!dropdownOpen)}
-                            className="p-1 text-slate-500 rounded-full hover:bg-slate-400/20 focus:outline-none transition-colors"
+                            className="p-1 text-slate-500 rounded-full hover:bg-slate-400/20 focus:outline-none transition-colors cursor-pointer"
                             aria-label="Reply options"
                         >
                             <MoreHorizontal size={16} />
@@ -114,7 +114,7 @@ const Reply = ({ reply, commentId, postId }) => {
                             <div className="absolute right-0 mt-1 w-32 bg-white/95 backdrop-blur-md rounded-md shadow-xl border border-slate-200/50 z-10 py-1 origin-top-right animate-fade-in-down">
                                 <button
                                     onClick={handleEditReply}
-                                    className="w-full text-left flex items-center gap-2 px-3 py-1.5 text-xs text-slate-700 hover:bg-blue-500/10 hover:text-blue-600 transition-colors rounded-sm"
+                                    className="w-full text-left flex items-center gap-2 px-3 py-1.5 text-xs text-slate-700 hover:bg-blue-500/10 hover:text-blue-600 transition-colors rounded-sm cursor-pointer"
                                 >
                                     <Edit size={13} className="opacity-70" />{" "}
                                     Edit
@@ -122,7 +122,7 @@ const Reply = ({ reply, commentId, postId }) => {
                                 <button
                                     onClick={handleDeleteReply}
                                     disabled={isDeletingReply}
-                                    className="w-full text-left flex items-center gap-2 px-3 py-1.5 text-xs text-red-600 hover:bg-red-500/10 hover:text-red-700 transition-colors rounded-sm disabled:opacity-50"
+                                    className="w-full text-left flex items-center gap-2 px-3 py-1.5 text-xs text-red-600 hover:bg-red-500/10 hover:text-red-700 transition-colors rounded-sm disabled:opacity-50 cursor-pointer"
                                 >
                                     {isDeletingReply ? (
                                         <Loader2 className="animate-spin h-3 w-3 mr-1" />
@@ -145,6 +145,7 @@ const Reply = ({ reply, commentId, postId }) => {
                     <textarea
                         className="w-full p-2 text-xs border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/80 bg-white text-slate-800 placeholder-slate-400 resize-none shadow-sm"
                         value={editedReply}
+                        autoFocus
                         onChange={(e) => setEditedReply(e.target.value)}
                         rows="2"
                     />
@@ -152,14 +153,14 @@ const Reply = ({ reply, commentId, postId }) => {
                         <button
                             type="button"
                             onClick={handleCancelReply}
-                            className="px-2.5 py-1 text-xs font-medium text-slate-700 bg-slate-200 hover:bg-slate-300 transition-colors rounded-md shadow-sm"
+                            className="px-2.5 py-1 text-xs font-medium text-slate-700 bg-slate-200 hover:bg-slate-300 transition-colors rounded-md shadow-sm cursor-pointer"
                         >
                             Batal
                         </button>
                         <button
                             type="submit"
                             disabled={isSavingEditReply}
-                            className="px-2.5 py-1 text-xs font-medium text-white bg-blue-500 rounded-md hover:bg-blue-600 transition-colors disabled:opacity-70 shadow-sm"
+                            className="px-2.5 py-1 text-xs font-medium text-white bg-blue-500 rounded-md hover:bg-blue-600 transition-colors disabled:opacity-70 shadow-sm cursor-pointer"
                         >
                             {isSavingEditReply ? (
                                 <Loader2 className="animate-spin h-3 w-3" />

@@ -173,7 +173,7 @@ const Comment = ({ comment, postId }) => {
                     <div className="relative flex-shrink-0">
                         <button
                             onClick={() => setDropdownOpen(!dropdownOpen)}
-                            className="p-1.5 text-slate-500 rounded-full hover:bg-slate-500/10 focus:outline-none transition-colors"
+                            className="p-1.5 text-slate-500 rounded-full hover:bg-slate-500/10 focus:outline-none transition-colors cursor-pointer"
                             aria-label="Comment options"
                         >
                             <MoreHorizontal size={18} />
@@ -182,7 +182,7 @@ const Comment = ({ comment, postId }) => {
                             <div className="absolute right-0 mt-1 w-36 bg-white/95 backdrop-blur-md rounded-lg shadow-xl border border-slate-200/50 z-20 py-1 origin-top-right animate-fade-in-down">
                                 <button
                                     onClick={handleEditComment}
-                                    className="w-full text-left flex items-center gap-2 px-3 py-2 text-sm text-slate-700 hover:bg-blue-500/10 hover:text-blue-600 transition-colors rounded-md"
+                                    className="w-full text-left flex items-center gap-2 px-3 py-2 text-sm text-slate-700 hover:bg-blue-500/10 hover:text-blue-600 transition-colors rounded-md cursor-pointer"
                                 >
                                     <Edit size={14} className="opacity-70" />{" "}
                                     Edit
@@ -190,7 +190,7 @@ const Comment = ({ comment, postId }) => {
                                 <button
                                     onClick={handleDeleteComment}
                                     disabled={isDeletingComment}
-                                    className="w-full text-left flex items-center gap-2 px-3 py-2 text-sm text-red-600 hover:bg-red-500/10 hover:text-red-700 transition-colors rounded-md disabled:opacity-50"
+                                    className="w-full text-left flex items-center gap-2 px-3 py-2 text-sm text-red-600 hover:bg-red-500/10 hover:text-red-700 transition-colors rounded-md disabled:opacity-50 cursor-pointer"
                                 >
                                     {isDeletingComment ? (
                                         <Loader2 className="animate-spin h-4 w-4 mr-1" />
@@ -213,6 +213,7 @@ const Comment = ({ comment, postId }) => {
                     <textarea
                         className="w-full p-2.5 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/80 bg-white text-slate-800 placeholder-slate-400 resize-none shadow-sm"
                         value={editedComment}
+                        autoFocus
                         onChange={(e) => setEditedComment(e.target.value)}
                         rows="3"
                     />
@@ -220,14 +221,14 @@ const Comment = ({ comment, postId }) => {
                         <button
                             type="button"
                             onClick={handleCancelComment}
-                            className="px-3 py-1.5 text-xs font-medium text-slate-700 bg-slate-200 hover:bg-slate-300 transition-colors rounded-md shadow-sm"
+                            className="px-3 py-1.5 text-xs font-medium text-slate-700 bg-slate-200 hover:bg-slate-300 transition-colors rounded-md shadow-sm cursor-pointer"
                         >
                             Batal
                         </button>
                         <button
                             type="submit"
                             disabled={isSavingEditComment}
-                            className="px-4 py-1.5 text-xs font-medium text-white bg-blue-500 rounded-md hover:bg-blue-600 transition-colors disabled:opacity-70 shadow-sm"
+                            className="px-4 py-1.5 text-xs font-medium text-white bg-blue-500 rounded-md hover:bg-blue-600 transition-colors disabled:opacity-70 shadow-sm cursor-pointer"
                         >
                             {isSavingEditComment ? (
                                 <Loader2 className="animate-spin h-4 w-4" />
@@ -247,14 +248,14 @@ const Comment = ({ comment, postId }) => {
                 <button
                     onClick={replyButtonClicked}
                     type="button"
-                    className="flex items-center text-xs text-blue-600 hover:text-blue-700 hover:underline font-medium transition-colors"
+                    className="flex items-center text-xs text-blue-600 hover:text-blue-700 hover:underline font-medium transition-colors cursor-pointer"
                 >
                     <MessageSquare size={14} className="mr-1.5" /> Balas
                 </button>
                 {replies && replies.length > 0 && (
                     <button
                         onClick={toggleShowReplies}
-                        className="flex items-center text-xs text-slate-500 hover:text-blue-600 hover:underline font-medium transition-colors"
+                        className="flex items-center text-xs text-slate-500 hover:text-blue-600 hover:underline font-medium transition-colors cursor-pointer"
                     >
                         {showReplies
                             ? "Sembunyikan Balasan"
@@ -276,6 +277,7 @@ const Comment = ({ comment, postId }) => {
                             className="w-full p-2.5 text-sm border-0 focus:ring-0 focus:outline-none bg-transparent text-slate-800 placeholder-slate-400 resize-none"
                             value={reply}
                             onChange={(e) => setReply(e.target.value)}
+                            autoFocus
                             rows="2"
                             placeholder="Tulis balasan Anda..."
                         />
@@ -286,14 +288,14 @@ const Comment = ({ comment, postId }) => {
                                     setReply("");
                                     setShowReplyBox(false);
                                 }}
-                                className="px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-200/80 transition-colors rounded-md mr-2 shadow-sm"
+                                className="px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-200/80 transition-colors rounded-md mr-2 shadow-sm cursor-pointer"
                             >
                                 Batal
                             </button>
                             <button
                                 type="submit"
                                 disabled={isAddingReply || !reply.trim()}
-                                className="inline-flex items-center gap-1.5 py-1.5 px-3 text-xs font-medium text-center text-white bg-gradient-to-r from-blue-500 to-purple-500 rounded-md focus:ring-2 focus:ring-blue-300/70 hover:from-blue-600 hover:to-purple-600 transition-all disabled:opacity-60 shadow-sm"
+                                className="inline-flex items-center gap-1.5 py-1.5 px-3 text-xs font-medium text-center text-white bg-gradient-to-r from-blue-500 to-purple-500 rounded-md focus:ring-2 focus:ring-blue-300/70 hover:from-blue-600 hover:to-purple-600 transition-all disabled:opacity-60 shadow-sm cursor-pointer"
                             >
                                 {isAddingReply ? (
                                     <Loader2 className="animate-spin h-4 w-4" />

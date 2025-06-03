@@ -353,7 +353,7 @@ const PostFormModal = ({
                                 type="button"
                                 onClick={onClose}
                                 disabled={isSubmitting}
-                                className="px-5 py-2.5 text-sm font-medium text-slate-700 bg-slate-200/80 hover:bg-slate-300/80 rounded-lg transition-colors disabled:opacity-60 shadow-sm"
+                                className="px-5 py-2.5 text-sm font-medium text-slate-700 bg-slate-200/80 hover:bg-slate-300/80 rounded-lg transition-colors disabled:opacity-60 shadow-sm cursor-pointer"
                             >
                                 Batal
                             </button>

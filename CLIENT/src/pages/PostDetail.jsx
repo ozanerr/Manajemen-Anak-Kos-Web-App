@@ -150,7 +150,7 @@ const PostDetail = () => {
                     </p>
                     <button
                         onClick={() => navigate("/discussion")}
-                        className="mt-8 inline-flex items-center gap-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:ring-blue-300/50 rounded-lg px-5 py-2.5 transition-colors shadow hover:shadow-md"
+                        className="mt-8 inline-flex items-center gap-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:ring-blue-300/50 rounded-lg px-5 py-2.5 transition-colors shadow hover:shadow-md cursor-pointer"
                     >
                         <ArrowLeft size={16} /> Back to Discussions
                     </button>
@@ -186,7 +186,7 @@ const PostDetail = () => {
             <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
                 <button
                     onClick={() => navigate("/discussion")}
-                    className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-800 text-sm font-medium mb-6 group transition-colors"
+                    className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-800 text-sm font-medium mb-6 group transition-colors cursor-pointer"
                 >
                     <ArrowLeft
                         size={18}
@@ -293,7 +293,7 @@ const PostDetail = () => {
                                     disabled={
                                         isAddingComment || !comment.trim()
                                     }
-                                    className="inline-flex items-center gap-2 py-2.5 px-5 text-sm font-medium text-center text-white bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg focus:ring-4 focus:ring-blue-300/70 hover:from-blue-600 hover:to-purple-700 transition-all disabled:opacity-60 disabled:cursor-not-allowed shadow-md hover:shadow-lg"
+                                    className="inline-flex items-center gap-2 py-2.5 px-5 text-sm font-medium text-center text-white bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg focus:ring-4 focus:ring-blue-300/70 hover:from-blue-600 hover:to-purple-700 transition-all disabled:opacity-60 disabled:cursor-not-allowed shadow-md hover:shadow-lg cursor-pointer"
                                 >
                                     {isAddingComment ? (
                                         <Loader2 className="w-4 h-4 animate-spin" />

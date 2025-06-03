@@ -11,6 +11,7 @@ import {
     List,
     Loader2,
 } from "lucide-react";
+import { FaPlus } from "react-icons/fa6";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { useCalendarApp, ScheduleXCalendar } from "@schedule-x/react";
@@ -113,15 +114,15 @@ const Deadline = () => {
                         ...clickedEventData,
                         start: clickedEventData.start
                             ? new Date(clickedEventData.start)
-                                  .toISOString()
-                                  .slice(0, 16)
-                                  .replace("T", " ")
+                                .toISOString()
+                                .slice(0, 16)
+                                .replace("T", " ")
                             : "",
                         end: clickedEventData.end
                             ? new Date(clickedEventData.end)
-                                  .toISOString()
-                                  .slice(0, 16)
-                                  .replace("T", " ")
+                                .toISOString()
+                                .slice(0, 16)
+                                .replace("T", " ")
                             : "",
                         completed: clickedEventData.completed || false,
                         priority: clickedEventData.priority || "sedang",
@@ -361,181 +362,188 @@ const Deadline = () => {
     return (
         <>
             <style>{priorityStyles}</style>
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                    <div className="mb-5 flex flex-col sm:flex-row justify-between sm:items-center gap-4">
-                        <div>
-                            <h1 className="text-3xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent sm:py-1">
-                                Manager Deadline
-                            </h1>
-                            <p className="text-gray-600 mt-1">
-                                Tetap terorganisir dan capai tujuan Anda.
-                            </p>
-                        </div>
-                        <div className="flex items-center gap-3 w-full sm:w-auto justify-end">
-                            <button
-                                onClick={() =>
-                                    setViewMode(
-                                        viewMode === "calendar"
-                                            ? "list"
-                                            : "calendar"
-                                    )
-                                }
-                                className="p-3 text-gray-600 hover:text-gray-900 hover:bg-white/60 backdrop-blur-sm rounded-xl transition-all duration-200 border border-white/30 shadow-sm cursor-pointer"
-                                title={`Switch to ${
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                <div className="mb-5 flex sm:flex-row justify-between sm:items-center gap-4">
+                    <div>
+                        <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent sm:py-1">
+                            Manager Deadline
+                        </h1>
+                        <p className="text-gray-600 mt-1">
+                            Tetap terorganisir dan capai tujuan Anda.
+                        </p>
+                    </div>
+                    <div className="flex items-center gap-3 sm:w-auto justify-end">
+                        <button
+                            onClick={() =>
+                                setViewMode(
                                     viewMode === "calendar"
                                         ? "list"
                                         : "calendar"
+                                )
+                            }
+                            className="p-3 text-gray-600 hover:text-gray-900 hover:bg-white/60 backdrop-blur-sm rounded-xl transition-all duration-200 border border-white/30 shadow-sm cursor-pointer"
+                            title={`Switch to ${viewMode === "calendar"
+                                    ? "list"
+                                    : "calendar"
                                 } view`}
-                            >
-                                {viewMode === "calendar" ? (
-                                    <List size={20} />
-                                ) : (
-                                    <CalendarIcon size={20} />
-                                )}
-                            </button>
-                            <button
-                                onClick={handleOpenAddModal}
-                                disabled={isAddingDeadline}
-                                className="flex items-center gap-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white px-4 py-2.5 sm:p-3 rounded-xl hover:from-blue-600 hover:to-purple-700 transition-all duration-200 shadow-lg hover:shadow-xl cursor-pointer disabled:opacity-50"
-                                aria-label="Add Deadline"
-                            >
-                                <FiPlus size={20} />
-                                <span className="hidden sm:inline text-base font-medium">
-                                    Tambah Deadline
-                                </span>
-                            </button>
-                        </div>
-                    </div>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8">
-                        <StatCard
-                            title="Total Deadlines"
-                            value={stats.total}
-                            IconComponent={Target}
-                            iconBgClass="bg-blue-100"
-                            iconColorClass="text-blue-600"
-                        />
-                        <StatCard
-                            title="Selesai"
-                            value={stats.completed}
-                            IconComponent={CheckCircle2}
-                            iconBgClass="bg-green-100"
-                            iconColorClass="text-green-600"
-                        />
-                        <StatCard
-                            title="Mendatang"
-                            value={stats.upcoming}
-                            IconComponent={Clock}
-                            iconBgClass="bg-yellow-100"
-                            iconColorClass="text-yellow-600"
-                        />
-                        <StatCard
-                            title="Terlambat"
-                            value={stats.overdue}
-                            IconComponent={AlertTriangle}
-                            iconBgClass="bg-red-100"
-                            iconColorClass="text-red-600"
-                        />
-                    </div>
-
-                    <div className="bg-white/70 backdrop-blur-md rounded-2xl border border-white/30 shadow-xl overflow-hidden">
-                        {viewMode === "calendar" ? (
-                            <div className="p-3 sm:p-4 md:p-6 min-h-[600px]">
-                                {calendarAppInstance && (
-                                    <ScheduleXCalendar
-                                        calendarApp={calendarAppInstance}
-                                    />
-                                )}
-                            </div>
-                        ) : (
-                            <div className="divide-y divide-slate-200/70">
-                                {sortedEventsForList.length === 0 ? (
-                                    <div className="text-center py-16 sm:py-20 px-6">
-                                        <Target
-                                            size={56}
-                                            className="mx-auto text-slate-400 mb-5"
-                                        />
-                                        <h3 className="text-2xl font-semibold text-slate-700 mb-3">
-                                            Tidak ada deadline ditemukan
-                                        </h3>
-                                        <p className="text-slate-500 mb-8">
-                                            Buat deadline pertama Anda untuk
-                                            memulai.
-                                        </p>
-                                        <button
-                                            onClick={handleOpenAddModal}
-                                            disabled={isAddingDeadline}
-                                            className="inline-flex items-center gap-2.5 bg-gradient-to-r from-blue-500 to-purple-600 text-white px-7 py-3 rounded-lg hover:from-blue-600 hover:to-purple-700 transition-all duration-200 shadow-lg hover:shadow-xl text-base font-medium disabled:opacity-50"
-                                        >
-                                            Buat Deadline Pertama
-                                        </button>
-                                    </div>
-                                ) : (
-                                    sortedEventsForList.map((event) => {
-                                        const daysUntil = getDaysUntilDue(
-                                            event.end,
-                                            currentTime
-                                        );
-                                        const eventDueDate = event.end;
-
-                                        const isEventOverdue =
-                                            eventDueDate &&
-                                            !event.completed &&
-                                            eventDueDate < currentTime;
-                                        const isEventDueToday =
-                                            eventDueDate &&
-                                            !event.completed &&
-                                            eventDueDate.toDateString() ===
-                                                currentTime.toDateString() &&
-                                            eventDueDate >= currentTime;
-                                        const dynamicPrio = getDynamicPriority(
-                                            event,
-                                            currentTime
-                                        );
-
-                                        return (
-                                            <DeadlineItem
-                                                key={event.id}
-                                                event={event}
-                                                onToggleComplete={
-                                                    toggleComplete
-                                                }
-                                                onOpenEditModal={
-                                                    handleOpenEditModal
-                                                }
-                                                dynamicPriority={dynamicPrio}
-                                                daysUntil={daysUntil}
-                                                isEventOverdue={isEventOverdue}
-                                                isEventDueToday={
-                                                    isEventDueToday
-                                                }
-                                                getPriorityColor={
-                                                    getPriorityColor
-                                                }
-                                            />
-                                        );
-                                    })
-                                )}
-                            </div>
-                        )}
+                        >
+                            {viewMode === "calendar" ? (
+                                <List size={20} />
+                            ) : (
+                                <CalendarIcon size={20} />
+                            )}
+                        </button>
+                        <button
+                            onClick={handleOpenAddModal}
+                            disabled={isAddingDeadline}
+                            className="hidden sm:flex items-center gap-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white px-4 py-2.5 sm:p-3 rounded-xl hover:from-blue-600 hover:to-purple-700 transition-all duration-200 shadow-lg hover:shadow-xl cursor-pointer disabled:opacity-50"
+                            aria-label="Add Deadline"
+                        >
+                            <FiPlus size={20} />
+                            <span className="text-base font-medium">
+                                Tambah Deadline
+                            </span>
+                        </button>
                     </div>
                 </div>
 
-                {isModalOpen && (
-                    <DeadlineModal
-                        initialEvent={selectedEvent}
-                        onSave={handleModalSave}
-                        modalMode={modalMode}
-                        onDelete={
-                            modalMode === "edit" ? handleModalDelete : undefined
-                        }
-                        onClose={() => {
-                            setIsModalOpen(false);
-                            setSelectedEvent(null);
-                        }}
-                        isLoading={isAddingDeadline}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8">
+                    <StatCard
+                        title="Total Deadlines"
+                        value={stats.total}
+                        IconComponent={Target}
+                        iconBgClass="bg-blue-100"
+                        iconColorClass="text-blue-600"
                     />
-                )}
+                    <StatCard
+                        title="Selesai"
+                        value={stats.completed}
+                        IconComponent={CheckCircle2}
+                        iconBgClass="bg-green-100"
+                        iconColorClass="text-green-600"
+                    />
+                    <StatCard
+                        title="Mendatang"
+                        value={stats.upcoming}
+                        IconComponent={Clock}
+                        iconBgClass="bg-yellow-100"
+                        iconColorClass="text-yellow-600"
+                    />
+                    <StatCard
+                        title="Terlambat"
+                        value={stats.overdue}
+                        IconComponent={AlertTriangle}
+                        iconBgClass="bg-red-100"
+                        iconColorClass="text-red-600"
+                    />
+                </div>
+
+                <div className="bg-white/70 backdrop-blur-md rounded-2xl border border-white/30 shadow-xl overflow-hidden">
+                    {viewMode === "calendar" ? (
+                        <div className="p-3 sm:p-4 md:p-6 min-h-[600px]">
+                            {calendarAppInstance && (
+                                <ScheduleXCalendar
+                                    calendarApp={calendarAppInstance}
+                                />
+                            )}
+                        </div>
+                    ) : (
+                        <div className="divide-y divide-slate-200/70">
+                            {sortedEventsForList.length === 0 ? (
+                                <div className="text-center py-16 sm:py-20 px-6">
+                                    <Target
+                                        size={56}
+                                        className="mx-auto text-slate-400 mb-5"
+                                    />
+                                    <h3 className="text-2xl font-semibold text-slate-700 mb-3">
+                                        Tidak ada deadline ditemukan
+                                    </h3>
+                                    <p className="text-slate-500 mb-8">
+                                        Buat deadline pertama Anda untuk memulai.
+                                    </p>
+                                    <button
+                                        onClick={handleOpenAddModal}
+                                        disabled={isAddingDeadline}
+                                        className="inline-flex items-center gap-2.5 bg-gradient-to-r from-blue-500 to-purple-600 text-white px-7 py-3 rounded-lg hover:from-blue-600 hover:to-purple-700 transition-all duration-200 shadow-lg hover:shadow-xl text-base font-medium disabled:opacity-50 cursor-pointer"
+                                    >
+                                        Buat Deadline Pertama
+                                    </button>
+                                </div>
+                            ) : (
+                                sortedEventsForList.map((event) => {
+                                    const daysUntil = getDaysUntilDue(
+                                        event.end,
+                                        currentTime
+                                    );
+                                    const eventDueDate = event.end;
+
+                                    const isEventOverdue =
+                                        eventDueDate &&
+                                        !event.completed &&
+                                        eventDueDate < currentTime;
+                                    const isEventDueToday =
+                                        eventDueDate &&
+                                        !event.completed &&
+                                        eventDueDate.toDateString() ===
+                                        currentTime.toDateString() &&
+                                        eventDueDate >= currentTime;
+                                    const dynamicPrio = getDynamicPriority(
+                                        event,
+                                        currentTime
+                                    );
+
+                                    return (
+                                        <DeadlineItem
+                                            key={event.id}
+                                            event={event}
+                                            onToggleComplete={
+                                                toggleComplete
+                                            }
+                                            onOpenEditModal={
+                                                handleOpenEditModal
+                                            }
+                                            dynamicPriority={dynamicPrio}
+                                            daysUntil={daysUntil}
+                                            isEventOverdue={isEventOverdue}
+                                            isEventDueToday={
+                                                isEventDueToday
+                                            }
+                                            getPriorityColor={
+                                                getPriorityColor
+                                            }
+                                        />
+                                    );
+                                })
+                            )}
+                        </div>
+                    )}
+                </div>
+            </div>
+
+            <button
+                onClick={handleOpenAddModal}
+                disabled={isAddingDeadline} 
+                className="sm:hidden fixed bottom-8 right-8 z-50 p-3.5 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-lg hover:from-blue-600 hover:to-purple-700 transition-all duration-200 hover:shadow-xl flex items-center justify-center cursor-pointer active:scale-95 disabled:opacity-50"
+                title="Tambah Transaksi"
+            >
+                <FaPlus size={24} />
+            </button>
+
+            {isModalOpen && (
+                <DeadlineModal
+                    initialEvent={selectedEvent}
+                    onSave={handleModalSave}
+                    modalMode={modalMode}
+                    onDelete={
+                        modalMode === "edit" ? handleModalDelete : undefined
+                    }
+                    onClose={() => {
+                        setIsModalOpen(false);
+                        setSelectedEvent(null);
+                    }}
+                    isLoading={isAddingDeadline}
+                />
+            )}
         </>
     );
 };

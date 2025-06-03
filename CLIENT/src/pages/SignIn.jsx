@@ -42,7 +42,7 @@ export default function SignIn() {
     };
 
     return (
-        <div className="relative flex items-center justify-center overflow-hidden bg-gradient-to-br from-slate-100 via-blue-100 to-indigo-200 p-4">
+        <div className="relative min-h-[calc(100vh-4.2rem)] flex items-center justify-center overflow-hidden bg-gradient-to-br from-slate-100 via-blue-100 to-indigo-200 p-4">
             <motion.div
                 className="absolute inset-0 z-0"
                 animate={{
@@ -83,7 +83,7 @@ export default function SignIn() {
                         whileHover={{ scale: 1.03 }}
                         whileTap={{ scale: 0.98 }}
                         onClick={handleSignInGoogle}
-                        className="w-full flex items-center justify-center space-x-3 py-3 px-4 border border-slate-300 rounded-lg text-slate-700 font-medium hover:bg-slate-100/70 hover:border-slate-400 transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 shadow-sm"
+                        className="w-full flex items-center justify-center space-x-3 py-3 px-4 border border-slate-300 rounded-lg text-slate-700 font-medium hover:bg-slate-100/70 hover:border-slate-400 transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 shadow-sm cursor-pointer"
                     >
                         <FcGoogle size={24} />
                         <span>Lanjutkan dengan Google</span>
@@ -92,7 +92,7 @@ export default function SignIn() {
                         whileHover={{ scale: 1.03 }}
                         whileTap={{ scale: 0.98 }}
                         onClick={handleSignInGitHub}
-                        className="w-full flex items-center justify-center space-x-3 py-3 px-4 border border-slate-300 rounded-lg text-slate-700 font-medium hover:bg-slate-100/70 hover:border-slate-400 transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 shadow-sm"
+                        className="w-full flex items-center justify-center space-x-3 py-3 px-4 border border-slate-300 rounded-lg text-slate-700 font-medium hover:bg-slate-100/70 hover:border-slate-400 transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 shadow-sm cursor-pointer"
                     >
                         <FaGithub size={24} className="text-slate-800" />
                         <span>Lanjutkan dengan GitHub</span>

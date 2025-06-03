@@ -34,7 +34,7 @@ function App() {
 
     return (
         <Router>
-            <div className="min-h-screen flex flex-col bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
+            <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
                 <Navbar />
                 <main className="flex-grow">
                     <Routes>
