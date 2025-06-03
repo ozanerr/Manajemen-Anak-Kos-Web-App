@@ -12,11 +12,11 @@ import {
     Loader2,
 } from "lucide-react";
 
-import FinanceModal from "../components/FinanceModal";
-import FinancialStatCard from "../components/FinancialStatCard";
-import MonthlyFlowChart from "../components/MonthlyFlowChart";
-import TransactionRow from "../components/TransactionRow";
-import TransactionCardMobile from "../components/TransactionCardMobile";
+import FinanceModal from "../components/financeComponents/FinanceModal";
+import FinancialStatCard from "../components/financeComponents/FinancialStatCard";
+import MonthlyFlowChart from "../components/financeComponents/MonthlyFlowChart";
+import TransactionRow from "../components/financeComponents/TransactionRow";
+import TransactionCardMobile from "../components/financeComponents/TransactionCardMobile";
 import {
     useCreateFinanceMutation,
     useDeleteFinanceMutation,
@@ -395,18 +395,21 @@ const Finance = () => {
                             true
                         )}
                         IconComponent={ArrowLeftRight}
-                        iconContainerClass={`${financialStats.monthlyNetFlow >= 0
-                            ? "bg-blue-100"
-                            : "bg-orange-100"
-                            }`}
-                        iconClass={`${financialStats.monthlyNetFlow >= 0
-                            ? "text-blue-600"
-                            : "text-orange-500"
-                            }`}
-                        valueClass={`${financialStats.monthlyNetFlow >= 0
-                            ? "text-blue-600"
-                            : "text-orange-500"
-                            }`}
+                        iconContainerClass={`${
+                            financialStats.monthlyNetFlow >= 0
+                                ? "bg-blue-100"
+                                : "bg-orange-100"
+                        }`}
+                        iconClass={`${
+                            financialStats.monthlyNetFlow >= 0
+                                ? "text-blue-600"
+                                : "text-orange-500"
+                        }`}
+                        valueClass={`${
+                            financialStats.monthlyNetFlow >= 0
+                                ? "text-blue-600"
+                                : "text-orange-500"
+                        }`}
                     />
                 </div>
 

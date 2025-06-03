@@ -16,9 +16,9 @@ import { useNavigate } from "react-router-dom";
 import { useCalendarApp, ScheduleXCalendar } from "@schedule-x/react";
 import { createViewMonthGrid } from "@schedule-x/calendar";
 import "@schedule-x/theme-default/dist/index.css";
-import DeadlineModal from "../components/DeadlineModal";
-import StatCard from "../components/StatCard";
-import DeadlineItem from "../components/DeadlineItem";
+import DeadlineModal from "../components/deadlineComponents/DeadlineModal";
+import StatCard from "../components/deadlineComponents/StatCard";
+import DeadlineItem from "../components/deadlineComponents/DeadlineItem";
 import { FiPlus } from "react-icons/fi";
 import {
     useCreateDeadlineMutation,

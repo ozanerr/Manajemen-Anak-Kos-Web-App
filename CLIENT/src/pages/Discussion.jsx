@@ -6,8 +6,8 @@ import {
     useEditPostMutation,
     useDeletePostMutation,
 } from "../features/posts/postsApi";
-import PostCard from "../components/PostCard";
-import PostFormModal from "../components/PostFormModal";
+import PostCard from "../components/discussionComponents/PostCard";
+import PostFormModal from "../components/discussionComponents/PostFormModal";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { FiPlus } from "react-icons/fi";
