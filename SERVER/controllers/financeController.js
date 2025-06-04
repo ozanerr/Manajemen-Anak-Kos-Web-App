@@ -124,10 +124,10 @@ const editFinance = async (req, res) => {
             },
             {
                 $set: {
-                    "finances.$[elem].transaksi": transaksi,
-                    "finances.$[elem].tipe": tipe,
-                    "finances.$[elem].jumlah": jumlah,
-                    "finances.$[elem].tanggal": tanggal,
+                    "finances.$[elem].title": transaksi,
+                    "finances.$[elem].description": tipe,
+                    "finances.$[elem].start": jumlah,
+                    "finances.$[elem].end": tanggal,
                 },
             },
             {
