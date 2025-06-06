@@ -11,6 +11,12 @@ export const postsApi = rootApi.injectEndpoints({
             query: (postId) => `/posts/${postId}`,
         }),
 
+        fetchOwnPost: builder.query({
+            query: (uid) => ({
+                url: `posts/${uid}/own`,
+            }),
+        }),
+
         addPost: builder.mutation({
             query: (data) => ({
                 url: "posts/create",
@@ -43,4 +49,5 @@ export const {
     useAddPostMutation,
     useDeletePostMutation,
     useEditPostMutation,
+    useFetchOwnPostQuery,
 } = postsApi;

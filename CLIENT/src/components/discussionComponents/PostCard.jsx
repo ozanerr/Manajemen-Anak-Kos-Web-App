@@ -4,27 +4,7 @@ import { Link } from "react-router-dom";
 import { MoreHorizontal, Edit, Trash } from "lucide-react";
 import { useSelector } from "react-redux";
 import { useDeletePostMutation } from "../../features/posts/postsApi";
-
-const formatter = {
-    format: (dateInput) => {
-        if (!dateInput) return "Invalid date";
-        try {
-            const d = new Date(dateInput);
-
-            const day = d.getDate();
-            const month = d.toLocaleDateString("id-ID", { month: "long" });
-            const year = d.getFullYear();
-
-            const hours = d.getHours().toString().padStart(2, "0");
-            const minutes = d.getMinutes().toString().padStart(2, "0");
-
-            return `${day} ${month} ${year} pukul ${hours}.${minutes}`;
-        } catch (e) {
-            console.error("Error formatting date:", e, "Input was:", dateInput);
-            return "Invalid date"; // Mengembalikan string jika terjadi error
-        }
-    },
-};
+import { formatter } from "../../assets/formatter";
 
 const PostCard = ({ post, onEditRequest }) => {
     const [dropdownOpen, setDropdownOpen] = useState(false);

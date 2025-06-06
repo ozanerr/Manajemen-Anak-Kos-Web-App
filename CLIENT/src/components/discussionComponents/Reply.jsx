@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import {
     useDeleteReplyMutation,
     useEditReplyMutation,
-} from "../features/comments/commentsApi";
+} from "../../features/comments/commentsApi";
 import { useSelector } from "react-redux";
 import { MoreHorizontal, Edit, Trash, Loader2, UserCircle } from "lucide-react";
 

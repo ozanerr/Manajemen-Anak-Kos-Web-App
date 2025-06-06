@@ -5,7 +5,7 @@ import {
     useAddCommentMutation,
     useFetchCommentsQuery,
 } from "../features/comments/commentsApi";
-import Comment from "../components/Comment";
+import Comment from "../components/discussionComponents/Comment";
 import { useSelector } from "react-redux";
 import {
     MessageCircle,

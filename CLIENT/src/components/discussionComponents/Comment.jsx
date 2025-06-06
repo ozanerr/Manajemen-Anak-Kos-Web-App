@@ -4,8 +4,7 @@ import {
     useDeleteCommentMutation,
     useEditCommentMutation,
     useGetRepliesQuery,
-} from "../features/comments/commentsApi";
-import Reply from "./Reply";
+} from "../../features/comments/commentsApi";
 import { useSelector } from "react-redux";
 import {
     MoreHorizontal,
@@ -17,8 +16,9 @@ import {
     Loader2,
     UserCircle,
 } from "lucide-react";
-import { useGetNewUrlPhotoMutation } from "../features/cloudinary/cloudinaryApi";
+import { useGetNewUrlPhotoMutation } from "../../features/cloudinary/cloudinaryApi";
 import { useEffect } from "react";
+import Reply from "./Reply";
 
 const formatter = {
     format: (date) => {

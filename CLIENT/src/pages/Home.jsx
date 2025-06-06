@@ -13,18 +13,23 @@ import {
     Clock,
     AlertTriangle,
 } from "lucide-react";
-import { ProfileStatItem } from "../components/ProfileStatItem";
-import { SkeletonItem } from "../components/SkeletonItem";
+import { ProfileStatItem } from "../components/homeComponents/ProfileStatItem";
+import { SkeletonItem } from "../components/homeComponents/SkeletonItem";
+import { useFetchOwnPostQuery } from "../features/posts/postsApi";
 
 const Home = () => {
-    const { displayName, photoURL, isloggedIn, isAuthLoading } = useSelector(
-        (state) => state.user
-    );
+    const { displayName, photoURL, isloggedIn, isAuthLoading, uid } =
+        useSelector((state) => state.user);
     const navigate = useNavigate();
     const [
         getUrlPhoto,
         { data: newPhotoUrl, isSuccess, isLoading: isPhotoLoading },
     ] = useGetNewUrlPhotoMutation();
+
+    const { data: ownDiscussion, isSuccess: isSuccessDiscussion } =
+        useFetchOwnPostQuery(uid, { skip: !uid });
+    const myDiscussion = isSuccessDiscussion ? ownDiscussion.data : null;
+    console.log(myDiscussion);
 
     const finalPhotoUrl =
         isSuccess && newPhotoUrl ? newPhotoUrl.cloudinaryUrl : null;
@@ -103,12 +108,6 @@ const Home = () => {
                                 <div className="h-4 bg-gray-300 rounded w-1/3"></div>
                             </div>
                             <hr className="my-6 border-gray-200" />
-                            <div className="space-y-6">
-                                <SkeletonItem />
-                                <SkeletonItem />
-                                <SkeletonItem />
-                                <SkeletonItem />
-                            </div>
                         </div>
                     ) : (
                         <motion.div
@@ -144,9 +143,7 @@ const Home = () => {
                                 <h2 className="text-2xl font-bold text-gray-800">
                                     {displayName}
                                 </h2>
-                                <p className="text-md text-gray-400">
-                                    m288d4ky3223
-                                </p>
+                                <p className="text-md text-gray-400">{uid}</p>
                             </div>
 
                             <hr className="my-6 border-gray-200" />
@@ -188,15 +185,13 @@ const Home = () => {
                 <motion.div className="flex-1" variants={cardVariants}>
                     <div className="flex flex-col gap-6 h-full">
                         <motion.div
-                            className="bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg p-8 text-center shadow-lg flex flex-col justify-center transition-all duration-300 cursor-pointer"
+                            className="bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg p-8 shadow-lg flex flex-col justify-center transition-all duration-300 cursor-pointer"
                             whileHover={{
                                 y: -5,
                                 boxShadow: "0 25px 50px -12px rgba(0,0,0,0.25)",
                             }}
                         >
-                            <h4 className="text-white text-2xl font-bold">
-                                Diskusi Tim
-                            </h4>
+                            <div>Diskusi saya</div>
                             <p className="text-green-100 mt-2">
                                 Buka forum diskusi proyek terbaru.
                             </p>

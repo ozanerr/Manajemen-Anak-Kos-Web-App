@@ -43,13 +43,15 @@ const getPosts = async (req, res) => {
     }
 };
 
-const getPostById = async (req, res) => {
+const getPostByUid = async (req, res) => {
     try {
-        const postById = await Post.findById(req.params.postId);
+        const { uid } = req.params;
+
+        const ownPost = await Post.find({ uid: uid });
 
         return res.status(201).json({
             status: "Success",
-            data: postById,
+            data: ownPost,
         });
     } catch (error) {
         res.status(400).json({
@@ -108,4 +110,4 @@ const deletePost = async (req, res) => {
     }
 };
 
-export { createPost, getPosts, getPostById, editPost, deletePost };
+export { createPost, getPosts, getPostByUid, editPost, deletePost };
