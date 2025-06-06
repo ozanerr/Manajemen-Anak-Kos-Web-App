@@ -56,7 +56,6 @@ const DiscussionCard = ({ post, onEditRequest, variant = "full" }) => {
         </div>
     );
 
-    // Tampilan minimalis tidak berubah
     if (variant === "minimal") {
         return (
             <Link
@@ -96,13 +95,10 @@ const DiscussionCard = ({ post, onEditRequest, variant = "full" }) => {
         );
     }
 
-    // --- PERUBAHAN DI SINI: TAMPILAN LENGKAP TANPA FOTO PROFIL ---
     return (
         <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden group mb-4">
             <div className="p-4">
-                {/* Header: Info penulis, waktu, dan tombol opsi dalam satu baris */}
                 <div className="flex items-start justify-between mb-2">
-                    {/* Info penulis (nama, waktu, kota) digabung dalam satu baris */}
                     <div className="text-sm text-slate-500">
                         <span className="font-semibold text-slate-800">
                             {username}
@@ -120,7 +116,6 @@ const DiscussionCard = ({ post, onEditRequest, variant = "full" }) => {
                             </>
                         )}
                     </div>
-                    {/* Tombol Opsi */}
                     {isOwner && (
                         <div className="relative -mt-1">
                             <button
@@ -134,7 +129,6 @@ const DiscussionCard = ({ post, onEditRequest, variant = "full" }) => {
                     )}
                 </div>
 
-                {/* Body: Konten utama postingan */}
                 <div>
                     <Link to={`/posts/${_id}`} className="group/link">
                         <h2 className="text-lg font-bold text-slate-900 group-hover/link:text-blue-600 mb-1">

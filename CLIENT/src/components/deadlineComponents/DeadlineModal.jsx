@@ -48,23 +48,19 @@ const DeadlineModal = ({
     };
 
     const handleDateChange = (e) => {
-        const dateStringFromInput = e.target.value; // Format "YYYY-MM-DDTHH:mm"
+        const dateStringFromInput = e.target.value;
         if (dateStringFromInput) {
-            // Konversi string dari input <datetime-local> ke objek Date
-            // Ini akan diinterpretasikan sebagai waktu lokal
             const newEndDate = new Date(dateStringFromInput);
             setEvent((prev) => ({
                 ...prev,
                 end: newEndDate,
-                // Asumsi: Jika hanya ada satu field waktu, start bisa disamakan dengan end
-                // Jika start memiliki input terpisah, handle secara terpisah.
                 start: newEndDate,
             }));
         } else {
             setEvent((prev) => ({
                 ...prev,
                 end: null,
-                start: null, // Sesuaikan jika start punya logika sendiri
+                start: null,
             }));
         }
     };
@@ -74,7 +70,6 @@ const DeadlineModal = ({
             return null;
         const dueDate = event.end;
         const now = new Date();
-        // Bandingkan hanya tanggal, abaikan waktu untuk "days until"
         const dueDateStartOfDay = new Date(
             dueDate.getFullYear(),
             dueDate.getMonth(),
@@ -102,8 +97,6 @@ const DeadlineModal = ({
         } else {
             const dueDate = event.end;
             const now = new Date();
-
-            // Untuk perbandingan "tidak boleh di masa lalu", kita bisa bandingkan waktu presisi menit
             const dueDateForComparison = new Date(
                 dueDate.getFullYear(),
                 dueDate.getMonth(),
@@ -131,17 +124,12 @@ const DeadlineModal = ({
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        // Gunakan state 'event' yang sudah memiliki title, description, dan objek Date untuk start/end
         if (!validateForm()) return;
 
         setIsSubmitting(true);
         try {
-            // 'event' yang dikirim ke onSave (handleModalSave di Deadline.jsx)
-            // memiliki start dan end sebagai objek Date.
-            // handleModalSave di Deadline.jsx akan mengonversinya ke ISOString.
             await onSave(event);
         } catch (error) {
-            // Penanganan error bisa ditambahkan di sini jika onSave melempar error
             console.error("Gagal menyimpan event:", error);
         } finally {
             setIsSubmitting(false);
@@ -159,8 +147,6 @@ const DeadlineModal = ({
         }
     };
 
-    // Fungsi untuk memformat objek Date ke string "YYYY-MM-DDTHH:mm" untuk input datetime-local
-    // Ini menyesuaikan dengan timezone lokal pengguna.
     const formatDateForDateTimeLocalInput = (date) => {
         if (!date || !(date instanceof Date) || isNaN(date)) {
             return "";
@@ -179,9 +165,6 @@ const DeadlineModal = ({
 
     const getMinDateTime = () => {
         const now = new Date();
-        // Tidak perlu offset timezone di sini karena input datetime-local
-        // sudah bekerja dalam konteks waktu lokal pengguna.
-        // Cukup format ke string YYYY-MM-DDTHH:MM
         return formatDateForDateTimeLocalInput(now);
     };
 
