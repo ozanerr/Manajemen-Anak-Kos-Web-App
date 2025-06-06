@@ -12,10 +12,13 @@ import {
     Target,
     Clock,
     AlertTriangle,
+    MessageSquare,
+    ArrowRight,
 } from "lucide-react";
 import { ProfileStatItem } from "../components/homeComponents/ProfileStatItem";
 import { SkeletonItem } from "../components/homeComponents/SkeletonItem";
 import { useFetchOwnPostQuery } from "../features/posts/postsApi";
+import DiscussionCard from "../components/homeComponents/DiscussionCard";
 
 const Home = () => {
     const { displayName, photoURL, isloggedIn, isAuthLoading, uid } =
@@ -181,35 +184,45 @@ const Home = () => {
                         </motion.div>
                     )}
                 </motion.div>
+                <motion.div
+                    className="flex-1 bg-white rounded-2xl p-6 shadow-lg flex flex-col self-start transition-shadow duration-300 hover:shadow-xl"
+                    variants={cardVariants}
+                >
+                    {/* --- Bagian Atas: Judul & Konten --- */}
+                    <div>
+                        {/* Judul dengan Ikon */}
+                        <div className="flex items-center gap-3 mb-4">
+                            <MessageSquare className="w-6 h-6 text-indigo-600" />
+                            <h3 className="text-xl font-bold text-gray-800">
+                                Diskusi Terbaru Anda
+                            </h3>
+                        </div>
 
-                <motion.div className="flex-1" variants={cardVariants}>
-                    <div className="flex flex-col gap-6 h-full">
-                        <motion.div
-                            className="bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg p-8 shadow-lg flex flex-col justify-center transition-all duration-300 cursor-pointer"
-                            whileHover={{
-                                y: -5,
-                                boxShadow: "0 25px 50px -12px rgba(0,0,0,0.25)",
-                            }}
-                        >
-                            <div>Diskusi saya</div>
-                            <p className="text-green-100 mt-2">
-                                Buka forum diskusi proyek terbaru.
-                            </p>
-                        </motion.div>
-                        <motion.div
-                            className="bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg p-8 text-center shadow-lg flex flex-col justify-center transition-all duration-300 cursor-pointer"
-                            whileHover={{
-                                y: -5,
-                                boxShadow: "0 25px 50px -12px rgba(0,0,0,0.25)",
-                            }}
-                        >
-                            <h4 className="text-white text-2xl font-bold">
-                                Berita & Pengumuman
-                            </h4>
-                            <p className="text-blue-100 mt-2">
-                                Lihat pengumuman penting perusahaan.
-                            </p>
-                        </motion.div>
+                        {/* Konten Dinamis: Loading, Kosong, atau Daftar Diskusi */}
+                        <div className="space-y-4">
+                            {!isSuccessDiscussion ? (
+                                // 1. Tampilan saat Loading (MENGGUNAKAN SPINNER)
+                                <div className="flex justify-center items-center py-10">
+                                    <Loader2 className="w-6 h-6 text-gray-400 animate-spin" />
+                                </div>
+                            ) : myDiscussion && myDiscussion.length > 0 ? (
+                                // 2. Tampilan jika ada diskusi (menampilkan 2 terakhir)
+                                myDiscussion.slice(-2).map((discussion) => (
+                                    <DiscussionCard
+                                        key={discussion._id || discussion.title} // PASTIKAN ADA KEY UNIK
+                                        post={discussion}
+                                    />
+                                ))
+                            ) : (
+                                // 3. Tampilan jika tidak ada diskusi
+                                <div className="text-center py-8 px-4 border-2 border-dashed rounded-lg">
+                                    <p className="text-gray-500">
+                                        Anda belum memulai diskusi apapun.
+                                    </p>
+                                </div>
+                            )}
+                        </div>
+                        <div>Berita</div>
                     </div>
                 </motion.div>
             </div>

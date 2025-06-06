@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { data, useNavigate, useParams } from "react-router-dom";
 import { useFetchSinglePostQuery } from "../features/posts/postsApi";
 import {
     useAddCommentMutation,
@@ -19,7 +19,6 @@ import {
 } from "lucide-react";
 import { useGetNewUrlPhotoMutation } from "../features/cloudinary/cloudinaryApi";
 
-// Placeholder untuk formatter
 const formatter = {
     format: (date) => {
         if (!date) return "Invalid date";
@@ -63,7 +62,9 @@ const PostDetail = () => {
         isLoading: postFetchLoading,
         error: postErrorData,
     } = useFetchSinglePostQuery(postId) || {};
-    const post = postResponse?.data;
+    const post = postResponse?.data[0];
+
+    console.log(post);
 
     const [addComment, { isLoading: isAddingComment, error: addCommentError }] =
         useAddCommentMutation() || {};

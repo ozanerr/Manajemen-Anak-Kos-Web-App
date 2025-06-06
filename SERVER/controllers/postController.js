@@ -61,6 +61,23 @@ const getPostByUid = async (req, res) => {
     }
 };
 
+const getPostById = async (req, res) => {
+    try {
+        const { postId } = req.params;
+        const postById = await Post.find({ _id: postId });
+
+        return res.status(201).json({
+            status: "Success",
+            data: postById,
+        });
+    } catch (error) {
+        res.status(400).json({
+            status: "Failed",
+            error: error.message,
+        });
+    }
+};
+
 const editPost = async (req, res) => {
     try {
         const { postId } = req.params;
@@ -110,4 +127,11 @@ const deletePost = async (req, res) => {
     }
 };
 
-export { createPost, getPosts, getPostByUid, editPost, deletePost };
+export {
+    createPost,
+    getPosts,
+    getPostByUid,
+    editPost,
+    deletePost,
+    getPostById,
+};

@@ -5,6 +5,7 @@ import {
     editPost,
     deletePost,
     getPostByUid,
+    getPostById,
 } from "../controllers/postController.js";
 
 const router = express.Router();
@@ -13,6 +14,7 @@ const router = express.Router();
 router.post("/create", createPost);
 router.get("/posts", getPosts);
 router.get("/:uid/own", getPostByUid);
+router.get("/:postId", getPostById);
 router.put("/:postId/editPost", editPost);
 router.delete("/:postId/deletePost", deletePost);
 

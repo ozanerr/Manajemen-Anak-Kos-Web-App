@@ -15,6 +15,7 @@ export const postsApi = rootApi.injectEndpoints({
             query: (uid) => ({
                 url: `posts/${uid}/own`,
             }),
+            providesTags: ["POST"],
         }),
 
         addPost: builder.mutation({
