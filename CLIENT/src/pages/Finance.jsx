@@ -58,20 +58,15 @@ const Finance = () => {
         isLoading: isLoadingFinance,
         isError: isFinanceError,
         error: financeFetchError,
-        refetch: refetchFinances, // Anda bisa gunakan ini jika tag invalidation belum sempurna
+        refetch: refetchFinances,
     } = useFetchFinanceQuery(uid, {
-        skip: !uid, // Jangan jalankan query jika uid belum ada
+        skip: !uid,
     });
 
-    // Ekstrak transaksi. Asumsi backend (getFinances) mengembalikan { status: "Success", data: arrayOfFinances }
     const transactions = useMemo(() => {
         if (financeApiResponse && Array.isArray(financeApiResponse.data)) {
             return financeApiResponse.data;
         }
-        // Jika struktur backend adalah { data: { Finances: [...] } } seperti di createFinance, sesuaikan:
-        // if (financeApiResponse && financeApiResponse.data && Array.isArray(financeApiResponse.data.finances)) {
-        //     return financeApiResponse.data.finances;
-        // }
         return [];
     }, [financeApiResponse]);
 
@@ -111,7 +106,7 @@ const Finance = () => {
         transactions.forEach((tx) => {
             const txDate = new Date(tx.tanggal);
             const amount = parseFloat(tx.jumlah);
-            const type = tx.tipe; // Field dari backend adalah 'tipe'
+            const type = tx.tipe;
 
             if (
                 !isNaN(txDate.getTime()) &&
@@ -119,17 +114,15 @@ const Finance = () => {
                 txDate.getFullYear() === currentYear
             ) {
                 if (type === "Pemasukan") {
-                    // Pastikan ini sesuai dengan nilai string dari backend Anda
                     totalIncomeThisMonth += amount;
                 } else if (type === "Pengeluaran") {
-                    // Pastikan ini sesuai
                     totalExpensesThisMonth += amount;
                 }
             }
         });
         const balance = transactions.reduce((acc, tx) => {
             const amount = parseFloat(tx.jumlah);
-            return acc + (tx.tipe === "Pemasukan" ? amount : -amount); // Sesuaikan "Pemasukan"
+            return acc + (tx.tipe === "Pemasukan" ? amount : -amount);
         }, 0);
         return {
             balance,
@@ -202,7 +195,6 @@ const Finance = () => {
     }, [transactions, currentTime]);
 
     const handleOpenAddModal = () => {
-        // FinanceModal menggunakan 'transaksi', 'jumlah', 'tanggal', 'tipe'
         setCurrentTransaction({
             transaksi: "",
             jumlah: "",
@@ -214,21 +206,14 @@ const Finance = () => {
     };
 
     const handleOpenEditModal = useCallback((transactionToEdit) => {
-        // transactionToEdit dari backend sudah memiliki field: _id, transaksi, tipe, jumlah, tanggal
         setCurrentTransaction({
             ...transactionToEdit,
-            // FinanceModal akan menangani konversi string tanggal dari backend menjadi Date object jika diperlukan,
-            // dan kemudian ke string "YYYY-MM-DD" untuk inputnya.
-            // Pastikan FinanceModal.getInternalStateFromInitial menangani `initialTransaction.tanggal` sebagai string dari backend.
         });
         setFinanceModalMode("edit");
         setIsFinanceModalOpen(true);
     }, []);
 
     const handleSaveTransaction = async (transactionDataFromModal) => {
-        // transactionDataFromModal dari FinanceModal:
-        // { transaksi: string, jumlah: number, tanggal: Date object, tipe: string, _id?: string }
-
         const payloadForApi = {
             transaksi: transactionDataFromModal.transaksi,
             tipe: transactionDataFromModal.tipe,
@@ -242,13 +227,10 @@ const Finance = () => {
             } else if (transactionDataFromModal._id) {
                 await editFinance({
                     uid: uid,
-                    financeId: transactionDataFromModal._id, // Pastikan ini nama param yang benar di backend API
+                    financeId: transactionDataFromModal._id,
                     data: payloadForApi,
                 }).unwrap();
             }
-            // Jika RTK Query tags dikonfigurasi, data akan otomatis refresh.
-            // Jika tidak, uncomment refetchFinances();
-            // refetchFinances();
         } catch (error) {
             console.error(
                 `Gagal ${
@@ -281,8 +263,7 @@ const Finance = () => {
                     await deleteFinance({
                         uid: uid,
                         financeId: transactionId,
-                    }).unwrap(); // Pastikan financeId adalah param yang benar
-                    // refetchFinances(); // Jika perlu
+                    }).unwrap();
                 } catch (error) {
                     console.error("Gagal menghapus keuangan:", error);
                     alert(
@@ -312,7 +293,6 @@ const Finance = () => {
         }
     };
 
-    // Tampilkan loading jika otentikasi sedang berjalan ATAU jika UID sudah ada tapi data keuangan masih loading
     if (isAuthLoading || (uid && isLoadingFinance)) {
         return (
             <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col justify-center items-center p-4">
@@ -324,13 +304,11 @@ const Finance = () => {
         );
     }
 
-    // Navigasi jika belum login (setelah auth loading selesai)
     if (!isAuthLoading && !isloggedIn) {
         navigate("/signin");
         return null;
     }
 
-    // Tampilkan error jika ada masalah saat mengambil data keuangan
     if (isFinanceError) {
         return (
             <div className="text-red-600">
@@ -389,7 +367,7 @@ const Finance = () => {
                             financialStats.monthlyIncome
                         )}
                         IconComponent={TrendingUp}
-                        iconContainerClass="bg-green-100"
+                        iconContainerClass="bg-green-200"
                         iconClass="text-green-600"
                         valueClass="text-green-600"
                     />
