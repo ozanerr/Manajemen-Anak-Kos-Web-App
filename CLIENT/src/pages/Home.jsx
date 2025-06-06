@@ -11,8 +11,10 @@ import {
     ArrowDownCircle,
     Target,
     Clock,
+    AlertTriangle,
 } from "lucide-react";
 import { ProfileStatItem } from "../components/ProfileStatItem";
+import { SkeletonItem } from "../components/SkeletonItem";
 
 const Home = () => {
     const { displayName, photoURL, isloggedIn, isAuthLoading } = useSelector(
@@ -91,7 +93,7 @@ const Home = () => {
             initial="hidden"
             animate="visible"
         >
-            <div className="flex flex-col lg:flex-row gap-10">
+            <div className="flex flex-col sm:flex-row gap-10">
                 <motion.div variants={cardVariants}>
                     {isContentLoading ? (
                         <div className="w-auto sm:w-80 bg-white rounded-2xl shadow-lg p-6 animate-pulse">
@@ -152,30 +154,30 @@ const Home = () => {
                             <div className="space-y-4">
                                 <ProfileStatItem
                                     IconComponent={ArrowUpCircle}
-                                    label="Pemasukan"
+                                    label="Pemasukan Bulan Ini"
                                     value={formatCurrency(financeData.income)}
                                     valueClassName="text-green-600"
                                     variants={statItemVariants}
                                 />
                                 <ProfileStatItem
                                     IconComponent={ArrowDownCircle}
-                                    label="Pengeluaran"
+                                    label="Pengeluaran Bulan Ini"
                                     value={formatCurrency(financeData.expense)}
                                     valueClassName="text-red-600"
                                     variants={statItemVariants}
                                 />
                                 <ProfileStatItem
-                                    IconComponent={Target}
-                                    label="Total Deadlines"
-                                    value={`${deadlineData.total} Tugas`}
-                                    valueClassName="text-blue-600"
+                                    IconComponent={Clock}
+                                    label="Mendatang (Deadline)"
+                                    value={`${deadlineData.upcoming} Aktivitas`}
+                                    valueClassName="text-yellow-600"
                                     variants={statItemVariants}
                                 />
                                 <ProfileStatItem
-                                    IconComponent={Clock}
-                                    label="Mendatang"
-                                    value={`${deadlineData.upcoming} Tugas`}
-                                    valueClassName="text-yellow-600"
+                                    IconComponent={AlertTriangle}
+                                    label="Terlambat (Deadline)"
+                                    value={`${deadlineData.upcoming} Aktivitas`}
+                                    valueClassName="text-purple-600"
                                     variants={statItemVariants}
                                 />
                             </div>
