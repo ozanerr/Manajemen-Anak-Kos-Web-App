@@ -184,47 +184,51 @@ const Home = () => {
                         </motion.div>
                     )}
                 </motion.div>
-                <motion.div
-                    className="flex-1 bg-white rounded-2xl p-6 shadow-lg flex flex-col self-start transition-shadow duration-300 hover:shadow-xl"
-                    variants={cardVariants}
-                >
-                    {/* --- Bagian Atas: Judul & Konten --- */}
-                    <div>
-                        {/* Judul dengan Ikon */}
-                        <div className="flex items-center gap-3 mb-4">
-                            <MessageSquare className="w-6 h-6 text-indigo-600" />
-                            <h3 className="text-xl font-bold text-gray-800">
-                                Diskusi Terbaru Anda
-                            </h3>
+                <div className="flex flex-col self-start">
+                    <motion.div
+                        className="flex-1 bg-white rounded-2xl p-6 shadow-lg flex flex-col self-start transition-shadow duration-300 hover:shadow-xl"
+                        variants={cardVariants}
+                    >
+                        {/* --- Bagian Atas: Judul & Konten --- */}
+                        <div>
+                            {/* Judul dengan Ikon */}
+                            <div className="flex items-center gap-3 mb-4">
+                                <MessageSquare className="w-6 h-6 text-indigo-600" />
+                                <h3 className="text-xl font-bold text-gray-800">
+                                    Diskusi Terbaru Anda
+                                </h3>
+                            </div>
+                            {/* Konten Dinamis: Loading, Kosong, atau Daftar Diskusi */}
+                            <div className="space-y-4">
+                                {!isSuccessDiscussion ? (
+                                    // 1. Tampilan saat Loading (MENGGUNAKAN SPINNER)
+                                    <div className="flex justify-center items-center py-10">
+                                        <Loader2 className="w-6 h-6 text-gray-400 animate-spin" />
+                                    </div>
+                                ) : myDiscussion && myDiscussion.length > 0 ? (
+                                    // 2. Tampilan jika ada diskusi (menampilkan 2 terakhir)
+                                    myDiscussion.slice(-2).map((discussion) => (
+                                        <DiscussionCard
+                                            key={
+                                                discussion._id ||
+                                                discussion.title
+                                            } // PASTIKAN ADA KEY UNIK
+                                            post={discussion}
+                                        />
+                                    ))
+                                ) : (
+                                    // 3. Tampilan jika tidak ada diskusi
+                                    <div className="text-center py-8 px-4 border-2 border-dashed rounded-lg">
+                                        <p className="text-gray-500">
+                                            Anda belum memulai diskusi apapun.
+                                        </p>
+                                    </div>
+                                )}
+                            </div>
                         </div>
-
-                        {/* Konten Dinamis: Loading, Kosong, atau Daftar Diskusi */}
-                        <div className="space-y-4">
-                            {!isSuccessDiscussion ? (
-                                // 1. Tampilan saat Loading (MENGGUNAKAN SPINNER)
-                                <div className="flex justify-center items-center py-10">
-                                    <Loader2 className="w-6 h-6 text-gray-400 animate-spin" />
-                                </div>
-                            ) : myDiscussion && myDiscussion.length > 0 ? (
-                                // 2. Tampilan jika ada diskusi (menampilkan 2 terakhir)
-                                myDiscussion.slice(-2).map((discussion) => (
-                                    <DiscussionCard
-                                        key={discussion._id || discussion.title} // PASTIKAN ADA KEY UNIK
-                                        post={discussion}
-                                    />
-                                ))
-                            ) : (
-                                // 3. Tampilan jika tidak ada diskusi
-                                <div className="text-center py-8 px-4 border-2 border-dashed rounded-lg">
-                                    <p className="text-gray-500">
-                                        Anda belum memulai diskusi apapun.
-                                    </p>
-                                </div>
-                            )}
-                        </div>
-                        <div>Berita</div>
-                    </div>
-                </motion.div>
+                    </motion.div>
+                    <div>Berita</div>
+                </div>
             </div>
         </motion.div>
     );

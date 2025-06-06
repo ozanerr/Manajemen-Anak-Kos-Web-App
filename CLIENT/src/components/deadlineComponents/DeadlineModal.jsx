@@ -21,8 +21,6 @@ const DeadlineModal = ({
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     useEffect(() => {
-        // Pastikan initialEvent.start dan initialEvent.end adalah objek Date atau null
-        // Jika masih string dari suatu tempat, konversi di sini atau pastikan sudah Date dari parent
         const startDate =
             initialEvent?.start instanceof Date
                 ? initialEvent.start
