@@ -17,6 +17,7 @@ import Deadline from "./pages/Deadline";
 import Finance from "./pages/Finance";
 import Navbar from "./components/NavBar";
 import Discussion from "./pages/Discussion";
+import NotFound from "./pages/NotFound";
 
 function App() {
     const dispatch = useDispatch();
@@ -44,6 +45,7 @@ function App() {
                         <Route path="/deadline" element={<Deadline />} />
                         <Route path="/finance" element={<Finance />} />
                         <Route path="/discussion" element={<Discussion />} />
+                        <Route path="*" element={<NotFound />} />
                     </Routes>
                 </main>
             </div>
