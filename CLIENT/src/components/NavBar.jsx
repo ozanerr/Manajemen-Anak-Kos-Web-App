@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Menu, X, Home, DollarSign, Clock, MessageCircle } from "lucide-react";
 import { Link } from "react-router-dom";
+import logoSrc from "../assets/logo.png";
 
 const Navbar = () => {
     const [open, setOpen] = useState(false);
@@ -18,12 +19,10 @@ const Navbar = () => {
                 <div className="flex justify-between h-16 items-center">
                     <Link to="/" className="flex items-center space-x-2 group">
                         <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform duration-200">
-                            <span className="text-white font-bold text-sm">
-                                T
-                            </span>
+                            <img src={logoSrc} alt="" />
                         </div>
                         <span className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent group-hover:from-purple-600 group-hover:to-blue-600 transition-all duration-300">
-                            Trailblazer
+                            Aturin
                         </span>
                     </Link>
 

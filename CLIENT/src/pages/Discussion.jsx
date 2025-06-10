@@ -10,6 +10,7 @@ import PostFormModal from "../components/discussionComponents/PostFormModal";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { FaPlus } from "react-icons/fa6";
+import { motion } from "framer-motion";
 import {
     MessageSquarePlus,
     AlertTriangle as AlertTriangleIcon,
@@ -154,7 +155,7 @@ const Discussion = () => {
 
     return (
         <>
-            <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-8">
+            <motion.div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-8">
                 <div className="text-center mb-10 sm:mb-12">
                     <h1 className="text-3xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent">
                         Diskusi Komunitas
@@ -189,13 +190,14 @@ const Discussion = () => {
                             Sangat diam disini...
                         </h3>
                         <p className="text-slate-500 mb-8">
-                           Belum ada diskusi yang dimulai. Mengapa tidak memulainya?
+                            Belum ada diskusi yang dimulai. Mengapa tidak
+                            memulainya?
                         </p>
                         <button
                             onClick={() => openPostModal("add")}
-                            className="inline-flex items-center gap-2.5 bg-gradient-to-r from-blue-500 to-purple-600 text-white px-7 py-3 rounded-lg hover:from-blue-600 hover:to-purple-700 transition-all duration-200 shadow-lg hover:shadow-xl text-base font-medium"
+                            className="inline-flex items-center gap-2.5 bg-gradient-to-r from-blue-500 to-purple-600 text-white px-7 py-3 rounded-lg hover:from-blue-600 hover:to-purple-700 transition-all duration-200 shadow-lg hover:shadow-xl text-base font-medium cursor-pointer"
                         >
-                            <PlusIconLucide size={18} /> 
+                            <PlusIconLucide size={18} />
                             Buat Postingan Baru
                         </button>
                     </div>
@@ -203,12 +205,12 @@ const Discussion = () => {
 
                 <button
                     onClick={() => openPostModal("add")}
-                    className="fixed bottom-8 right-8 z-50 p-3.5 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-lg hover:from-blue-600 hover:to-purple-700 transition-all duration-200 hover:shadow-xl flex items-center justify-center cursor-pointer active:scale-95 disabled:opacity-50"
+                    className="fixed bottom-8 right-8 z-50 p-3.5 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-lg hover:from-blue-600 hover:to-purple-700 transition-all duration-200 hover:shadow-xl flex items-center justify-center cursor-pointer active:scale-95 disabled:opacity-50 cursor-pointer"
                     title="Buat postingan baru"
                 >
                     <FaPlus size={24} />
                 </button>
-            </div>
+            </motion.div>
 
             {isPostModalOpen && (
                 <PostFormModal

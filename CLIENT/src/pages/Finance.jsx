@@ -10,6 +10,7 @@ import {
     ArrowLeftRight,
     Loader2,
 } from "lucide-react";
+import { motion } from "framer-motion";
 
 import FinanceModal from "../components/financeComponents/FinanceModal";
 import FinancialStatCard from "../components/financeComponents/FinancialStatCard";
@@ -319,7 +320,7 @@ const Finance = () => {
 
     return (
         <>
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <motion.div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                 <div className="mb-5 flex flex-col sm:flex-row justify-between sm:items-center gap-4">
                     <div>
                         <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent sm:py-1">
@@ -486,7 +487,7 @@ const Finance = () => {
                             </div>
                         )}
                 </div>
-            </div>
+            </motion.div>
 
             <button
                 onClick={handleOpenAddModal}
