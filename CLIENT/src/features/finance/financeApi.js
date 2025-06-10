@@ -5,7 +5,6 @@ export const financeApi = rootApi.injectEndpoints({
         fetchFinance: builder.query({
             query: (uid) => ({
                 url: `finance/${uid}/getFinance`,
-                method: "GET",
             }),
             providesTags: ["FINANCE"],
         }),

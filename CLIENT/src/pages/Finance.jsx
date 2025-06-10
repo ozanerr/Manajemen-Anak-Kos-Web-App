@@ -80,15 +80,6 @@ const Finance = () => {
     const [isFinanceModalOpen, setIsFinanceModalOpen] = useState(false);
     const [currentTransaction, setCurrentTransaction] = useState(null);
     const [financeModalMode, setFinanceModalMode] = useState("add");
-    const [currentTime, setCurrentTime] = useState(new Date());
-
-    useEffect(() => {
-        const timerId = setInterval(
-            () => setCurrentTime(new Date()),
-            60000 * 5
-        );
-        return () => clearInterval(timerId);
-    }, []);
 
     useEffect(() => {
         if (!isAuthLoading && !isloggedIn) {
@@ -97,7 +88,7 @@ const Finance = () => {
     }, [isAuthLoading, isloggedIn, navigate]);
 
     const financialStats = useMemo(() => {
-        const now = currentTime;
+        const now = new Date();
         const currentMonth = now.getMonth();
         const currentYear = now.getFullYear();
         let totalIncomeThisMonth = 0;
@@ -130,7 +121,7 @@ const Finance = () => {
             monthlyExpenses: totalExpensesThisMonth,
             monthlyNetFlow: totalIncomeThisMonth - totalExpensesThisMonth,
         };
-    }, [transactions, currentTime]);
+    }, [transactions]);
 
     const monthlyChartData = useMemo(() => {
         const dataByMonth = {};
@@ -148,8 +139,8 @@ const Finance = () => {
             "Nov",
             "Des",
         ];
-        const endDate = new Date(currentTime);
-        const startDate = new Date(currentTime);
+        const endDate = new Date();
+        const startDate = new Date();
         startDate.setMonth(startDate.getMonth() - 11);
 
         for (let i = 0; i < 12; i++) {
@@ -192,7 +183,7 @@ const Finance = () => {
             }
         });
         return Object.values(dataByMonth);
-    }, [transactions, currentTime]);
+    }, [transactions]);
 
     const handleOpenAddModal = () => {
         setCurrentTransaction({

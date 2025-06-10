@@ -112,7 +112,10 @@ const MonthlyFlowChart = ({ data }) => {
                                 color: "#374151",
                                 marginBottom: "4px",
                             }}
-                            itemStyle={{ fontSize: fontSize, fontWeight: "bold" }}
+                            itemStyle={{
+                                fontSize: fontSize,
+                                fontWeight: "bold",
+                            }}
                             contentStyle={{
                                 backgroundColor: "rgba(255,255,255,0.95)",
                                 borderRadius: "0.5rem",
