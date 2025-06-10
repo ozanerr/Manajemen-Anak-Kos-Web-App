@@ -205,7 +205,7 @@ const Discussion = () => {
 
                 <button
                     onClick={() => openPostModal("add")}
-                    className="fixed bottom-8 right-8 z-50 p-3.5 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-lg hover:from-blue-600 hover:to-purple-700 transition-all duration-200 hover:shadow-xl flex items-center justify-center cursor-pointer active:scale-95 disabled:opacity-50 cursor-pointer"
+                    className="fixed bottom-8 right-8 z-50 p-3.5 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-lg hover:from-blue-600 hover:to-purple-700 transition-all duration-200 hover:shadow-xl flex items-center justify-center cursor-pointer active:scale-95 disabled:opacity-50"
                     title="Buat postingan baru"
                 >
                     <FaPlus size={24} />
