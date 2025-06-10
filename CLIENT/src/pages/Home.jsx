@@ -1,29 +1,29 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useMemo } from "react";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 
+import { useFetchFinanceQuery } from "../features/finance/financeApi";
+import { useFetchDeadlinesQuery } from "../features/deadlines/deadlinesApi";
 import { useGetNewUrlPhotoMutation } from "../features/cloudinary/cloudinaryApi";
+import { useFetchOwnPostQuery } from "../features/posts/postsApi";
 
 import {
     Loader2,
     ArrowUpCircle,
     ArrowDownCircle,
-    Target,
     Clock,
     AlertTriangle,
     MessageSquare,
-    ArrowRight,
 } from "lucide-react";
 import { ProfileStatItem } from "../components/homeComponents/ProfileStatItem";
-import { SkeletonItem } from "../components/homeComponents/SkeletonItem";
-import { useFetchOwnPostQuery } from "../features/posts/postsApi";
 import DiscussionCard from "../components/homeComponents/DiscussionCard";
 
 const Home = () => {
     const { displayName, photoURL, isloggedIn, isAuthLoading, uid } =
         useSelector((state) => state.user);
     const navigate = useNavigate();
+
     const [
         getUrlPhoto,
         { data: newPhotoUrl, isSuccess, isLoading: isPhotoLoading },
@@ -31,28 +31,80 @@ const Home = () => {
 
     const { data: ownDiscussion, isSuccess: isSuccessDiscussion } =
         useFetchOwnPostQuery(uid, { skip: !uid });
+
+    const { data: financeApiResponse, isLoading: isFinanceLoading } =
+        useFetchFinanceQuery(uid, { skip: !uid });
+
+    const { data: deadlinesResponse, isLoading: isDeadlineLoading } =
+        useFetchDeadlinesQuery(uid, { skip: !uid });
+
+    const financialStats = useMemo(() => {
+        if (!financeApiResponse || !Array.isArray(financeApiResponse.data)) {
+            return { income: 0, expense: 0 };
+        }
+
+        const transactions = financeApiResponse.data;
+        const now = new Date();
+        const currentMonth = now.getMonth();
+        const currentYear = now.getFullYear();
+        let totalIncomeThisMonth = 0;
+        let totalExpensesThisMonth = 0;
+
+        transactions.forEach((tx) => {
+            const txDate = new Date(tx.tanggal);
+            const amount = parseFloat(tx.jumlah);
+            if (
+                !isNaN(txDate.getTime()) &&
+                txDate.getMonth() === currentMonth &&
+                txDate.getFullYear() === currentYear
+            ) {
+                if (tx.tipe === "Pemasukan") {
+                    totalIncomeThisMonth += amount;
+                } else if (tx.tipe === "Pengeluaran") {
+                    totalExpensesThisMonth += amount;
+                }
+            }
+        });
+
+        return {
+            income: totalIncomeThisMonth,
+            expense: totalExpensesThisMonth,
+        };
+    }, [financeApiResponse]);
+
+    const deadlineStats = useMemo(() => {
+        if (!deadlinesResponse || !Array.isArray(deadlinesResponse.data)) {
+            return { overdue: 0, upcoming: 0 };
+        }
+        const events = deadlinesResponse.data;
+        const now = new Date();
+
+        const overdue = events.filter(
+            (e) => e.end && !e.completed && new Date(e.end) < now
+        ).length;
+
+        const upcoming = events.filter((e) => {
+            if (!e.end || e.completed) return false;
+            const dueDate = new Date(e.end);
+            if (dueDate < now) return false;
+            const diffTime = dueDate.getTime() - now.getTime();
+            const diffDays = diffTime / (1000 * 60 * 60 * 24);
+            return diffDays >= 0 && diffDays <= 7;
+        }).length;
+
+        return { overdue, upcoming };
+    }, [deadlinesResponse]);
+
     const myDiscussion = isSuccessDiscussion ? ownDiscussion.data : null;
-    console.log(myDiscussion);
 
     const finalPhotoUrl =
         isSuccess && newPhotoUrl ? newPhotoUrl.cloudinaryUrl : null;
-
-    const [financeData, setFinanceData] = useState({ income: 0, expense: 0 });
-    const [deadlineData, setDeadlineData] = useState({ total: 0, upcoming: 0 });
-    const [isContentLoading, setIsContentLoading] = useState(true);
 
     useEffect(() => {
         if (photoURL) getUrlPhoto({ imageProfile: photoURL });
     }, [photoURL, getUrlPhoto]);
 
-    useEffect(() => {
-        const timer = setTimeout(() => {
-            setFinanceData({ income: 5250000, expense: 1780000 });
-            setDeadlineData({ total: 8, upcoming: 3 });
-            setIsContentLoading(false);
-        }, 1500);
-        return () => clearTimeout(timer);
-    }, []);
+    const isContentLoading = isFinanceLoading || isDeadlineLoading;
 
     const formatCurrency = (value) =>
         new Intl.NumberFormat("id-ID", {
@@ -65,7 +117,6 @@ const Home = () => {
         hidden: { opacity: 0 },
         visible: { opacity: 1, transition: { staggerChildren: 0.1 } },
     };
-
     const cardVariants = {
         hidden: { y: 20, opacity: 0 },
         visible: {
@@ -74,13 +125,12 @@ const Home = () => {
             transition: { type: "spring", stiffness: 100 },
         },
     };
-
     const statItemVariants = {
         hidden: { x: -20, opacity: 0 },
         visible: { x: 0, opacity: 1 },
     };
 
-    if (isAuthLoading || (photoURL && isPhotoLoading)) {
+    if (isAuthLoading || (uid && (isPhotoLoading || isContentLoading))) {
         return (
             <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col justify-center items-center">
                 <Loader2 className="h-12 w-12 animate-spin text-blue-600" />
@@ -148,35 +198,37 @@ const Home = () => {
                                 </h2>
                                 <p className="text-md text-gray-400">{uid}</p>
                             </div>
-
                             <hr className="my-6 border-gray-200" />
-
                             <div className="space-y-4">
                                 <ProfileStatItem
                                     IconComponent={ArrowUpCircle}
                                     label="Pemasukan Bulan Ini"
-                                    value={formatCurrency(financeData.income)}
+                                    value={formatCurrency(
+                                        financialStats.income
+                                    )}
                                     valueClassName="text-green-600"
                                     variants={statItemVariants}
                                 />
                                 <ProfileStatItem
                                     IconComponent={ArrowDownCircle}
                                     label="Pengeluaran Bulan Ini"
-                                    value={formatCurrency(financeData.expense)}
+                                    value={formatCurrency(
+                                        financialStats.expense
+                                    )}
                                     valueClassName="text-red-600"
                                     variants={statItemVariants}
                                 />
                                 <ProfileStatItem
                                     IconComponent={Clock}
                                     label="Mendatang (Deadline)"
-                                    value={`${deadlineData.upcoming} Aktivitas`}
+                                    value={`${deadlineStats.upcoming} Aktivitas`}
                                     valueClassName="text-yellow-600"
                                     variants={statItemVariants}
                                 />
                                 <ProfileStatItem
                                     IconComponent={AlertTriangle}
                                     label="Terlambat (Deadline)"
-                                    value={`${deadlineData.upcoming} Aktivitas`}
+                                    value={`${deadlineStats.overdue} Aktivitas`}
                                     valueClassName="text-purple-600"
                                     variants={statItemVariants}
                                 />
@@ -184,40 +236,36 @@ const Home = () => {
                         </motion.div>
                     )}
                 </motion.div>
-                <div className="flex flex-col self-start">
+                <div className="flex flex-col flex-1">
                     <motion.div
-                        className="flex-1 bg-white rounded-2xl p-6 shadow-lg flex flex-col self-start transition-shadow duration-300 hover:shadow-xl"
+                        className="bg-white rounded-2xl p-6 shadow-lg flex flex-col transition-shadow duration-300 hover:shadow-xl"
                         variants={cardVariants}
                     >
-                        {/* --- Bagian Atas: Judul & Konten --- */}
                         <div>
-                            {/* Judul dengan Ikon */}
                             <div className="flex items-center gap-3 mb-4">
                                 <MessageSquare className="w-6 h-6 text-indigo-600" />
                                 <h3 className="text-xl font-bold text-gray-800">
                                     Diskusi Terbaru Anda
                                 </h3>
                             </div>
-                            {/* Konten Dinamis: Loading, Kosong, atau Daftar Diskusi */}
                             <div className="space-y-4">
                                 {!isSuccessDiscussion ? (
-                                    // 1. Tampilan saat Loading (MENGGUNAKAN SPINNER)
                                     <div className="flex justify-center items-center py-10">
                                         <Loader2 className="w-6 h-6 text-gray-400 animate-spin" />
                                     </div>
                                 ) : myDiscussion && myDiscussion.length > 0 ? (
-                                    // 2. Tampilan jika ada diskusi (menampilkan 2 terakhir)
-                                    myDiscussion.slice(-2).map((discussion) => (
-                                        <DiscussionCard
-                                            key={
-                                                discussion._id ||
-                                                discussion.title
-                                            } // PASTIKAN ADA KEY UNIK
-                                            post={discussion}
-                                        />
-                                    ))
+                                    myDiscussion
+                                        .slice(-4)
+                                        .map((discussion) => (
+                                            <DiscussionCard
+                                                key={
+                                                    discussion._id ||
+                                                    discussion.title
+                                                }
+                                                post={discussion}
+                                            />
+                                        ))
                                 ) : (
-                                    // 3. Tampilan jika tidak ada diskusi
                                     <div className="text-center py-8 px-4 border-2 border-dashed rounded-lg">
                                         <p className="text-gray-500">
                                             Anda belum memulai diskusi apapun.
@@ -227,7 +275,6 @@ const Home = () => {
                             </div>
                         </div>
                     </motion.div>
-                    <div>Berita</div>
                 </div>
             </div>
         </motion.div>

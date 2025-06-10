@@ -170,10 +170,8 @@ const Finance = () => {
                 ).slice(2)}`;
                 if (dataByMonth[monthKey]) {
                     if (type === "Pemasukan") {
-                        // Sesuaikan "Pemasukan"
                         dataByMonth[monthKey].income += amount;
                     } else if (type === "Pengeluaran") {
-                        // Sesuaikan "Pengeluaran"
                         dataByMonth[monthKey].expense += amount;
                     }
                     dataByMonth[monthKey].net =
