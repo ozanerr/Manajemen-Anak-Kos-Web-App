@@ -114,15 +114,15 @@ const Deadline = () => {
                         ...clickedEventData,
                         start: clickedEventData.start
                             ? new Date(clickedEventData.start)
-                                .toISOString()
-                                .slice(0, 16)
-                                .replace("T", " ")
+                                  .toISOString()
+                                  .slice(0, 16)
+                                  .replace("T", " ")
                             : "",
                         end: clickedEventData.end
                             ? new Date(clickedEventData.end)
-                                .toISOString()
-                                .slice(0, 16)
-                                .replace("T", " ")
+                                  .toISOString()
+                                  .slice(0, 16)
+                                  .replace("T", " ")
                             : "",
                         completed: clickedEventData.completed || false,
                         priority: clickedEventData.priority || "sedang",
@@ -294,10 +294,18 @@ const Deadline = () => {
         if (calendarAppInstance && processedServerData) {
             const eventsForCalendar = processedServerData.map((event) => {
                 const dynamicPrio = getDynamicPriority(event, currentTime);
+                const start =
+                    event.start instanceof Date && !isNaN(event.start)
+                        ? event.start.toISOString()
+                        : "";
+                const end =
+                    event.end instanceof Date && !isNaN(event.end)
+                        ? event.end.toISOString()
+                        : "";
                 return {
                     ...event,
-                    start: event.start.toISOString(),
-                    end: event.end.toISOString(),
+                    start: start,
+                    end: end,
                     cssClass: `event-${dynamicPrio.toLowerCase()}`,
                 };
             });
@@ -382,10 +390,9 @@ const Deadline = () => {
                                 )
                             }
                             className="p-3 text-gray-600 hover:text-gray-900 hover:bg-white/60 backdrop-blur-sm rounded-xl transition-all duration-200 border border-white/30 shadow-sm cursor-pointer"
-                            title={`Switch to ${viewMode === "calendar"
-                                    ? "list"
-                                    : "calendar"
-                                } view`}
+                            title={`Switch to ${
+                                viewMode === "calendar" ? "list" : "calendar"
+                            } view`}
                         >
                             {viewMode === "calendar" ? (
                                 <List size={20} />
@@ -459,7 +466,8 @@ const Deadline = () => {
                                         Tidak ada deadline ditemukan
                                     </h3>
                                     <p className="text-slate-500 mb-8">
-                                        Buat deadline pertama Anda untuk memulai.
+                                        Buat deadline pertama Anda untuk
+                                        memulai.
                                     </p>
                                     <button
                                         onClick={handleOpenAddModal}
@@ -485,7 +493,7 @@ const Deadline = () => {
                                         eventDueDate &&
                                         !event.completed &&
                                         eventDueDate.toDateString() ===
-                                        currentTime.toDateString() &&
+                                            currentTime.toDateString() &&
                                         eventDueDate >= currentTime;
                                     const dynamicPrio = getDynamicPriority(
                                         event,
@@ -496,21 +504,15 @@ const Deadline = () => {
                                         <DeadlineItem
                                             key={event.id}
                                             event={event}
-                                            onToggleComplete={
-                                                toggleComplete
-                                            }
+                                            onToggleComplete={toggleComplete}
                                             onOpenEditModal={
                                                 handleOpenEditModal
                                             }
                                             dynamicPriority={dynamicPrio}
                                             daysUntil={daysUntil}
                                             isEventOverdue={isEventOverdue}
-                                            isEventDueToday={
-                                                isEventDueToday
-                                            }
-                                            getPriorityColor={
-                                                getPriorityColor
-                                            }
+                                            isEventDueToday={isEventDueToday}
+                                            getPriorityColor={getPriorityColor}
                                         />
                                     );
                                 })
@@ -522,7 +524,7 @@ const Deadline = () => {
 
             <button
                 onClick={handleOpenAddModal}
-                disabled={isAddingDeadline} 
+                disabled={isAddingDeadline}
                 className="sm:hidden fixed bottom-8 right-8 z-50 p-3.5 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-lg hover:from-blue-600 hover:to-purple-700 transition-all duration-200 hover:shadow-xl flex items-center justify-center cursor-pointer active:scale-95 disabled:opacity-50"
                 title="Tambah Transaksi"
             >
