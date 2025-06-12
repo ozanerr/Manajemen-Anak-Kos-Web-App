@@ -17,8 +17,10 @@ export const commentsApi = rootApi.injectEndpoints({
                     return;
                 }
 
+                const postId = arg;
+
                 socket.connect();
-                socket.emit("joinPostRoom", arg);
+                socket.emit("joinPostRoom", postId);
 
                 try {
                     await cacheDataLoaded;
@@ -48,6 +50,8 @@ export const commentsApi = rootApi.injectEndpoints({
                                 }
                             }
                             if (event === "commentDeleted") {
+                                console.log("draft data");
+                                console.log(draft.data);
                                 draft.data = draft.data.filter(
                                     (comment) => comment._id !== data.commentId
                                 );
@@ -69,7 +73,7 @@ export const commentsApi = rootApi.injectEndpoints({
                 }
 
                 await cacheEntryRemoved;
-                socket.emit("leavePostRoom", arg);
+                socket.emit("leavePostRoom", postId);
 
                 console.log("Removing listeners and disconnecting socket.");
                 socket.off("newComment");

@@ -122,6 +122,8 @@ const createReply = async (req, res) => {
                 },
             }
         );
+        const io = req.qpp.get("socketio");
+        io.to(postId).emit("newReply", createdReply);
 
         return res.status(201).json({
             status: "Success",
@@ -176,6 +178,9 @@ const editReply = async (req, res) => {
             }
         );
 
+        const io = req.app.get("socketio");
+        io.to(postId).emit("replyUpdated", updatedReply);
+
         return res.status(201).json({
             status: "Success",
             data: updatedReply,
@@ -204,6 +209,12 @@ const deleteReply = async (req, res) => {
                 new: true,
             }
         );
+        const io = req.app.get("socketio");
+        io.to(postId).emit("replyDeleted", {
+            postId: postId,
+            commentId: commentId,
+            replyId: replyId,
+        });
 
         return res.status(201).json({
             status: "Success",
