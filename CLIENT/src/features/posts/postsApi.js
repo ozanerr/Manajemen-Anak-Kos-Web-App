@@ -108,6 +108,7 @@ export const postsApi = rootApi.injectEndpoints({
                 url: `posts/${postId}/deletePost`,
                 method: "DELETE",
             }),
+            invalidatesTags: ["POST"],
         }),
 
         editPost: builder.mutation({
