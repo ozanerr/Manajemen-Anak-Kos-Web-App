@@ -18,7 +18,7 @@ export const commentsApi = rootApi.injectEndpoints({
                 }
 
                 socket.connect();
-                socket.emit("joinPostRoom", postId);
+                socket.emit("joinPostRoom", arg);
 
                 try {
                     await cacheDataLoaded;
@@ -69,7 +69,7 @@ export const commentsApi = rootApi.injectEndpoints({
                 }
 
                 await cacheEntryRemoved;
-                socket.emit("leavePostRoom", postId);
+                socket.emit("leavePostRoom", arg);
 
                 console.log("Removing listeners and disconnecting socket.");
                 socket.off("newComment");
