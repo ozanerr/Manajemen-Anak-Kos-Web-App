@@ -1,4 +1,5 @@
 import { rootApi } from "../api/rootApi";
+import { socket } from "../../socket.js";
 
 export const commentsApi = rootApi.injectEndpoints({
     endpoints: (builder) => ({
