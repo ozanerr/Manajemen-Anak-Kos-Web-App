@@ -16,11 +16,6 @@ const createPost = async (req, res) => {
         });
 
         const io = req.app.get("socketio");
-        console.log(
-            `[BACKEND-EMIT] Mengirim 'newPost' dengan ID: ${
-                newPost._id
-            } pada ${Date.now()}`
-        );
         io.emit("newPost", newPost);
 
         return res.status(201).json({

@@ -33,6 +33,24 @@ const io = new Server(server, {
     },
 });
 
+io.on("connection", (socket) => {
+    console.log(`🔌 User terhubung: ${socket.id}`);
+
+    socket.on("joinPostRoom", (postId) => {
+        socket.join(postId);
+        console.log(`User ${socket.id} bergabung ke kamar ${postId}`);
+    });
+
+    socket.on("leavePostRoom", (postId) => {
+        socket.leave(postId);
+        console.log(`User ${socket.id} meninggalkan kamar ${postId}`);
+    });
+
+    socket.on("disconnect", () => {
+        console.log(`❌ User terputus: ${socket.id}`);
+    });
+});
+
 app.set("socketio", io);
 
 app.use("/api/posts", postRoutes);

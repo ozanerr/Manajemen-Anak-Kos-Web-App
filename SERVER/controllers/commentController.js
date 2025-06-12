@@ -14,6 +14,9 @@ const createComment = async (req, res) => {
             imageProfile,
         });
 
+        const io = req.app.get("socketio");
+        io.to(postId).emit("newComment", createdComment);
+
         return res.status(201).json({
             status: "Success",
             data: createdComment,
@@ -55,6 +58,12 @@ const deleteComment = async (req, res) => {
             postId: postId,
         });
 
+        const io = req.app.get("socketio");
+        io.to(postId).emit("commentDeleted", {
+            postId: postId,
+            commentId: commentId,
+        });
+
         return res.status(201).json({
             status: "Success",
             data: deletedComment,
@@ -78,6 +87,9 @@ const editComment = async (req, res) => {
             { $set: { comment: comment } },
             { new: true }
         );
+
+        const io = req.app.get("socketio");
+        io.to(postId).emit("commentUpdated", editedComment);
 
         return res.status(201).json({
             status: "Success",
