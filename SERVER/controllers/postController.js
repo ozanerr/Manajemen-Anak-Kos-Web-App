@@ -15,6 +15,14 @@ const createPost = async (req, res) => {
             imageProfile,
         });
 
+        const io = req.app.get("socketio");
+        console.log(
+            `[BACKEND-EMIT] Mengirim 'newPost' dengan ID: ${
+                newPost._id
+            } pada ${Date.now()}`
+        );
+        io.emit("newPost", newPost);
+
         return res.status(201).json({
             status: "Success",
             data: newPost,
@@ -97,6 +105,9 @@ const editPost = async (req, res) => {
             { new: true }
         );
 
+        const io = req.app.get("socketio");
+        io.emit("postUpdated", editedPost);
+
         return res.status(201).json({
             status: "Success",
             data: editedPost,
@@ -114,6 +125,9 @@ const deletePost = async (req, res) => {
         const { postId } = req.params;
 
         const deletedPost = await Post.findOneAndDelete({ _id: postId });
+
+        const io = req.app.get("socketio");
+        io.emit("postDeleted", { postId: postId });
 
         return res.status(201).json({
             status: "Success",

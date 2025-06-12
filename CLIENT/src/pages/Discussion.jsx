@@ -70,6 +70,10 @@ const Discussion = () => {
     };
 
     const handleSavePost = async (postDataFromModal) => {
+        if (isAddingPost) {
+            console.log("Mencegah pemanggilan ganda, mutasi sedang berjalan.");
+            return;
+        }
         try {
             if (postModalMode === "add") {
                 const newPostData = {
