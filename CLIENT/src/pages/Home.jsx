@@ -196,7 +196,7 @@ const Home = () => {
                                 <h2 className="text-2xl font-bold text-gray-800">
                                     {displayName}
                                 </h2>
-                                <p className="text-md text-gray-400">Add commentMore actions
+                                <p className="text-md text-gray-400">
                                     Member sejak{" "}
                                     {payload.metadata.creationTime.slice(7, 16)}
                                 </p>
