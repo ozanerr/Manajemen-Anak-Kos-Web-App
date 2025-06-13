@@ -5,23 +5,7 @@ import {
 } from "../../features/comments/commentsApi";
 import { useSelector } from "react-redux";
 import { MoreHorizontal, Edit, Trash, Loader2, UserCircle } from "lucide-react";
-
-const formatter = {
-    format: (date) => {
-        if (!date) return "Invalid date";
-        try {
-            return new Date(date).toLocaleDateString("id-ID", {
-                year: "numeric",
-                month: "short",
-                day: "numeric",
-                hour: "2-digit",
-                minute: "2-digit",
-            });
-        } catch (e) {
-            return "Invalid date";
-        }
-    },
-};
+import { formatter } from "../../assets/formatter";
 
 const Reply = ({ reply, commentId, postId }) => {
     const { displayName, uid } = useSelector((state) => state.user);

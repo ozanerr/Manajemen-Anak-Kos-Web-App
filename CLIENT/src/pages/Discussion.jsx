@@ -145,7 +145,7 @@ const Discussion = () => {
             <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col justify-center items-center p-4">
                 <Loader2 className="h-12 w-12 animate-spin text-blue-600" />
                 <p className="text-slate-600 text-lg mt-4">
-                    Loading discussions...
+                    Loading diskusi...
                 </p>
             </div>
         );

@@ -209,7 +209,6 @@ const Deadline = () => {
     );
 
     const toggleComplete = useCallback((id) => {
-        console.log(id);
         console.warn(
             "Perlu implementasi UpdateDeadlineMutation untuk mengubah status 'completed' di server."
         );
@@ -223,8 +222,6 @@ const Deadline = () => {
 
     const handleModalDelete = async (id) => {
         try {
-            console.log(uid);
-            console.log(id);
             await deleteDeadline({ uid: uid, deadlinesId: id }).unwrap();
         } catch (error) {
             alert("gagal hapus data");
@@ -235,9 +232,6 @@ const Deadline = () => {
 
     const handleModalSave = async (eventDataFromModal) => {
         if (modalMode === "edit") {
-            console.log("id editt");
-            console.log(eventDataFromModal._id);
-            console.log(eventDataFromModal);
             try {
                 await editDeadline({
                     uid: uid,
@@ -504,7 +498,7 @@ const Deadline = () => {
                                         <DeadlineItem
                                             key={event.id}
                                             event={event}
-                                            onToggleComplete={toggleComplete}
+                                            onToggleComplete={handleModalDelete}
                                             onOpenEditModal={
                                                 handleOpenEditModal
                                             }

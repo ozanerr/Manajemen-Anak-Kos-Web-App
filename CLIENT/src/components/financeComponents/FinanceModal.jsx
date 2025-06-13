@@ -67,7 +67,6 @@ const FinanceModal = ({
     const [transaction, setTransaction] = useState(() =>
         getInternalStateFromInitial(initialTransaction)
     );
-    console.log(typeof transaction.tanggal);
     const [errors, setErrors] = useState({});
     const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -133,7 +132,6 @@ const FinanceModal = ({
             if (transaction._id) {
                 transactionToSave._id = transaction._id;
             }
-            console.log(transactionToSave);
 
             await onSave(transactionToSave);
         } catch (error) {
