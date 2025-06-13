@@ -6,7 +6,7 @@ import {
     setPersistence,
     signInWithPopup,
 } from "firebase/auth";
-import { auth, gitHubProvider, googleProvider } from "../firebase/firebase";
+import { auth, gitHubProvider, googleProvider } from "../firebase/firebase.js";
 import { useNavigate } from "react-router-dom";
 import { KeyRound } from "lucide-react";
 
@@ -21,7 +21,7 @@ export default function SignIn() {
             if (user) {
                 navigate("/");
             }
-            console.log(user);
+            // console.log(user);
         } catch (error) {
             console.error("Google Sign-In Error:", error);
         }
@@ -35,7 +35,7 @@ export default function SignIn() {
             if (user) {
                 navigate("/");
             }
-            console.log(user);
+            // console.log(user);
         } catch (error) {
             console.error("GitHub Sign-In Error:", error);
         }

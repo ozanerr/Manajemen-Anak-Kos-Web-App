@@ -8,6 +8,8 @@ import financeRoutes from "./routes/financeRoutes.js";
 import usersRoutes from "./routes/userRoutes.js";
 import cloudinary from "cloudinary";
 import cors from "cors";
+import http from "http";
+import { Server } from "socket.io";
 
 dotenv.config();
 
@@ -22,20 +24,47 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
-//route
+const server = http.createServer(app);
+
+const io = new Server(server, {
+    cors: {
+        origin: "https://aturin-ten.vercel.app",
+        methods: ["GET", "POST"],
+    },
+});
+
+io.on("connection", (socket) => {
+    console.log(`🔌 User terhubung: ${socket.id}`);
+
+    socket.on("joinPostRoom", (postId) => {
+        socket.join(postId);
+        console.log(`User ${socket.id} bergabung ke kamar ${postId}`);
+    });
+
+    socket.on("leavePostRoom", (postId) => {
+        socket.leave(postId);
+        console.log(`User ${socket.id} meninggalkan kamar ${postId}`);
+    });
+
+    socket.on("disconnect", () => {
+        console.log(`❌ User terputus: ${socket.id}`);
+    });
+});
+
+app.set("socketio", io);
+
 app.use("/api/posts", postRoutes);
 app.use("/api/comments", commentRoutes);
 app.use("/api/deadline", deadlineRoutes);
 app.use("/api/finance", financeRoutes);
 app.use("/api/user", usersRoutes);
 
-//connect database
 ConnectDB();
 
-//port
-const port = process.env.PORT;
+const port = process.env.PORT || 5000;
 
-//server
-app.listen(port, () => {
-    console.log(`Server berjalan di http://localhost:${port}`);
+server.listen(port, () => {
+    console.log(`🚀 Server berjalan di http://localhost:${port}`);
 });
+
+export default app;

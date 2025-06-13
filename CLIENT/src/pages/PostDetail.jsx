@@ -64,8 +64,6 @@ const PostDetail = () => {
     } = useFetchSinglePostQuery(postId) || {};
     const post = postResponse?.data[0];
 
-    console.log(post);
-
     const [addComment, { isLoading: isAddingComment, error: addCommentError }] =
         useAddCommentMutation() || {};
 

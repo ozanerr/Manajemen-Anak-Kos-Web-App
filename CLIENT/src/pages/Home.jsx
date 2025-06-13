@@ -20,7 +20,7 @@ import { ProfileStatItem } from "../components/homeComponents/ProfileStatItem";
 import DiscussionCard from "../components/homeComponents/DiscussionCard";
 
 const Home = () => {
-    const { displayName, photoURL, isloggedIn, isAuthLoading, uid } =
+    const { displayName, photoURL, isloggedIn, isAuthLoading, uid, payload } =
         useSelector((state) => state.user);
     const navigate = useNavigate();
 
@@ -196,7 +196,10 @@ const Home = () => {
                                 <h2 className="text-2xl font-bold text-gray-800">
                                     {displayName}
                                 </h2>
-                                <p className="text-md text-gray-400">{uid}</p>
+                                <p className="text-md text-gray-400">
+                                    Member sejak{" "}
+                                    {payload.metadata.creationTime.slice(7, 16)}
+                                </p>
                             </div>
                             <hr className="my-6 border-gray-200" />
                             <div className="space-y-4">
