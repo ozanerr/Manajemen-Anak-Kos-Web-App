@@ -28,7 +28,7 @@ const server = http.createServer(app);
 
 const io = new Server(server, {
     cors: {
-        origin: "https://aturin-ten.vercel.app/",
+        origin: "https://aturin-ten.vercel.app",
         methods: ["GET", "POST"],
     },
 });
