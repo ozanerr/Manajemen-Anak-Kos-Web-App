@@ -109,7 +109,7 @@ const createReply = async (req, res) => {
 
         const { uid, username, reply, imageProfile } = req.body;
 
-        const createdReply = await Comment.findOneAndUpdate(
+        const updatedComment = await Comment.findOneAndUpdate(
             { _id: commentId, postId: postId },
             {
                 $push: {
@@ -120,14 +120,22 @@ const createReply = async (req, res) => {
                         imageProfile: imageProfile,
                     },
                 },
+            },
+            {
+                new: true,
             }
         );
-        const io = req.qpp.get("socketio");
-        io.to(postId).emit("newReply", createdReply);
+        const newReply =
+            updatedComment.replies[updatedComment.replies.length - 1];
+        const io = req.app.get("socketio");
+        io.to(postId).emit("newReply", {
+            commentId: commentId,
+            reply: newReply,
+        });
 
         return res.status(201).json({
             status: "Success",
-            data: createdReply,
+            data: updatedComment,
         });
     } catch (error) {
         res.status(400).json({
@@ -163,7 +171,7 @@ const editReply = async (req, res) => {
         const { postId, commentId, replyId } = req.params;
         const { reply } = req.body;
 
-        const updatedReply = await Comment.findOneAndUpdate(
+        const updatedComment = await Comment.findOneAndUpdate(
             {
                 _id: commentId,
                 postId: postId,
@@ -178,12 +186,19 @@ const editReply = async (req, res) => {
             }
         );
 
+        const updatedReply = updatedComment.replies.find(
+            (r) => r._id.toString() === replyId
+        );
+
         const io = req.app.get("socketio");
-        io.to(postId).emit("replyUpdated", updatedReply);
+        io.to(postId).emit("replyUpdated", {
+            commentId: commentId,
+            reply: updatedReply,
+        });
 
         return res.status(201).json({
             status: "Success",
-            data: updatedReply,
+            data: updatedComment,
         });
     } catch (error) {
         res.status(400).json({

@@ -11,9 +11,6 @@ export const commentsApi = rootApi.injectEndpoints({
                 { updateCachedData, cacheDataLoaded, cacheEntryRemoved }
             ) {
                 if (socket.connected) {
-                    console.log(
-                        "Socket is already connected. Skipping duplicate setup."
-                    );
                     return;
                 }
 
@@ -24,12 +21,8 @@ export const commentsApi = rootApi.injectEndpoints({
 
                 try {
                     await cacheDataLoaded;
-                    console.log(
-                        "Comment cache loaded, ready to listen for events..."
-                    );
 
                     const handleEvent = (event, data) => {
-                        console.log(`Socket event received: ${event}`, data);
                         updateCachedData((draft) => {
                             if (!draft.data) return;
 
@@ -50,8 +43,6 @@ export const commentsApi = rootApi.injectEndpoints({
                                 }
                             }
                             if (event === "commentDeleted") {
-                                console.log("draft data");
-                                console.log(draft.data);
                                 draft.data = draft.data.filter(
                                     (comment) => comment._id !== data.commentId
                                 );
@@ -59,27 +50,27 @@ export const commentsApi = rootApi.injectEndpoints({
                         });
                     };
 
-                    socket.on("newComment", (data) =>
-                        handleEvent("newComment", data)
-                    );
-                    socket.on("commentUpdated", (data) =>
-                        handleEvent("commentUpdated", data)
-                    );
-                    socket.on("commentDeleted", (data) =>
-                        handleEvent("commentDeleted", data)
-                    );
+                    const newCommentListener = (data) =>
+                        handleEvent("newComment", data);
+                    const commentUpdatedListener = (data) =>
+                        handleEvent("commentUpdated", data);
+                    const commentDeletedListener = (data) =>
+                        handleEvent("commentDeleted", data);
+
+                    socket.on("newComment", newCommentListener);
+                    socket.on("commentUpdated", commentUpdatedListener);
+                    socket.on("commentDeleted", commentDeletedListener);
+
+                    await cacheEntryRemoved;
+
+                    socket.emit("leavePostRoom", postId);
+                    socket.off("newComment", newCommentListener);
+                    socket.off("commentUpdated", commentUpdatedListener);
+                    socket.off("commentDeleted", commentDeletedListener);
+                    socket.disconnect();
                 } catch (error) {
                     console.error("Failed to start socket listener:", error);
                 }
-
-                await cacheEntryRemoved;
-                socket.emit("leavePostRoom", postId);
-
-                console.log("Removing listeners and disconnecting socket.");
-                socket.off("newComment");
-                socket.off("commentUpdated");
-                socket.off("commentDeleted");
-                socket.disconnect();
             },
         }),
 
@@ -124,6 +115,67 @@ export const commentsApi = rootApi.injectEndpoints({
                 method: "GET",
             }),
             providesTags: ["REPLY"],
+            async onCacheEntryAdded(
+                arg,
+                { updateCachedData, cacheDataLoaded, cacheEntryRemoved }
+            ) {
+                const { commentId } = arg;
+
+                try {
+                    await cacheDataLoaded;
+
+                    const handleReplyEvent = (event, data) => {
+                        if (data.commentId !== commentId) return;
+
+                        updateCachedData((draft) => {
+                            if (!draft || !draft.data) return;
+                            if (event === "newReply") {
+                                if (
+                                    !draft.data.some(
+                                        (r) => r._id === data.reply._id
+                                    )
+                                ) {
+                                    draft.data.push(data.reply);
+                                }
+                            }
+                            if (event === "replyUpdated") {
+                                const index = draft.data.findIndex(
+                                    (r) => r._id === data.reply._id
+                                );
+                                if (index !== -1)
+                                    draft.data[index] = data.reply;
+                            }
+                            if (event === "replyDeleted") {
+                                draft.data = draft.data.filter(
+                                    (r) => r._id !== data.replyId
+                                );
+                            }
+                        });
+                    };
+
+                    const newReplyListener = (data) =>
+                        handleReplyEvent("newReply", data);
+                    const replyUpdatedListener = (data) =>
+                        handleReplyEvent("replyUpdated", data);
+                    const replyDeletedListener = (data) =>
+                        handleReplyEvent("replyDeleted", data);
+
+                    socket.on("newReply", newReplyListener);
+                    socket.on("replyUpdated", replyUpdatedListener);
+                    socket.on("replyDeleted", replyDeletedListener);
+
+                    await cacheEntryRemoved;
+
+                    socket.off("newReply", newReplyListener);
+                    socket.off("replyUpdated", replyUpdatedListener);
+                    socket.off("replyDeleted", replyDeletedListener);
+                } catch (error) {
+                    console.error(
+                        "Gagal memulai listener socket untuk replies:",
+                        error
+                    );
+                }
+            },
         }),
 
         editReply: builder.mutation({

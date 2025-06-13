@@ -10,31 +10,22 @@ export const postsApi = rootApi.injectEndpoints({
                 arg,
                 { updateCachedData, cacheDataLoaded, cacheEntryRemoved }
             ) {
-                if (socket.connected) {
-                    console.log(
-                        "Socket is already connected. Skipping duplicate setup."
-                    );
-                    return;
+                if (!socket.connected) {
+                    socket.connect();
                 }
-
-                socket.connect();
 
                 try {
                     await cacheDataLoaded;
-                    console.log(
-                        "Posts cache loaded, ready to listen for events..."
-                    );
 
                     const handleEvent = (event, data) => {
-                        console.log(`Socket event received: ${event}`, data);
                         updateCachedData((draft) => {
-                            if (!draft.data) return;
+                            if (!draft || !draft.data) return;
 
                             if (event === "newPost") {
-                                const postExists = draft.data.some(
-                                    (p) => p._id === data._id
-                                );
-                                if (!postExists) {
+                                // Guard anti-duplikasi
+                                if (
+                                    !draft.data.some((p) => p._id === data._id)
+                                ) {
                                     draft.data.unshift(data);
                                 }
                             }
@@ -54,26 +45,29 @@ export const postsApi = rootApi.injectEndpoints({
                         });
                     };
 
-                    socket.on("newPost", (data) =>
-                        handleEvent("newPost", data)
-                    );
-                    socket.on("postUpdated", (data) =>
-                        handleEvent("postUpdated", data)
-                    );
-                    socket.on("postDeleted", (data) =>
-                        handleEvent("postDeleted", data)
-                    );
+                    const newPostListener = (data) =>
+                        handleEvent("newPost", data);
+                    const postUpdatedListener = (data) =>
+                        handleEvent("postUpdated", data);
+                    const postDeletedListener = (data) =>
+                        handleEvent("postDeleted", data);
+
+                    socket.on("newPost", newPostListener);
+                    socket.on("postUpdated", postUpdatedListener);
+                    socket.on("postDeleted", postDeletedListener);
+
+                    await cacheEntryRemoved;
+
+                    // Hanya hapus listener, jangan disconnect socket
+                    socket.off("newPost", newPostListener);
+                    socket.off("postUpdated", postUpdatedListener);
+                    socket.off("postDeleted", postDeletedListener);
                 } catch (error) {
-                    console.error("Failed to start socket listener:", error);
+                    console.error(
+                        "Gagal memulai listener socket untuk posts:",
+                        error
+                    );
                 }
-
-                await cacheEntryRemoved;
-
-                console.log("Removing listeners and disconnecting socket.");
-                socket.off("newPost");
-                socket.off("postUpdated");
-                socket.off("postDeleted");
-                socket.disconnect();
             },
         }),
 
@@ -93,14 +87,6 @@ export const postsApi = rootApi.injectEndpoints({
                 method: "POST",
                 body: data,
             }),
-            async onQueryStarted(arg, { queryFulfilled }) {
-                console.log("--- addPost MUTATION STARTED ---");
-                try {
-                    await queryFulfilled;
-                } catch (err) {
-                    console.error("Failed to run addPost mutation:", err);
-                }
-            },
         }),
 
         deletePost: builder.mutation({
@@ -108,7 +94,6 @@ export const postsApi = rootApi.injectEndpoints({
                 url: `posts/${postId}/deletePost`,
                 method: "DELETE",
             }),
-            invalidatesTags: ["POST"],
         }),
 
         editPost: builder.mutation({

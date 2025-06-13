@@ -6,7 +6,7 @@ import {
     setPersistence,
     signInWithPopup,
 } from "firebase/auth";
-import { auth, gitHubProvider, googleProvider } from "../firebase/firebase";
+import { auth, gitHubProvider, googleProvider } from "../firebase/firebase.js";
 import { useNavigate } from "react-router-dom";
 import { KeyRound } from "lucide-react";
 
