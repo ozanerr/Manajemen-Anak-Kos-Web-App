@@ -21,7 +21,7 @@ export default function SignIn() {
             if (user) {
                 navigate("/");
             }
-            // console.log(user);
+            console.log(user);
         } catch (error) {
             console.error("Google Sign-In Error:", error);
         }
@@ -35,7 +35,7 @@ export default function SignIn() {
             if (user) {
                 navigate("/");
             }
-            // console.log(user);
+            console.log(user);
         } catch (error) {
             console.error("GitHub Sign-In Error:", error);
         }
