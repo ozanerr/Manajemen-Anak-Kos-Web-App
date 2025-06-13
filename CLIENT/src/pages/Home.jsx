@@ -20,7 +20,7 @@ import { ProfileStatItem } from "../components/homeComponents/ProfileStatItem";
 import DiscussionCard from "../components/homeComponents/DiscussionCard";
 
 const Home = () => {
-    const { displayName, photoURL, isloggedIn, isAuthLoading, uid } =
+    const { displayName, photoURL, isloggedIn, isAuthLoading, uid, payload } =
         useSelector((state) => state.user);
     const navigate = useNavigate();
 
