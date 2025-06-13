@@ -1,6 +1,8 @@
 import { io } from "socket.io-client";
 
-const URL = "https://manajemen-anak-kos-web-app-production.up.railway.app";
+//untuk web socker url jadi "/"
+//karena url di setting di vite.config.js
+const URL = "/";
 
 export const socket = io(URL, {
     autoConnect: false,
