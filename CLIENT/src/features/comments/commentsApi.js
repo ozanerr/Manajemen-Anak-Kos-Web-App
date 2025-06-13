@@ -75,7 +75,6 @@ export const commentsApi = rootApi.injectEndpoints({
                 method: "POST",
                 body: data,
             }),
-            invalidatesTags: ["COMMENT"],
         }),
 
         deleteComment: builder.mutation({
@@ -83,7 +82,6 @@ export const commentsApi = rootApi.injectEndpoints({
                 url: `comments/${postId}/${commentId}/deleteComment`,
                 method: "DELETE",
             }),
-            invalidatesTags: ["COMMENT"],
         }),
 
         editComment: builder.mutation({
@@ -92,7 +90,6 @@ export const commentsApi = rootApi.injectEndpoints({
                 method: "PUT",
                 body: data,
             }),
-            invalidatesTags: ["COMMENT"],
         }),
 
         addReply: builder.mutation({
@@ -101,7 +98,6 @@ export const commentsApi = rootApi.injectEndpoints({
                 method: "POST",
                 body: data,
             }),
-            invalidatesTags: ["REPLY"],
         }),
 
         getReplies: builder.query({
@@ -179,7 +175,6 @@ export const commentsApi = rootApi.injectEndpoints({
                 method: "PUT",
                 body: data,
             }),
-            invalidatesTags: ["REPLY"],
         }),
 
         deleteReply: builder.mutation({
@@ -187,7 +182,6 @@ export const commentsApi = rootApi.injectEndpoints({
                 url: `comments/${postId}/${commentId}/${replyId}/deleteReply`,
                 method: "DELETE",
             }),
-            invalidatesTags: ["REPLY"],
         }),
     }),
 });
