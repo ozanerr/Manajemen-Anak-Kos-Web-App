@@ -62,7 +62,6 @@ export const commentsApi = rootApi.injectEndpoints({
                     socket.off("newComment", newCommentListener);
                     socket.off("commentUpdated", commentUpdatedListener);
                     socket.off("commentDeleted", commentDeletedListener);
-                    socket.disconnect();
                 } catch (error) {
                     console.error("Failed to start socket listener:", error);
                 }
