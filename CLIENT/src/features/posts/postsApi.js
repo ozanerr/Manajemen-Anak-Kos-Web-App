@@ -22,7 +22,6 @@ export const postsApi = rootApi.injectEndpoints({
                             if (!draft || !draft.data) return;
 
                             if (event === "newPost") {
-                                // Guard anti-duplikasi
                                 if (
                                     !draft.data.some((p) => p._id === data._id)
                                 ) {
@@ -58,7 +57,6 @@ export const postsApi = rootApi.injectEndpoints({
 
                     await cacheEntryRemoved;
 
-                    // Hanya hapus listener, jangan disconnect socket
                     socket.off("newPost", newPostListener);
                     socket.off("postUpdated", postUpdatedListener);
                     socket.off("postDeleted", postDeletedListener);

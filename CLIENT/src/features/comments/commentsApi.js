@@ -5,7 +5,6 @@ export const commentsApi = rootApi.injectEndpoints({
     endpoints: (builder) => ({
         fetchComments: builder.query({
             query: (postId) => `/comments/${postId}/comments`,
-            providesTags: ["COMMENT"],
             async onCacheEntryAdded(
                 arg,
                 { updateCachedData, cacheDataLoaded, cacheEntryRemoved }
@@ -104,7 +103,6 @@ export const commentsApi = rootApi.injectEndpoints({
                 url: `comments/${postId}/${commentId}/replies`,
                 method: "GET",
             }),
-            providesTags: ["REPLY"],
             async onCacheEntryAdded(
                 arg,
                 { updateCachedData, cacheDataLoaded, cacheEntryRemoved }
