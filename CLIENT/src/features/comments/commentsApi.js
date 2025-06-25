@@ -9,6 +9,9 @@ export const commentsApi = rootApi.injectEndpoints({
                 arg,
                 { updateCachedData, cacheDataLoaded, cacheEntryRemoved }
             ) {
+                if (!socket.connected) {
+                    socket.connect();
+                }
                 const postId = arg;
 
                 socket.emit("joinPostRoom", postId);
@@ -107,6 +110,9 @@ export const commentsApi = rootApi.injectEndpoints({
                 arg,
                 { updateCachedData, cacheDataLoaded, cacheEntryRemoved }
             ) {
+                if (!socket.connected) {
+                    socket.connect();
+                }
                 const { commentId } = arg;
 
                 try {
