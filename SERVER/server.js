@@ -25,10 +25,13 @@ app.use(express.json());
 app.use(cors());
 
 const server = http.createServer(app);
-
+const allowedOrigins = [
+    "https://aturin-ten.vercel.app",
+    "http://localhost:5173",
+];
 const io = new Server(server, {
     cors: {
-        origin: "https://aturin-ten.vercel.app",
+        origin: allowedOrigins,
         methods: ["GET", "POST"],
     },
 });
