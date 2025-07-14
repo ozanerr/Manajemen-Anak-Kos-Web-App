@@ -7,7 +7,7 @@ export default defineConfig({
     server: {
         proxy: {
             "/socket.io": {
-                target: "https://manajemen-anak-kos-web-app-production.up.railway.app",
+                target: "https://manajemen-anak-kos-web-app-service-607494574887.asia-southeast1.run.app",
                 ws: true,
             },
         },
